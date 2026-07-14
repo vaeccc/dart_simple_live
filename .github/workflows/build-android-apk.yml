@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android Release APK
 
 on:
   workflow_dispatch:
@@ -30,21 +30,41 @@ jobs:
           flutter-version: 3.38.3
           cache: true
 
+      - name: Configure release signing
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          test -n "$KEYSTORE_BASE64" || { echo "::error::Missing KEYSTORE_BASE64 repository secret."; exit 1; }
+          test -n "$STORE_PASSWORD" || { echo "::error::Missing STORE_PASSWORD repository secret."; exit 1; }
+          test -n "$KEY_PASSWORD" || { echo "::error::Missing KEY_PASSWORD repository secret."; exit 1; }
+          test -n "$KEY_ALIAS" || { echo "::error::Missing KEY_ALIAS repository secret."; exit 1; }
+          key_store="$RUNNER_TEMP/simple-live-release.jks"
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$key_store"
+          cat > simple_live_app/android/key.properties <<EOF
+          storeFile=$key_store
+          storePassword=$STORE_PASSWORD
+          keyPassword=$KEY_PASSWORD
+          keyAlias=$KEY_ALIAS
+          EOF
+
       - name: Restore Dart packages
         working-directory: simple_live_app
         run: flutter pub get
 
-      - name: Build debug APKs
+      - name: Build release APKs
         working-directory: simple_live_app
-        run: flutter build apk --debug --split-per-abi
+        run: flutter build apk --release --split-per-abi
 
       - name: Upload APKs
         uses: actions/upload-artifact@v4
         with:
-          name: simple-live-debug-apks
+          name: simple-live-release-apks
           path: |
-            simple_live_app/build/app/outputs/flutter-apk/app-armeabi-v7a-debug.apk
-            simple_live_app/build/app/outputs/flutter-apk/app-arm64-v8a-debug.apk
-            simple_live_app/build/app/outputs/flutter-apk/app-x86_64-debug.apk
+            simple_live_app/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+            simple_live_app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+            simple_live_app/build/app/outputs/flutter-apk/app-x86_64-release.apk
           if-no-files-found: error
           retention-days: 14
