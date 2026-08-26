@@ -102,6 +102,47 @@ class YySite extends LiveSite {
     return YyStreamData(urls: urls);
   }
 
+  @override
+  Future<List<LiveCategory>> getCategores() {
+    return Future.value([
+      LiveCategory(
+        id: 'entertainment',
+        name: '娱乐',
+        children: [
+          LiveSubCategory(id: 'music', name: '音乐', parentId: 'entertainment'),
+          LiveSubCategory(id: 'show', name: '脱口秀', parentId: 'entertainment'),
+          LiveSubCategory(id: 'dancing', name: '舞蹈', parentId: 'entertainment'),
+          LiveSubCategory(id: 'travel', name: '户外', parentId: 'entertainment'),
+          LiveSubCategory(id: 'pretty', name: '颜值', parentId: 'entertainment'),
+          LiveSubCategory(id: 'mc', name: '喊麦', parentId: 'entertainment'),
+          LiveSubCategory(id: 'sport', name: '体育', parentId: 'entertainment'),
+        ],
+      ),
+      LiveCategory(
+        id: 'game',
+        name: '游戏',
+        children: [
+          LiveSubCategory(id: 'game', name: '王者荣耀', parentId: 'game'),
+          LiveSubCategory(id: 'chicken/cjzc', name: '和平精英', parentId: 'game'),
+          LiveSubCategory(id: 'chicken/lol', name: '英雄联盟', parentId: 'game'),
+          LiveSubCategory(id: 'djry', name: '综合游戏', parentId: 'game'),
+        ],
+      ),
+      LiveCategory(
+        id: 'other',
+        name: '其他',
+        children: [
+          LiveSubCategory(id: 'others/zonghe', name: '综合', parentId: 'other'),
+          LiveSubCategory(
+            id: 'others/mobilelive',
+            name: '手机直播',
+            parentId: 'other',
+          ),
+        ],
+      ),
+    ]);
+  }
+
   /// Parses the public homepage's embedded recommendation payload.
   ///
   /// YY renders room cards server-side, so this avoids relying on an
@@ -177,6 +218,26 @@ class YySite extends LiveSite {
     final end = (start + pageSize).clamp(start, allItems.length);
     final items = allItems.sublist(start, end);
     CoreLog.d('[YY] recommendation page=$page, item count=${items.length}');
+    return LiveCategoryResult(hasMore: end < allItems.length, items: items);
+  }
+
+  @override
+  Future<LiveCategoryResult> getCategoryRooms(
+    LiveSubCategory category, {
+    int page = 1,
+  }) async {
+    final html = await HttpClient.instance.getText(
+      '$_baseUrl/${category.id}',
+      header: const {'User-Agent': _userAgent},
+    );
+    final allItems = parseRecommendRooms(html);
+    const pageSize = 20;
+    final start = (page - 1).clamp(0, allItems.length);
+    final end = (start + pageSize).clamp(start, allItems.length);
+    final items = allItems.sublist(start, end);
+    CoreLog.d(
+      '[YY] category=${category.id}, page=$page, item count=${items.length}',
+    );
     return LiveCategoryResult(hasMore: end < allItems.length, items: items);
   }
 
