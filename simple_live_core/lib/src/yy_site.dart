@@ -207,12 +207,7 @@ class YySite extends LiveSite {
 
   @override
   Future<LiveCategoryResult> getRecommendRooms({int page = 1}) async {
-    final html = await HttpClient.instance.getText(
-      _baseUrl,
-      queryParameters: const {'ch': 'new'},
-      header: const {'User-Agent': _userAgent},
-    );
-    final allItems = parseRecommendRooms(html);
+    final allItems = await _getHomepageRecommendationRooms();
     const pageSize = 20;
     final start = (page - 1).clamp(0, allItems.length);
     final end = (start + pageSize).clamp(start, allItems.length);
@@ -230,7 +225,16 @@ class YySite extends LiveSite {
       '$_baseUrl/${category.id}',
       header: const {'User-Agent': _userAgent},
     );
-    final allItems = parseRecommendRooms(html);
+    var allItems = parseRecommendRooms(html);
+    // Category pages are client-rendered and periodically omit their room
+    // payload from the HTML. Keep the UI useful instead of displaying a blank
+    // page while YY serves that variant.
+    if (allItems.isEmpty) {
+      CoreLog.d(
+        '[YY] category=${category.id} returned no cards; using homepage fallback',
+      );
+      allItems = await _getHomepageRecommendationRooms();
+    }
     const pageSize = 20;
     final start = (page - 1).clamp(0, allItems.length);
     final end = (start + pageSize).clamp(start, allItems.length);
@@ -239,6 +243,35 @@ class YySite extends LiveSite {
       '[YY] category=${category.id}, page=$page, item count=${items.length}',
     );
     return LiveCategoryResult(hasMore: end < allItems.length, items: items);
+  }
+
+  @override
+  Future<LiveSearchRoomResult> searchRooms(
+    String keyword, {
+    int page = 1,
+  }) async {
+    if (page != 1) {
+      return LiveSearchRoomResult(hasMore: false, items: []);
+    }
+    try {
+      final roomId = parseRoomId(keyword);
+      final detail = await getRoomDetail(roomId: roomId);
+      return LiveSearchRoomResult(
+        hasMore: false,
+        items: [
+          LiveRoomItem(
+            roomId: detail.roomId,
+            title: detail.title.isEmpty ? detail.userName : detail.title,
+            cover: detail.cover,
+            userName: detail.userName,
+            online: detail.online,
+          ),
+        ],
+      );
+    } catch (error) {
+      CoreLog.d('[YY] room-number search failed: $error');
+      return LiveSearchRoomResult(hasMore: false, items: []);
+    }
   }
 
   @override
@@ -321,6 +354,15 @@ class YySite extends LiveSite {
       header: const {'User-Agent': _userAgent},
     );
     return parseRoomPage(html);
+  }
+
+  Future<List<LiveRoomItem>> _getHomepageRecommendationRooms() async {
+    final html = await HttpClient.instance.getText(
+      _baseUrl,
+      queryParameters: const {'ch': 'new'},
+      header: const {'User-Agent': _userAgent},
+    );
+    return parseRecommendRooms(html);
   }
 
   Future<YyStreamData> _getStreams(String roomId) async {
