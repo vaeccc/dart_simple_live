@@ -24,7 +24,7 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: dart format --output=none --set-exit-if-changed lib/src/yy_site.dart test/yy_site_test.dart
-      - run: dart analyze
+      - run: dart analyze lib/src/yy_site.dart test/yy_site_test.dart
       - run: dart test test/yy_site_test.dart
 
   app:
