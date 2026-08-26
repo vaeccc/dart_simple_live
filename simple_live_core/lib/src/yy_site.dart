@@ -102,11 +102,82 @@ class YySite extends LiveSite {
     return YyStreamData(urls: urls);
   }
 
+  /// Parses the public homepage's embedded recommendation payload.
+  ///
+  /// YY renders room cards server-side, so this avoids relying on an
+  /// undocumented private recommendation endpoint. The payload is HTML-escaped
+  /// JSON in the `data-placeholder` script element.
+  static List<LiveRoomItem> parseRecommendRooms(String html) {
+    final payload = RegExp(
+      r'''<script[^>]*id=["']data-placeholder["'][^>]*>([\s\S]*?)</script>''',
+      caseSensitive: false,
+    ).firstMatch(html)?.group(1);
+    if (payload == null || payload.trim().isEmpty) return [];
+
+    dynamic decoded;
+    try {
+      decoded = jsonDecode(_decodeHtmlEntities(payload.trim()));
+    } on FormatException {
+      return [];
+    }
+
+    final items = <LiveRoomItem>[];
+    final seenRoomIds = <String>{};
+
+    void visit(dynamic value) {
+      if (value is List) {
+        for (final child in value) {
+          visit(child);
+        }
+        return;
+      }
+      if (value is! Map) return;
+
+      final roomId = (value['sid'] ?? value['ssid'])?.toString() ?? '';
+      final cover = _toHttps(
+        (value['thumb'] ?? value['snapshot'] ?? value['img'])?.toString() ?? '',
+      );
+      final userName = value['name']?.toString() ?? '';
+      if (RegExp(r'^\d+$').hasMatch(roomId) &&
+          cover.isNotEmpty &&
+          userName.isNotEmpty &&
+          seenRoomIds.add(roomId)) {
+        items.add(
+          LiveRoomItem(
+            roomId: roomId,
+            title: value['desc']?.toString().trim().isNotEmpty == true
+                ? value['desc'].toString()
+                : userName,
+            cover: cover,
+            userName: userName,
+            online: _asInt(value['users']),
+          ),
+        );
+      }
+
+      for (final child in value.values) {
+        visit(child);
+      }
+    }
+
+    visit(decoded);
+    return items;
+  }
+
   @override
-  Future<LiveCategoryResult> getRecommendRooms({int page = 1}) {
-    // YY's public recommendation API is not used in the first version. An
-    // empty result is intentional: favorites and pasted room links still work.
-    return Future.value(LiveCategoryResult(hasMore: false, items: []));
+  Future<LiveCategoryResult> getRecommendRooms({int page = 1}) async {
+    final html = await HttpClient.instance.getText(
+      _baseUrl,
+      queryParameters: const {'ch': 'new'},
+      header: const {'User-Agent': _userAgent},
+    );
+    final allItems = parseRecommendRooms(html);
+    const pageSize = 20;
+    final start = (page - 1).clamp(0, allItems.length);
+    final end = (start + pageSize).clamp(start, allItems.length);
+    final items = allItems.sublist(start, end);
+    CoreLog.d('[YY] recommendation page=$page, item count=${items.length}');
+    return LiveCategoryResult(hasMore: end < allItems.length, items: items);
   }
 
   @override
@@ -285,7 +356,21 @@ class YySite extends LiveSite {
     }
   }
 
+  static String _decodeHtmlEntities(String value) {
+    return value
+        .replaceAll('&#034;', '"')
+        .replaceAll('&#39;', "'")
+        .replaceAll('&quot;', '"')
+        .replaceAll('&amp;', '&');
+  }
+
+  static int _asInt(dynamic value) {
+    if (value is int) return value;
+    return int.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
   static String _toHttps(String value) {
+    if (value.startsWith('//')) return 'https:$value';
     return value.startsWith('http://')
         ? 'https://${value.substring(7)}'
         : value;

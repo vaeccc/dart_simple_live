@@ -61,5 +61,19 @@ void main() {
     test('treats a successful response without stream lines as offline', () {
       expect(YySite.parseStreamResponse({'result': 0}).urls, isEmpty);
     });
+
+    test('parses homepage recommendation cards', () {
+      const html = '''
+<script id="data-placeholder" type="text">
+[{&#034;data&#034;:[{&#034;sid&#034;:22490906,&#034;name&#034;:&#034;主播A&#034;,&#034;desc&#034;:&#034;正在跳舞&#034;,&#034;users&#034;:5280,&#034;thumb&#034;:&#034;//example.invalid/cover.jpg&#034;}]}]
+</script>
+''';
+      final rooms = YySite.parseRecommendRooms(html);
+      expect(rooms, hasLength(1));
+      expect(rooms.single.roomId, '22490906');
+      expect(rooms.single.title, '正在跳舞');
+      expect(rooms.single.cover, 'https://example.invalid/cover.jpg');
+      expect(rooms.single.online, 5280);
+    });
   });
 }
