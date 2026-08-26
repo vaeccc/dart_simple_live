@@ -102,6 +102,29 @@ class YySite extends LiveSite {
     return YyStreamData(urls: urls);
   }
 
+  /// Parses the JSONP payload returned by YY's mobile HLS endpoint.
+  ///
+  /// Unlike stream-manager, this endpoint returns a ready-to-play playlist and
+  /// has proved more reliable on mobile networks. `hls: 0` means the room is
+  /// offline.
+  static YyStreamData parseHlsResponse(String payload) {
+    final value = payload.trim();
+    final start = value.indexOf('(');
+    final end = value.lastIndexOf(')');
+    final json = start >= 0 && end > start
+        ? value.substring(start + 1, end)
+        : value;
+    final response = jsonDecode(json);
+    if (response is! Map) {
+      throw const FormatException('YY HLS 返回的不是 JSON 对象');
+    }
+    final hls = response['hls']?.toString() ?? '';
+    if (!hls.startsWith('http')) {
+      return const YyStreamData(urls: []);
+    }
+    return YyStreamData(urls: [hls]);
+  }
+
   @override
   Future<List<LiveCategory>> getCategores() {
     return Future.value([
@@ -339,9 +362,9 @@ class YySite extends LiveSite {
     return Future.value(
       LivePlayUrl(
         urls: urls,
-        headers: const {
+        headers: {
           'User-Agent': _userAgent,
-          'Referer': _baseUrl,
+          'Referer': '$_baseUrl/${detail.roomId}',
           'Origin': _baseUrl,
         },
       ),
@@ -366,6 +389,28 @@ class YySite extends LiveSite {
   }
 
   Future<YyStreamData> _getStreams(String roomId) async {
+    try {
+      return await _getHlsStreams(roomId);
+    } catch (error) {
+      // YY's legacy HLS endpoint is normally more stable, but retain the
+      // current web endpoint as a fallback when it is temporarily unavailable.
+      CoreLog.d(
+        '[YY] HLS endpoint failed, falling back to stream-manager: $error',
+      );
+      return _getFlvStreams(roomId);
+    }
+  }
+
+  Future<YyStreamData> _getHlsStreams(String roomId) async {
+    final response = await HttpClient.instance.getText(
+      'https://interface.yy.com/hls/new/get/$roomId/$roomId/8000',
+      queryParameters: const {'source': 'pc', 'callback': 'jsonp3'},
+      header: {'User-Agent': _userAgent, 'Referer': '$_baseUrl/$roomId'},
+    );
+    return parseHlsResponse(response);
+  }
+
+  Future<YyStreamData> _getFlvStreams(String roomId) async {
     final now = DateTime.now().millisecondsSinceEpoch;
     final response = await HttpClient.instance.postJson(
       'https://stream-manager.yy.com/v3/channel/streams',

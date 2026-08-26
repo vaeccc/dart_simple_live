@@ -58,6 +58,17 @@ void main() {
       ]);
     });
 
+    test('parses the direct HLS playlist from a JSONP response', () {
+      const response = 'jsonp3({"hls":"https://example.invalid/live.m3u8"})';
+      expect(YySite.parseHlsResponse(response).urls, [
+        'https://example.invalid/live.m3u8',
+      ]);
+    });
+
+    test('treats a disabled HLS response as offline', () {
+      expect(YySite.parseHlsResponse('jsonp3({"hls":0})').urls, isEmpty);
+    });
+
     test('treats a successful response without stream lines as offline', () {
       expect(YySite.parseStreamResponse({'result': 0}).urls, isEmpty);
     });
