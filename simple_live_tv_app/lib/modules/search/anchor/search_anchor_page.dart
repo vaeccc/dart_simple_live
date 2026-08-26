@@ -82,6 +82,7 @@ class SearchAnchorPage extends GetView<SearchAnchorController> {
                         e.logo,
                         width: 48.w,
                         height: 48.w,
+                        fit: BoxFit.contain,
                       ),
                       text: e.name,
                       selected: controller.siteId.value == e.id,

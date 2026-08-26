@@ -98,6 +98,9 @@ Future printDanmaku(String url) async {
 }
 
 List parseUrl(String url) {
+  if (RegExp(r'^\d+$').hasMatch(url.trim())) {
+    return [YySite(), YySite.parseRoomId(url)];
+  }
   if (url.contains("bilibili.com")) {
     var id =
         RegExp(r"bilibili\.com/([\d|\w]+)").firstMatch(url)?.group(1) ?? "";
@@ -115,6 +118,9 @@ List parseUrl(String url) {
     var id =
         RegExp(r"live\.douyin\.com/([\d|\w]+)").firstMatch(url)?.group(1) ?? "";
     return [DouyinSite(), id];
+  }
+  if (url.contains("yy.com")) {
+    return [YySite(), YySite.parseRoomId(url)];
   }
   throw Exception("链接解析失败");
 }

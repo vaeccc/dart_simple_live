@@ -1,0 +1,17 @@
+{
+  "result": 0,
+  "avp_info_res": {
+    "stream_line_addr": {
+      "line_a": {
+        "cdn_info": {
+          "url": "https://example.invalid/live-a.flv"
+        }
+      },
+      "line_b": {
+        "cdn_info": {
+          "url": "https://example.invalid/live-b.flv"
+        }
+      }
+    }
+  }
+}

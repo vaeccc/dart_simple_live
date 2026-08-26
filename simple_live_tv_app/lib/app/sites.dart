@@ -31,6 +31,13 @@ class Sites {
       liveSite: DouyinSite(),
       index: 3,
     ),
+    "yy": Site(
+      id: "yy",
+      logo: "assets/images/yy.png",
+      name: "YY直播",
+      liveSite: YySite(),
+      index: 4,
+    ),
   };
 
   static List<Site> get supportSites {

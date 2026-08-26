@@ -80,6 +80,7 @@ class HotLivePage extends GetView<HotliveController> {
                         e.logo,
                         width: 48.w,
                         height: 48.w,
+                        fit: BoxFit.contain,
                       ),
                       text: e.name,
                       selected: controller.siteId.value == e.id,

@@ -21,7 +21,7 @@ class ParseController extends GetxController {
     FocusManager.instance.primaryFocus?.unfocus();
 
     var parseResult = await parse(e);
-    if (parseResult.isEmpty && parseResult.first == "") {
+    if (parseResult.isEmpty || parseResult.first == "") {
       SmartDialog.showToast("无法解析此链接");
       return;
     }
@@ -39,7 +39,7 @@ class ParseController extends GetxController {
       return;
     }
     var parseResult = await parse(e);
-    if (parseResult.isEmpty && parseResult.first == "") {
+    if (parseResult.isEmpty || parseResult.first == "") {
       SmartDialog.showToast("无法解析此链接");
       return;
     }
@@ -108,6 +108,9 @@ class ParseController extends GetxController {
 
   Future<List> parse(String url) async {
     var id = "";
+    if (RegExp(r'^\d+$').hasMatch(url.trim())) {
+      return [YySite.parseRoomId(url), Sites.allSites[Constant.kYy]!];
+    }
     if (url.contains("bilibili.com")) {
       var regExp = RegExp(r"bilibili\.com/([\d|\w]+)");
       id = regExp.firstMatch(url)?.group(1) ?? "";
@@ -154,6 +157,9 @@ class ParseController extends GetxController {
       var u = regExp.firstMatch(url)?.group(0) ?? "";
       var location = await getLocation(u);
       return await parse(location);
+    }
+    if (url.contains("yy.com")) {
+      return [YySite.parseRoomId(url), Sites.allSites[Constant.kYy]!];
     }
 
     return [];

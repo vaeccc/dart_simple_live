@@ -70,6 +70,7 @@ class IndexedSettingsPage extends GetView<IndexedSettingsController> {
                         e.logo,
                         width: 24,
                         height: 24,
+                        fit: BoxFit.contain,
                       ),
                       trailing: const Icon(Icons.drag_handle),
                     );

@@ -28,6 +28,12 @@ class Sites {
       name: "抖音直播",
       liveSite: DouyinSite(),
     ),
+    Constant.kYy: Site(
+      id: Constant.kYy,
+      logo: "assets/images/yy.png",
+      name: "YY直播",
+      liveSite: YySite(),
+    ),
   };
 
   static List<Site> get supportSites {
