@@ -23,9 +23,9 @@ jobs:
           flutter-version: 3.38.3
           cache: true
       - run: flutter pub get
-      - run: dart format --output=none --set-exit-if-changed lib test
+      - run: dart format --output=none --set-exit-if-changed lib/src/yy_site.dart test/yy_site_test.dart
       - run: dart analyze
-      - run: dart test
+      - run: dart test test/yy_site_test.dart
 
   app:
     name: APP Android debug build

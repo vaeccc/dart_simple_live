@@ -2,22 +2,20 @@ import 'dart:convert';
 
 import 'package:simple_live_core/simple_live_core.dart';
 import 'package:simple_live_core/src/common/http_client.dart';
-import 'package:simple_live_core/src/model/live_category_result.dart';
 
 /// YY 直播站点。
 ///
 /// YY 暂未实现弹幕；继承 [LiveSite] 的默认无弹幕实现，播放器仍可正常启动。
 class YySite extends LiveSite {
+  YySite() {
+    id = 'yy';
+    name = 'YY直播';
+  }
+
   static const _baseUrl = 'https://www.yy.com';
   static const _userAgent =
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
       '(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
-
-  @override
-  String id = 'yy';
-
-  @override
-  String name = 'YY直播';
 
   /// Extracts a YY room id from a numeric id or a canonical YY room URL.
   ///
@@ -39,8 +37,9 @@ class YySite extends LiveSite {
         (uri.host != 'www.yy.com' && uri.host != 'yy.com')) {
       throw const FormatException('不是有效的 YY 直播间链接');
     }
-    final segments =
-        uri.pathSegments.where((segment) => segment.isNotEmpty).toList();
+    final segments = uri.pathSegments
+        .where((segment) => segment.isNotEmpty)
+        .toList();
     if (segments.isEmpty || !RegExp(r'^\d+$').hasMatch(segments.first)) {
       throw const FormatException('YY 链接中缺少数字房间号');
     }
@@ -50,15 +49,14 @@ class YySite extends LiveSite {
   /// Parses the small structured [pageInfo] block embedded in a YY room page.
   /// Kept public so response fixtures can test page parsing without HTTP.
   static YyRoomPageData parseRoomPage(String html) {
-    final pageInfo = RegExp(r'var\s+pageInfo\s*=\s*\{([\s\S]*?)\n\s*\};')
-            .firstMatch(html)
-            ?.group(1) ??
+    final pageInfo =
+        RegExp(
+          r'var\s+pageInfo\s*=\s*\{([\s\S]*?)\n\s*\};',
+        ).firstMatch(html)?.group(1) ??
         html;
     final sid = _findScriptValue(pageInfo, 'sid');
     if (sid == null || !RegExp(r'^\d+$').hasMatch(sid)) {
-      throw const FormatException(
-        'YY 页面未包含有效 sid，房间可能不存在或页面结构已变更',
-      );
+      throw const FormatException('YY 页面未包含有效 sid，房间可能不存在或页面结构已变更');
     }
     final roomName = _findScriptValue(pageInfo, 'roomName') ?? '';
     final nick = _findScriptValue(pageInfo, 'nick') ?? '';
@@ -118,8 +116,10 @@ class YySite extends LiveSite {
     final pageData = await _getRoomPage(parsedRoomId);
     final streamData = await _getStreams(pageData.roomId);
     final status = streamData.urls.isNotEmpty;
-    CoreLog.d('[YY] room status=${status ? 'live' : 'offline'}, '
-        'stream count=${streamData.urls.length}');
+    CoreLog.d(
+      '[YY] room status=${status ? 'live' : 'offline'}, '
+      'stream count=${streamData.urls.length}',
+    );
 
     return LiveRoomDetail(
       roomId: pageData.roomId,
@@ -151,10 +151,7 @@ class YySite extends LiveSite {
     // stream-manager does not expose a stable display label in every response.
     // Keep one extensible default quality rather than hard-coding bitrates.
     return Future.value([
-      LivePlayQuality(
-        quality: '默认',
-        data: List<String>.from(streamData.urls),
-      ),
+      LivePlayQuality(quality: '默认', data: List<String>.from(streamData.urls)),
     ]);
   }
 
@@ -174,14 +171,16 @@ class YySite extends LiveSite {
     if (urls.isEmpty) {
       throw StateError('YY 未返回可播放的 FLV 地址');
     }
-    return Future.value(LivePlayUrl(
-      urls: urls,
-      headers: const {
-        'User-Agent': _userAgent,
-        'Referer': _baseUrl,
-        'Origin': _baseUrl,
-      },
-    ));
+    return Future.value(
+      LivePlayUrl(
+        urls: urls,
+        headers: const {
+          'User-Agent': _userAgent,
+          'Referer': _baseUrl,
+          'Origin': _baseUrl,
+        },
+      ),
+    );
   }
 
   Future<YyRoomPageData> _getRoomPage(String roomId) async {
@@ -264,9 +263,9 @@ class YySite extends LiveSite {
       '$escapedKey\\s*:\\s*decodeURIComponent\\("([^"]*)"\\)',
     ).firstMatch(html)?.group(1);
     if (decoded != null) return _decodeUriComponent(decoded);
-    final plain = RegExp('$escapedKey\\s*:\\s*["\\\']([^"\\\']*)["\\\']')
-        .firstMatch(html)
-        ?.group(1);
+    final plain = RegExp(
+      '$escapedKey\\s*:\\s*["\\\']([^"\\\']*)["\\\']',
+    ).firstMatch(html)?.group(1);
     return plain == null ? null : _decodeJavaScriptString(plain);
   }
 

@@ -36,8 +36,9 @@ void main() {
 
   group('YY response parsers', () {
     test('parses the stable pageInfo fields', () {
-      final fixture =
-          File('test/fixtures/yy_room_page.html').readAsStringSync();
+      final fixture = File(
+        'test/fixtures/yy_room_page.html',
+      ).readAsStringSync();
       final page = YySite.parseRoomPage(fixture);
       expect(page.roomId, '12345678');
       expect(page.userName, '测试主播');
@@ -47,8 +48,9 @@ void main() {
     });
 
     test('parses FLV lines without retaining a real URL', () {
-      final fixture =
-          File('test/fixtures/yy_stream_response.json').readAsStringSync();
+      final fixture = File(
+        'test/fixtures/yy_stream_response.json',
+      ).readAsStringSync();
       final stream = YySite.parseStreamResponse(jsonDecode(fixture));
       expect(stream.urls, [
         'https://example.invalid/live-a.flv',

@@ -7,6 +7,7 @@ import 'package:simple_live_app/app/constant.dart';
 import 'package:simple_live_app/app/log.dart';
 import 'package:simple_live_app/app/sites.dart';
 import 'package:simple_live_app/routes/app_navigation.dart';
+import 'package:simple_live_core/simple_live_core.dart';
 
 class ParseController extends GetxController {
   final TextEditingController roomJumpToController = TextEditingController();
