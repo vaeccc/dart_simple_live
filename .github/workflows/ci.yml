@@ -42,6 +42,12 @@ jobs:
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter build apk --debug
+      - name: Upload APP debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: simple-live-app-debug-apk
+          path: simple_live_app/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
 
   tv:
     name: TV Android debug build
@@ -58,3 +64,9 @@ jobs:
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter build apk --debug
+      - name: Upload TV debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: simple-live-tv-debug-apk
+          path: simple_live_tv_app/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
