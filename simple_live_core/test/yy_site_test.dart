@@ -86,5 +86,27 @@ void main() {
       expect(rooms.single.cover, 'https://example.invalid/cover.jpg');
       expect(rooms.single.online, 5280);
     });
+
+    test('parses server-rendered category cards and pagination metadata', () {
+      const html = '''
+<div class="row-more" data-stat-bak3="308">
+  <li data-sid="12345678" data-ssid="12345678">
+    <a class="box" data-title="分类直播标题">
+      <img class="lazy" data-original="//example.invalid/cover.jpg" />
+      <span class="usr">14.2万</span>
+      <span class="intro">分类主播</span>
+    </a>
+  </li>
+</div>
+<script>var pageInfo = {pageBar: {totalPages:5, totalCount:251, pageSize:60, moduleId:308}};</script>
+''';
+      final rooms = YySite.parseCategoryRooms(html);
+      expect(rooms, hasLength(1));
+      expect(rooms.single.roomId, '12345678');
+      expect(rooms.single.cover, 'https://example.invalid/cover.jpg');
+      expect(rooms.single.online, 142000);
+      expect(YySite.parseCategoryModuleId(html), '308');
+      expect(YySite.parseCategoryTotalCount(html), 251);
+    });
   });
 }

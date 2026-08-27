@@ -228,6 +228,70 @@ class YySite extends LiveSite {
     return items;
   }
 
+  /// Parses the server-rendered room cards used by YY category pages.
+  static List<LiveRoomItem> parseCategoryRooms(String html) {
+    final items = <LiveRoomItem>[];
+    final seenRoomIds = <String>{};
+    final cards = RegExp(
+      r'''<li\b(?=[^>]*\bdata-sid=["']\d+["'])[^>]*>([\s\S]*?)</li>''',
+      caseSensitive: false,
+    ).allMatches(html);
+    for (final card in cards) {
+      final source = card.group(0) ?? '';
+      final body = card.group(1) ?? '';
+      final roomId = _htmlAttribute(source, 'data-sid');
+      if (!RegExp(r'^\d+$').hasMatch(roomId) || !seenRoomIds.add(roomId)) {
+        continue;
+      }
+      final cover = _toHttps(_htmlAttribute(body, 'data-original', tag: 'img'));
+      if (cover.isEmpty) continue;
+      final dataTitle = _htmlAttribute(body, 'data-title');
+      final title = dataTitle.isNotEmpty
+          ? dataTitle
+          : _htmlAttribute(body, 'title', tag: 'a');
+      final userName = _firstTagText(body, 'intro');
+      items.add(
+        LiveRoomItem(
+          roomId: roomId,
+          title: title.isEmpty ? userName : title,
+          cover: cover,
+          userName: userName.isEmpty ? title : userName,
+          online: _parseOnlineText(_firstTagText(body, 'usr')),
+        ),
+      );
+    }
+    return items;
+  }
+
+  /// Finds the module id that powers a category's paginated "more" page.
+  static String? parseCategoryModuleId(String html) {
+    final moreLink = RegExp(
+      r'''href=["'][^"']*/more/(\d+)''',
+      caseSensitive: false,
+    ).firstMatch(html)?.group(1);
+    if (moreLink != null) return moreLink;
+    final pageInfo = RegExp(
+      r'''pageBar\s*:\s*\{[\s\S]*?moduleId\s*:\s*["']?(\d+)''',
+      caseSensitive: false,
+    ).firstMatch(html)?.group(1);
+    if (pageInfo != null && pageInfo != '0') return pageInfo;
+    return RegExp(
+      r'''data-stat-bak3=["'](\d+)''',
+      caseSensitive: false,
+    ).firstMatch(html)?.group(1);
+  }
+
+  /// Reads YY category pagination metadata. Null means the page is not paged.
+  static int? parseCategoryTotalCount(String html) {
+    return int.tryParse(
+      RegExp(
+            r'''pageBar\s*:\s*\{[\s\S]*?totalCount\s*:\s*(\d+)''',
+            caseSensitive: false,
+          ).firstMatch(html)?.group(1) ??
+          '',
+    );
+  }
+
   @override
   Future<LiveCategoryResult> getRecommendRooms({int page = 1}) async {
     final allItems = await _getHomepageRecommendationRooms();
@@ -244,28 +308,41 @@ class YySite extends LiveSite {
     LiveSubCategory category, {
     int page = 1,
   }) async {
-    final html = await HttpClient.instance.getText(
+    const pageSize = 20;
+    const sourcePageSize = 60;
+    final categoryHtml = await HttpClient.instance.getText(
       '$_baseUrl/${category.id}',
       header: const {'User-Agent': _userAgent},
     );
-    var allItems = parseRecommendRooms(html);
-    // Category pages are client-rendered and periodically omit their room
-    // payload from the HTML. Keep the UI useful instead of displaying a blank
-    // page while YY serves that variant.
-    if (allItems.isEmpty) {
-      CoreLog.d(
-        '[YY] category=${category.id} returned no cards; using homepage fallback',
-      );
-      allItems = await _getHomepageRecommendationRooms();
-    }
-    const pageSize = 20;
-    final start = (page - 1).clamp(0, allItems.length);
+    final moduleId = parseCategoryModuleId(categoryHtml);
+    final sourcePage =
+        ((page - 1).clamp(0, 1 << 30) * pageSize) ~/ sourcePageSize + 1;
+    final html = moduleId == null
+        ? categoryHtml
+        : await HttpClient.instance.getText(
+            '$_baseUrl/${category.id}/more/$moduleId',
+            queryParameters: {'page': sourcePage},
+            header: const {'User-Agent': _userAgent},
+          );
+    final allItems = parseCategoryRooms(html);
+    final start = (page - 1).remainder(sourcePageSize ~/ pageSize) * pageSize;
     final end = (start + pageSize).clamp(start, allItems.length);
-    final items = allItems.sublist(start, end);
+    final items = start >= allItems.length
+        ? <LiveRoomItem>[]
+        : allItems.sublist(start, end);
+    final totalCount = parseCategoryTotalCount(html);
+    final deliveredCount = (page - 1) * pageSize + items.length;
+    final hasMore = totalCount != null
+        ? deliveredCount < totalCount
+        : end < allItems.length;
+    if (items.isEmpty && page == 1) {
+      CoreLog.d('[YY] category=${category.id} returned no live cards');
+    }
     CoreLog.d(
-      '[YY] category=${category.id}, page=$page, item count=${items.length}',
+      '[YY] category=${category.id}, page=$page, sourcePage=$sourcePage, '
+      'item count=${items.length}',
     );
-    return LiveCategoryResult(hasMore: end < allItems.length, items: items);
+    return LiveCategoryResult(hasMore: hasMore, items: items);
   }
 
   @override
@@ -515,6 +592,45 @@ class YySite extends LiveSite {
   static int _asInt(dynamic value) {
     if (value is int) return value;
     return int.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  static String _htmlAttribute(String html, String name, {String? tag}) {
+    final tagPrefix = tag == null ? r'<[^>]*' : '<$tag\\b[^>]*';
+    final expression =
+        '$tagPrefix\\b${RegExp.escape(name)}\\s*=\\s*'
+        r'''["']([^"']*)["']''';
+    return _decodeHtmlEntities(
+      RegExp(expression, caseSensitive: false).firstMatch(html)?.group(1) ?? '',
+    );
+  }
+
+  static String _firstTagText(String html, String className) {
+    final expression =
+        r'''<(?:span|div)\b[^>]*class=["'][^"']*\b'''
+        '${RegExp.escape(className)}'
+        r'''\b[^"']*["'][^>]*>([\s\S]*?)</(?:span|div)>''';
+    final value = RegExp(
+      expression,
+      caseSensitive: false,
+    ).firstMatch(html)?.group(1);
+    return _decodeHtmlEntities(
+      value?.replaceAll(RegExp(r'<[^>]+>'), '').trim() ?? '',
+    );
+  }
+
+  static int _parseOnlineText(String value) {
+    final normalized = value.replaceAll(',', '').trim();
+    final match = RegExp(r'([\d.]+)\s*([万亿]?)').firstMatch(normalized);
+    if (match == null) return 0;
+    final number = double.tryParse(match.group(1)!) ?? 0;
+    switch (match.group(2)) {
+      case '万':
+        return (number * 10000).round();
+      case '亿':
+        return (number * 100000000).round();
+      default:
+        return number.round();
+    }
   }
 
   static String _toHttps(String value) {
