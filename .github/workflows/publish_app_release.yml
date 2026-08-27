@@ -11,7 +11,7 @@ jobs:
       contents: write
     steps:
       #签出代码
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: master
 
@@ -148,7 +148,7 @@ jobs:
       contents: write
     steps:
       # 签出代码
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: master
       # 设置Flutter环境
@@ -215,7 +215,7 @@ jobs:
       contents: write
     steps:
       # 签出代码
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: master
       # 设置Flutter环境
