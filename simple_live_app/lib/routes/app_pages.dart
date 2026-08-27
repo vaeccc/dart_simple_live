@@ -29,6 +29,8 @@ import 'package:simple_live_app/modules/mine/account/bilibili/qr_login_controlle
 import 'package:simple_live_app/modules/mine/account/bilibili/qr_login_page.dart';
 import 'package:simple_live_app/modules/mine/account/bilibili/web_login_controller.dart';
 import 'package:simple_live_app/modules/mine/account/bilibili/web_login_page.dart';
+import 'package:simple_live_app/modules/mine/account/yy/web_login_controller.dart';
+import 'package:simple_live_app/modules/mine/account/yy/web_login_page.dart';
 import 'package:simple_live_app/modules/settings/appstyle_setting_page.dart';
 import 'package:simple_live_app/modules/settings/auto_exit_settings_page.dart';
 import 'package:simple_live_app/modules/settings/danmu_settings_page.dart';
@@ -63,25 +65,19 @@ class AppPages {
     GetPage(
       name: RoutePath.kHistory,
       page: () => const HistoryPage(),
-      bindings: [
-        BindingsBuilder.put(() => HistoryController()),
-      ],
+      bindings: [BindingsBuilder.put(() => HistoryController())],
     ),
     // 关注用户
     GetPage(
       name: RoutePath.kFollowUser,
       page: () => const FollowUserPage(),
-      bindings: [
-        BindingsBuilder.put(() => FollowUserController()),
-      ],
+      bindings: [BindingsBuilder.put(() => FollowUserController())],
     ),
     // 搜索
     GetPage(
       name: RoutePath.kSearch,
       page: () => const SearchPage(),
-      bindings: [
-        BindingsBuilder.put(() => AppSearchController()),
-      ],
+      bindings: [BindingsBuilder.put(() => AppSearchController())],
     ),
     //分类详情
     GetPage(
@@ -112,8 +108,9 @@ class AppPages {
     ),
     //外观设置
     GetPage(
-        name: RoutePath.kAppstyleSetting,
-        page: () => const AppstyleSettingPage()),
+      name: RoutePath.kAppstyleSetting,
+      page: () => const AppstyleSettingPage(),
+    ),
     //播放设置
     GetPage(
       name: RoutePath.kSettingsPlay,
@@ -128,74 +125,58 @@ class AppPages {
     GetPage(
       name: RoutePath.kTools,
       page: () => const ParsePage(),
-      bindings: [
-        BindingsBuilder.put(() => ParseController()),
-      ],
+      bindings: [BindingsBuilder.put(() => ParseController())],
     ),
     //关键词屏蔽
     GetPage(
       name: RoutePath.kSettingsDanmuShield,
       page: () => const DanmuShieldPage(),
-      bindings: [
-        BindingsBuilder.put(() => DanmuShieldController()),
-      ],
+      bindings: [BindingsBuilder.put(() => DanmuShieldController())],
     ),
     //主页设置
     GetPage(
       name: RoutePath.kSettingsIndexed,
       page: () => const IndexedSettingsPage(),
-      bindings: [
-        BindingsBuilder.put(() => IndexedSettingsController()),
-      ],
+      bindings: [BindingsBuilder.put(() => IndexedSettingsController())],
     ),
     //账号设置
     GetPage(
       name: RoutePath.kSettingsAccount,
       page: () => const AccountPage(),
-      bindings: [
-        BindingsBuilder.put(() => AccountController()),
-      ],
+      bindings: [BindingsBuilder.put(() => AccountController())],
     ),
     //哔哩哔哩Web登录
     GetPage(
       name: RoutePath.kBiliBiliWebLogin,
       page: () => const BiliBiliWebLoginPage(),
-      bindings: [
-        BindingsBuilder.put(() => BiliBiliWebLoginController()),
-      ],
+      bindings: [BindingsBuilder.put(() => BiliBiliWebLoginController())],
     ),
     //哔哩哔哩二维码登录
     GetPage(
       name: RoutePath.kBiliBiliQRLogin,
       page: () => const BiliBiliQRLoginPage(),
-      bindings: [
-        BindingsBuilder.put(() => BiliBiliQRLoginController()),
-      ],
+      bindings: [BindingsBuilder.put(() => BiliBiliQRLoginController())],
+    ),
+    GetPage(
+      name: RoutePath.kYyWebLogin,
+      page: () => const YyWebLoginPage(),
+      bindings: [BindingsBuilder.put(() => YyWebLoginController())],
     ),
     // 数据同步
-    GetPage(
-      name: RoutePath.kSync,
-      page: () => const SyncPage(),
-    ),
+    GetPage(name: RoutePath.kSync, page: () => const SyncPage()),
     // 本地同步
     GetPage(
       name: RoutePath.kLocalSync,
       page: () => const LocalSyncPage(),
       bindings: [
-        BindingsBuilder.put(
-          () => LocalSyncController(
-            Get.arguments ?? "",
-          ),
-        ),
+        BindingsBuilder.put(() => LocalSyncController(Get.arguments ?? "")),
       ],
     ),
     //扫码
     GetPage(
       name: RoutePath.kSyncScan,
       page: () => const SyncScanQRPage(),
-      bindings: [
-        BindingsBuilder.put(() => SyncScanQRControlelr()),
-      ],
+      bindings: [BindingsBuilder.put(() => SyncScanQRControlelr())],
     ),
     //同步设备
     GetPage(
@@ -224,11 +205,7 @@ class AppPages {
     GetPage(
       name: RoutePath.kRemoteSyncWebDav,
       page: () => const RemoteSyncWebDAVPage(),
-      bindings: [
-        BindingsBuilder.put(
-              () => RemoteSyncWebDAVController(),
-        ),
-      ],
+      bindings: [BindingsBuilder.put(() => RemoteSyncWebDAVController())],
     ),
     //远程同步-WebDAVConfig
     GetPage(
@@ -239,9 +216,7 @@ class AppPages {
     GetPage(
       name: RoutePath.kSettingsOther,
       page: () => const OtherSettingsPage(),
-      bindings: [
-        BindingsBuilder.put(() => OtherSettingsController()),
-      ],
+      bindings: [BindingsBuilder.put(() => OtherSettingsController())],
     ),
     //关注设置
     GetPage(

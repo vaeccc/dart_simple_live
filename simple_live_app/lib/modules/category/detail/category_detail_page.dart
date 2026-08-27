@@ -19,6 +19,13 @@ class CategoryDetailPage extends GetView<CategoryDetailController> {
     return Scaffold(
       appBar: AppBar(
         title: Text(controller.subCategory.name),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_alt_outlined),
+            tooltip: '筛选',
+            onPressed: controller.showFilters,
+          ),
+        ],
       ),
       body: KeepAliveWrapper(
         child: PageGridView(

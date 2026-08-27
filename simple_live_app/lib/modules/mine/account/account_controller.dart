@@ -7,9 +7,25 @@ import 'package:simple_live_app/app/utils.dart';
 import 'package:simple_live_app/routes/route_path.dart';
 import 'package:simple_live_app/services/bilibili_account_service.dart';
 import 'package:simple_live_app/services/douyin_account_service.dart';
+import 'package:simple_live_app/services/yy_account_service.dart';
 import 'package:simple_live_core/simple_live_core.dart';
 
 class AccountController extends GetxController {
+  void yyTap() async {
+    if (YyAccountService.instance.logined.value) {
+      final confirmed = await Utils.showAlertDialog(
+        '确定要退出 YY 账号吗？',
+        title: '退出登录',
+      );
+      if (confirmed) {
+        await YyAccountService.instance.logout();
+        SmartDialog.showToast('已退出 YY 账号');
+      }
+      return;
+    }
+    Get.toNamed(RoutePath.kYyWebLogin);
+  }
+
   void bilibiliTap() async {
     if (BiliBiliAccountService.instance.logined.value) {
       var result = await Utils.showAlertDialog("确定要退出哔哩哔哩账号吗？", title: "退出登录");
@@ -81,7 +97,10 @@ class AccountController extends GetxController {
 
   void douyinTap() async {
     if (DouyinAccountService.instance.hasCookie.value) {
-      var result = await Utils.showAlertDialog("确定要清除自定义 ttwid 吗？", title: "清除配置");
+      var result = await Utils.showAlertDialog(
+        "确定要清除自定义 ttwid 吗？",
+        title: "清除配置",
+      );
       if (result) {
         DouyinAccountService.instance.clearCookie();
         SmartDialog.showToast("已清除自定义 ttwid，将使用默认 ttwid");
@@ -138,10 +157,7 @@ class AccountController extends GetxController {
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text("取消"),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text("取消")),
           TextButton(
             onPressed: () {
               var input = controller.text.trim();

@@ -4,6 +4,7 @@ import 'package:simple_live_app/app/app_style.dart';
 import 'package:simple_live_app/modules/mine/account/account_controller.dart';
 import 'package:simple_live_app/services/bilibili_account_service.dart';
 import 'package:simple_live_app/services/douyin_account_service.dart';
+import 'package:simple_live_app/services/yy_account_service.dart';
 
 class AccountPage extends GetView<AccountController> {
   const AccountPage({Key? key}) : super(key: key);
@@ -11,17 +12,12 @@ class AccountPage extends GetView<AccountController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("账号管理"),
-      ),
+      appBar: AppBar(title: const Text("账号管理")),
       body: ListView(
         children: [
           const Padding(
             padding: AppStyle.edgeInsetsA12,
-            child: Text(
-              "哔哩哔哩账号需要登录才能看高清晰度的直播。",
-              textAlign: TextAlign.center,
-            ),
+            child: Text("哔哩哔哩账号需要登录才能看高清晰度的直播。", textAlign: TextAlign.center),
           ),
           Obx(
             () => ListTile(
@@ -36,6 +32,25 @@ class AccountPage extends GetView<AccountController> {
                   ? const Icon(Icons.logout)
                   : const Icon(Icons.chevron_right),
               onTap: controller.bilibiliTap,
+            ),
+          ),
+          Obx(
+            () => ListTile(
+              leading: Image.asset(
+                'assets/images/yy.png',
+                width: 36,
+                height: 36,
+              ),
+              title: const Text('YY直播'),
+              subtitle: Text(
+                YyAccountService.instance.logined.value
+                    ? '已通过扫码登录'
+                    : '扫码后可观看受限内容',
+              ),
+              trailing: YyAccountService.instance.logined.value
+                  ? const Icon(Icons.logout)
+                  : const Icon(Icons.qr_code),
+              onTap: controller.yyTap,
             ),
           ),
           ListTile(
@@ -68,9 +83,11 @@ class AccountPage extends GetView<AccountController> {
                 height: 36,
               ),
               title: const Text("抖音直播"),
-              subtitle: Text(DouyinAccountService.instance.hasCookie.value
-                  ? "已自定义（${DouyinAccountService.instance.cookie.length} 字符）"
-                  : "使用默认 ttwid"),
+              subtitle: Text(
+                DouyinAccountService.instance.hasCookie.value
+                    ? "已自定义（${DouyinAccountService.instance.cookie.length} 字符）"
+                    : "使用默认 ttwid",
+              ),
               trailing: DouyinAccountService.instance.hasCookie.value
                   ? const Icon(Icons.delete_outline)
                   : const Icon(Icons.chevron_right),

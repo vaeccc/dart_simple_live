@@ -17,6 +17,10 @@ class YySite extends LiveSite {
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
       '(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
 
+  /// Session cookie obtained by the app's YY web/QR login flow.
+  /// The core never persists this value; the host app owns secure storage.
+  String cookie = '';
+
   /// Extracts a YY room id from a numeric id or a canonical YY room URL.
   ///
   /// The first path segment is the stable channel id. YY pages may append a
@@ -312,7 +316,7 @@ class YySite extends LiveSite {
     const sourcePageSize = 60;
     final categoryHtml = await HttpClient.instance.getText(
       '$_baseUrl/${category.id}',
-      header: const {'User-Agent': _userAgent},
+      header: _requestHeaders(),
     );
     final moduleId = parseCategoryModuleId(categoryHtml);
     final sourcePage =
@@ -322,7 +326,7 @@ class YySite extends LiveSite {
         : await HttpClient.instance.getText(
             '$_baseUrl/${category.id}/more/$moduleId',
             queryParameters: {'page': sourcePage},
-            header: const {'User-Agent': _userAgent},
+            header: _requestHeaders(),
           );
     final allItems = parseCategoryRooms(html);
     final start = (page - 1).remainder(sourcePageSize ~/ pageSize) * pageSize;
@@ -353,8 +357,9 @@ class YySite extends LiveSite {
     if (page != 1) {
       return LiveSearchRoomResult(hasMore: false, items: []);
     }
+    final normalizedKeyword = keyword.trim();
     try {
-      final roomId = parseRoomId(keyword);
+      final roomId = parseRoomId(normalizedKeyword);
       final detail = await getRoomDetail(roomId: roomId);
       return LiveSearchRoomResult(
         hasMore: false,
@@ -368,10 +373,34 @@ class YySite extends LiveSite {
           ),
         ],
       );
-    } catch (error) {
-      CoreLog.d('[YY] room-number search failed: $error');
-      return LiveSearchRoomResult(hasMore: false, items: []);
+    } on FormatException {
+      final rooms = await _searchPublicRooms(normalizedKeyword);
+      return LiveSearchRoomResult(hasMore: false, items: rooms);
     }
+  }
+
+  @override
+  Future<LiveSearchAnchorResult> searchAnchors(
+    String keyword, {
+    int page = 1,
+  }) async {
+    if (page != 1 || keyword.trim().isEmpty) {
+      return LiveSearchAnchorResult(hasMore: false, items: []);
+    }
+    final rooms = await _searchPublicRooms(keyword.trim());
+    return LiveSearchAnchorResult(
+      hasMore: false,
+      items: rooms
+          .map(
+            (room) => LiveAnchorItem(
+              roomId: room.roomId,
+              avatar: room.cover,
+              userName: room.userName,
+              liveStatus: true,
+            ),
+          )
+          .toList(),
+    );
   }
 
   @override
@@ -443,6 +472,7 @@ class YySite extends LiveSite {
           'User-Agent': _userAgent,
           'Referer': '$_baseUrl/${detail.roomId}',
           'Origin': _baseUrl,
+          if (cookie.isNotEmpty) 'Cookie': cookie,
         },
       ),
     );
@@ -451,7 +481,7 @@ class YySite extends LiveSite {
   Future<YyRoomPageData> _getRoomPage(String roomId) async {
     final html = await HttpClient.instance.getText(
       '$_baseUrl/$roomId',
-      header: const {'User-Agent': _userAgent},
+      header: _requestHeaders(),
     );
     return parseRoomPage(html);
   }
@@ -460,9 +490,22 @@ class YySite extends LiveSite {
     final html = await HttpClient.instance.getText(
       _baseUrl,
       queryParameters: const {'ch': 'new'},
-      header: const {'User-Agent': _userAgent},
+      header: _requestHeaders(),
     );
     return parseRecommendRooms(html);
+  }
+
+  Future<List<LiveRoomItem>> _searchPublicRooms(String keyword) async {
+    if (keyword.isEmpty) return [];
+    final candidates = await _getHomepageRecommendationRooms();
+    final normalizedKeyword = keyword.toLowerCase();
+    return candidates
+        .where(
+          (room) =>
+              room.title.toLowerCase().contains(normalizedKeyword) ||
+              room.userName.toLowerCase().contains(normalizedKeyword),
+        )
+        .toList();
   }
 
   Future<YyStreamData> _getStreams(String roomId) async {
@@ -482,7 +525,7 @@ class YySite extends LiveSite {
     final response = await HttpClient.instance.getText(
       'https://interface.yy.com/hls/new/get/$roomId/$roomId/8000',
       queryParameters: const {'source': 'pc', 'callback': 'jsonp3'},
-      header: {'User-Agent': _userAgent, 'Referer': '$_baseUrl/$roomId'},
+      header: _requestHeaders(referer: '$_baseUrl/$roomId'),
     );
     return parseHlsResponse(response);
   }
@@ -499,11 +542,10 @@ class YySite extends LiveSite {
         'sequence': now.toString(),
         'encode': 'json',
       },
-      header: {
-        'User-Agent': _userAgent,
-        'Referer': '$_baseUrl/$roomId',
-        'Origin': _baseUrl,
-      },
+      header: _requestHeaders(
+        referer: '$_baseUrl/$roomId',
+        includeOrigin: true,
+      ),
       data: {
         'head': {
           'seq': now,
@@ -551,6 +593,18 @@ class YySite extends LiveSite {
       },
     );
     return parseStreamResponse(response);
+  }
+
+  Map<String, String> _requestHeaders({
+    String? referer,
+    bool includeOrigin = false,
+  }) {
+    return {
+      'User-Agent': _userAgent,
+      if (referer != null) 'Referer': referer,
+      if (includeOrigin) 'Origin': _baseUrl,
+      if (cookie.isNotEmpty) 'Cookie': cookie,
+    };
   }
 
   static String? _findScriptValue(String html, String key) {
