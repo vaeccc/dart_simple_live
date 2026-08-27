@@ -31,8 +31,8 @@ class YyWebLoginPage extends GetView<YyWebLoginController> {
           mixedContentMode: MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
         ),
         onWebViewCreated: controller.onWebViewCreated,
-        onLoadError: (_, __, ___, ____) => controller.loadError(),
-        onLoadHttpError: (_, __, error) {
+        onReceivedError: (_, __, ___) => controller.loadError(),
+        onReceivedHttpError: (_, __, error) {
           final statusCode = error.statusCode;
           if (statusCode != null && statusCode >= 400) {
             controller.loadError();
