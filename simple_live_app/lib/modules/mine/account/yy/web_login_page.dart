@@ -33,7 +33,8 @@ class YyWebLoginPage extends GetView<YyWebLoginController> {
         onWebViewCreated: controller.onWebViewCreated,
         onLoadError: (_, __, ___, ____) => controller.loadError(),
         onLoadHttpError: (_, __, error) {
-          if (error.statusCode >= 400) {
+          final statusCode = error.statusCode;
+          if (statusCode != null && statusCode >= 400) {
             controller.loadError();
           }
         },
