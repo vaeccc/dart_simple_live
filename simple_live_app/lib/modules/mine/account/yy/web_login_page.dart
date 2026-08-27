@@ -20,9 +20,23 @@ class YyWebLoginPage extends GetView<YyWebLoginController> {
       ),
       body: InAppWebView(
         initialSettings: InAppWebViewSettings(
-          userAgent: 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/131.0.0.0 Mobile Safari/537.36',
+          // Do not advertise a mobile browser: YY then redirects to its app
+          // instead of showing the web QR-login dialog.
+          userAgent:
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+              '(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+          javaScriptEnabled: true,
+          domStorageEnabled: true,
+          thirdPartyCookiesEnabled: true,
+          mixedContentMode: MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
         ),
         onWebViewCreated: controller.onWebViewCreated,
+        onLoadError: (_, __, ___, ____) => controller.loadError(),
+        onLoadHttpError: (_, __, error) {
+          if (error.statusCode >= 400) {
+            controller.loadError();
+          }
+        },
       ),
     );
   }
