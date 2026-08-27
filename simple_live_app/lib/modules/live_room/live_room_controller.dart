@@ -415,7 +415,7 @@ class LiveRoomController extends PlayerController with WidgetsBindingObserver {
     setPlayer();
   }
 
-  void initPlaylist() async {
+  Future<void> initPlaylist() async {
     currentLineInfo.value = "线路${currentLineIndex + 1}";
     errorMsg.value = "";
 
@@ -472,7 +472,7 @@ class LiveRoomController extends PlayerController with WidgetsBindingObserver {
     super.mediaError(error);
     if (mediaErrorRetryCount < 2) {
       final attempt = mediaErrorRetryCount + 1;
-      Log.d("播放失败，尝试第${attempt}次刷新播放地址");
+      Log.d("播放失败，尝试第$attempt次刷新播放地址");
       errorMsg.value = "播放连接异常，正在刷新（$attempt/2）";
       SmartDialog.showToast(errorMsg.value);
       if (mediaErrorRetryCount == 1) {
@@ -511,8 +511,7 @@ class LiveRoomController extends PlayerController with WidgetsBindingObserver {
     if (refreshedQualities.isEmpty) {
       throw StateError('直播间未返回新的播放地址');
     }
-    final qualityIndex =
-        currentQuality.clamp(0, refreshedQualities.length - 1) as int;
+    final qualityIndex = currentQuality.clamp(0, refreshedQualities.length - 1);
     final refreshedPlayUrl = await site.liveSite.getPlayUrls(
       detail: refreshedDetail,
       quality: refreshedQualities[qualityIndex],

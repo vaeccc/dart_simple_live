@@ -17,7 +17,7 @@ class YyAccountService extends GetxService {
 
   String cookie = '';
   final logined = false.obs;
-  final initialized = false.obs;
+  final sessionReady = false.obs;
 
   @override
   void onInit() {
@@ -29,7 +29,7 @@ class YyAccountService extends GetxService {
     cookie = await _storage.read(key: _cookieKey) ?? '';
     logined.value = cookie.isNotEmpty;
     _applyToSite();
-    initialized.value = true;
+    sessionReady.value = true;
   }
 
   Future<void> setCookie(String value) async {
