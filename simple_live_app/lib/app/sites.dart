@@ -30,7 +30,7 @@ class Sites {
     ),
     Constant.kYy: Site(
       id: Constant.kYy,
-      logo: "assets/images/yy.png",
+      logo: "assets/images/yy.svg",
       name: "YY直播",
       liveSite: YySite(),
     ),

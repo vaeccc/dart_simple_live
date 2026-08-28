@@ -5,6 +5,7 @@ import 'package:simple_live_app/modules/mine/account/account_controller.dart';
 import 'package:simple_live_app/services/bilibili_account_service.dart';
 import 'package:simple_live_app/services/douyin_account_service.dart';
 import 'package:simple_live_app/services/yy_account_service.dart';
+import 'package:simple_live_app/widgets/site_logo.dart';
 
 class AccountPage extends GetView<AccountController> {
   const AccountPage({Key? key}) : super(key: key);
@@ -36,8 +37,8 @@ class AccountPage extends GetView<AccountController> {
           ),
           Obx(
             () => ListTile(
-              leading: Image.asset(
-                'assets/images/yy.png',
+              leading: const SiteLogo(
+                assetName: 'assets/images/yy.svg',
                 width: 36,
                 height: 36,
               ),

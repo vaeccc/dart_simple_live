@@ -18,6 +18,7 @@ import 'package:simple_live_app/widgets/desktop_refresh_button.dart';
 import 'package:simple_live_app/widgets/follow_user_item.dart';
 import 'package:simple_live_app/widgets/keep_alive_wrapper.dart';
 import 'package:simple_live_app/widgets/net_image.dart';
+import 'package:simple_live_app/widgets/site_logo.dart';
 import 'package:simple_live_app/widgets/settings/settings_action.dart';
 import 'package:simple_live_app/widgets/settings/settings_card.dart';
 import 'package:simple_live_app/widgets/settings/settings_number.dart';
@@ -332,9 +333,10 @@ class LiveRoomPage extends GetView<LiveRoomController> {
                   AppStyle.vGap4,
                   Row(
                     children: [
-                      Image.asset(
-                        controller.site.logo,
+                      SiteLogo(
+                        assetName: controller.site.logo,
                         width: 20,
+                        height: 20,
                       ),
                       AppStyle.hGap4,
                       Text(
