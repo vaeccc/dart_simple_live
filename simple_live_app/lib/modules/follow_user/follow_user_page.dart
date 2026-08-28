@@ -24,6 +24,11 @@ class FollowUserPage extends GetView<FollowUserController> {
       appBar: AppBar(
         title: const Text("关注用户"),
         actions: [
+          IconButton(
+            tooltip: '同步已登录平台订阅',
+            onPressed: controller.syncPlatformSubscriptions,
+            icon: const Icon(Icons.sync),
+          ),
           PopupMenuButton(
             itemBuilder: (context) {
               return const [
@@ -34,7 +39,7 @@ class FollowUserPage extends GetView<FollowUserController> {
                     children: [
                       Icon(Remix.save_2_line),
                       AppStyle.hGap12,
-                      Text("导出文件")
+                      Text("导出文件"),
                     ],
                   ),
                 ),
@@ -45,7 +50,7 @@ class FollowUserPage extends GetView<FollowUserController> {
                     children: [
                       Icon(Remix.folder_open_line),
                       AppStyle.hGap12,
-                      Text("导入文件")
+                      Text("导入文件"),
                     ],
                   ),
                 ),
@@ -53,11 +58,7 @@ class FollowUserPage extends GetView<FollowUserController> {
                   value: 2,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Remix.text),
-                      AppStyle.hGap12,
-                      Text("导出文本"),
-                    ],
+                    children: [Icon(Remix.text), AppStyle.hGap12, Text("导出文本")],
                   ),
                 ),
                 PopupMenuItem(
@@ -106,9 +107,7 @@ class FollowUserPage extends GetView<FollowUserController> {
                   icon: SizedBox(
                     width: 16,
                     height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                    ),
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   ),
                 )
               : IconButton(
@@ -131,16 +130,17 @@ class FollowUserPage extends GetView<FollowUserController> {
                     () => SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Wrap(
-                          spacing: 12,
-                          children: controller.tagList.map((option) {
-                            return FilterButton(
-                              text: option.tag,
-                              selected: controller.filterMode.value == option,
-                              onTap: () {
-                                controller.setFilterMode(option);
-                              },
-                            );
-                          }).toList()),
+                        spacing: 12,
+                        children: controller.tagList.map((option) {
+                          return FilterButton(
+                            text: option.tag,
+                            selected: controller.filterMode.value == option,
+                            onTap: () {
+                              controller.setFilterMode(option);
+                            },
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ),
                 ),
@@ -164,7 +164,9 @@ class FollowUserPage extends GetView<FollowUserController> {
                   },
                   onTap: () {
                     AppNavigator.toLiveRoomDetail(
-                        site: site, roomId: item.roomId);
+                      site: site,
+                      roomId: item.roomId,
+                    );
                   },
                   onLongPress: () {
                     setFollowTagDialog(item);
@@ -186,8 +188,8 @@ class FollowUserPage extends GetView<FollowUserController> {
     ];
     Rx<FollowUserTag> checkTag =
         controller.tagList.indexOf(controller.filterMode.value) < 3
-            ? copiedList.first.obs
-            : controller.filterMode.value.obs;
+        ? copiedList.first.obs
+        : controller.filterMode.value.obs;
     final ScrollController scrollController = ScrollController();
     Get.dialog(
       AlertDialog(
@@ -202,16 +204,9 @@ class FollowUserPage extends GetView<FollowUserController> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  '设置标签',
-                  style: TextStyle(
-                    fontSize: 18,
-                  ),
-                ),
+                const Text('设置标签', style: TextStyle(fontSize: 18)),
                 IconButton(
-                  icon: const Icon(
-                    Icons.check,
-                  ),
+                  icon: const Icon(Icons.check),
                   onPressed: () {
                     controller.setItemTag(item, checkTag.value);
                     Get.back();
@@ -220,49 +215,49 @@ class FollowUserPage extends GetView<FollowUserController> {
               ],
             ),
             const Divider(),
-            Obx(
-              () {
-                int selectedIndex = copiedList.indexOf(checkTag.value);
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (selectedIndex >= 0) {
-                    scrollController.animateTo(
-                      selectedIndex * 60.0, // 假设每项高度为 60
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
-                  }
-                });
-                return SizedBox(
-                  height: 300,
-                  width: 300,
-                  child: RadioGroup(
-                    groupValue: checkTag.value,
-                    onChanged: (value) {
-                      checkTag.value = value!;
-                    },
-                    child: ListView.builder(
-                      controller: scrollController,
-                      itemCount: copiedList.length,
-                      itemBuilder: (context, index) {
-                        var tagItem = copiedList[index];
-                        return Container(
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                  color: Colors.grey.shade300, width: 1.0),
+            Obx(() {
+              int selectedIndex = copiedList.indexOf(checkTag.value);
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (selectedIndex >= 0) {
+                  scrollController.animateTo(
+                    selectedIndex * 60.0, // 假设每项高度为 60
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                }
+              });
+              return SizedBox(
+                height: 300,
+                width: 300,
+                child: RadioGroup(
+                  groupValue: checkTag.value,
+                  onChanged: (value) {
+                    checkTag.value = value!;
+                  },
+                  child: ListView.builder(
+                    controller: scrollController,
+                    itemCount: copiedList.length,
+                    itemBuilder: (context, index) {
+                      var tagItem = copiedList[index];
+                      return Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.grey.shade300,
+                              width: 1.0,
                             ),
                           ),
-                          child: RadioListTile<FollowUserTag>(
-                            title: Text(tagItem.tag),
-                            value: tagItem,
-                          ),
-                        );
-                      },
-                    ),
+                        ),
+                        child: RadioListTile<FollowUserTag>(
+                          title: Text(tagItem.tag),
+                          value: tagItem,
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            }),
           ],
         ),
       ),
@@ -273,57 +268,59 @@ class FollowUserPage extends GetView<FollowUserController> {
     Utils.showBottomSheet(
       title: '标签管理',
       child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            AppStyle.divider,
-            ListTile(
-              title: const Text("添加标签"),
-              leading: const Icon(Icons.add),
-              onTap: () {
-                editTagDialog("添加标签");
-              },
-            ),
-            AppStyle.divider,
-            // 列表内容
-            Expanded(
-              child: Obx(
-                () => ReorderableListView.builder(
-                  itemCount: controller.userTagList.length,
-                  itemBuilder: (context, index) {
-                    // 偏移
-                    FollowUserTag item = controller.userTagList[index];
-                    return ListTile(
-                      key: ValueKey(item.id),
-                      title: GestureDetector(
-                        child: Text(item.tag),
-                        onLongPress: () {
-                          {
-                            editTagDialog("修改标签", followUserTag: item);
-                          }
-                        },
-                      ),
-                      leading: IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () {
-                          controller.removeTag(item);
-                        },
-                      ),
-                    );
-                  },
-                  onReorder: (int oldIndex, int newIndex) {
-                    controller.updateTagOrder(oldIndex, newIndex);
-                  },
-                ),
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AppStyle.divider,
+          ListTile(
+            title: const Text("添加标签"),
+            leading: const Icon(Icons.add),
+            onTap: () {
+              editTagDialog("添加标签");
+            },
+          ),
+          AppStyle.divider,
+          // 列表内容
+          Expanded(
+            child: Obx(
+              () => ReorderableListView.builder(
+                itemCount: controller.userTagList.length,
+                itemBuilder: (context, index) {
+                  // 偏移
+                  FollowUserTag item = controller.userTagList[index];
+                  return ListTile(
+                    key: ValueKey(item.id),
+                    title: GestureDetector(
+                      child: Text(item.tag),
+                      onLongPress: () {
+                        {
+                          editTagDialog("修改标签", followUserTag: item);
+                        }
+                      },
+                    ),
+                    leading: IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () {
+                        controller.removeTag(item);
+                      },
+                    ),
+                  );
+                },
+                onReorder: (int oldIndex, int newIndex) {
+                  controller.updateTagOrder(oldIndex, newIndex);
+                },
               ),
             ),
-          ]),
+          ),
+        ],
+      ),
     );
   }
 
   void editTagDialog(String title, {FollowUserTag? followUserTag}) {
-    final TextEditingController tagEditController =
-        TextEditingController(text: followUserTag?.tag);
+    final TextEditingController tagEditController = TextEditingController(
+      text: followUserTag?.tag,
+    );
     bool upMode = title == "添加标签" ? true : false;
     Get.dialog(
       AlertDialog(
@@ -333,16 +330,12 @@ class FollowUserPage extends GetView<FollowUserController> {
         ),
         content: SingleChildScrollView(
           padding: EdgeInsets.only(
-              bottom: MediaQuery.of(Get.context!).viewInsets.bottom),
+            bottom: MediaQuery.of(Get.context!).viewInsets.bottom,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                ),
-              ),
+              Text(title, style: const TextStyle(fontSize: 18)),
               TextField(
                 controller: tagEditController,
                 minLines: 1,
@@ -351,16 +344,16 @@ class FollowUserPage extends GetView<FollowUserController> {
                   border: const OutlineInputBorder(),
                   contentPadding: AppStyle.edgeInsetsA12,
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.grey.withAlpha(51),
-                    ),
+                    borderSide: BorderSide(color: Colors.grey.withAlpha(51)),
                   ),
                 ),
                 onSubmitted: (tag) {
                   upMode
                       ? controller.addTag(tagEditController.text)
                       : controller.updateTagName(
-                          followUserTag!, tagEditController.text);
+                          followUserTag!,
+                          tagEditController.text,
+                        );
                   Get.back();
                 },
               ),
@@ -381,14 +374,16 @@ class FollowUserPage extends GetView<FollowUserController> {
                         upMode
                             ? controller.addTag(tagEditController.text)
                             : controller.updateTagName(
-                                followUserTag!, tagEditController.text);
+                                followUserTag!,
+                                tagEditController.text,
+                              );
                         Get.back();
                       },
                       child: const Text('是'),
                     ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),
