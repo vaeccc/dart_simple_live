@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:simple_live_app/services/yy_account_service.dart';
 
 class YyWebLoginController extends GetxController {
-  static const _loginPage = 'https://www.yy.com/ent/index/index.html';
+  static const _loginPage = 'https://www.yy.com/';
   final CookieManager _cookieManager = CookieManager.instance();
 
   void onWebViewCreated(InAppWebViewController controller) {
