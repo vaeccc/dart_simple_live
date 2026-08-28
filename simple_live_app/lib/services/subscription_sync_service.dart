@@ -128,6 +128,8 @@ class SubscriptionSyncService extends GetxService {
         'roomId',
         'live_room_id',
         'sid',
+        'yynum',
+        'yyno',
       ]);
       final userName = _firstValue(item, const [
         'uname',
@@ -150,6 +152,8 @@ class SubscriptionSyncService extends GetxService {
               'face_url',
               'headurl',
               'thumb',
+              'logo',
+              'hdLogo',
             ]),
           ),
         );
