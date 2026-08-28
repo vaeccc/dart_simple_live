@@ -62,7 +62,9 @@ class SyncPage extends GetView<SyncController> {
                       AppStyle.vGap16,
                       Obx(
                         () => Visibility(
-                          visible: SyncService.instance.httpRunning.value,
+                          visible: controller.state.value ==
+                                  SignalRConnectionState.connected &&
+                              controller.currentRoomId.value != '--',
                           child: GestureDetector(
                             onTap: () {
                               Get.back();

@@ -68,7 +68,14 @@ class SignalRService {
 
   void _listen() {
     hubConnection?.on("onFavoriteReceived", (args) {
-      _onFavoriteStreamController.add((args![0] as bool, args[1] as String));
+      if (args == null || args.length < 2) {
+        Log.d('Invalid favorite sync payload');
+        return;
+      }
+      final overlay = args[0] == true ||
+          args[0].toString() == 'true' ||
+          args[0].toString() == '1';
+      _onFavoriteStreamController.add((overlay, args[1].toString()));
     });
     hubConnection?.on("onHistoryReceived", (args) {
       _onHistoryStreamController.add((args![0] as bool, args[1] as String));
