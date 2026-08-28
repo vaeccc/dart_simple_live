@@ -71,7 +71,7 @@ class SubscriptionSyncService extends GetxService {
       },
     );
     _ensureSuccess(response, 'YY 订阅');
-    return _saveRooms(_extractRooms(response), Constant.kYy);
+    return _saveRooms(_extractYyAnchors(response), Constant.kYy);
   }
 
   void _ensureSuccess(dynamic response, String name) {
@@ -104,6 +104,41 @@ class SubscriptionSyncService extends GetxService {
       added++;
     }
     return added;
+  }
+
+  /// YY's desktop header exposes followed streamers in `data.att`. A live
+  /// item has a canonical `liveUrl`; offline anchors only retain `yynum`.
+  /// `data.sub` is for program subscriptions, not live-room follows.
+  List<_SubscriptionRoom> _extractYyAnchors(dynamic response) {
+    final data = response is Map ? response['data'] : null;
+    final anchors = data is Map && data['att'] is List
+        ? data['att'] as List
+        : const <dynamic>[];
+    final rooms = <_SubscriptionRoom>[];
+    final seen = <String>{};
+
+    for (final item in anchors) {
+      if (item is! Map) continue;
+      final anchor = item['anchorInfo'];
+      if (anchor is! Map) continue;
+      final liveUrl = item['liveUrl']?.toString() ?? '';
+      final roomId = RegExp(r'\d+').firstMatch(liveUrl)?.group(0) ??
+          _firstValue(anchor, const ['yynum', 'yyno']);
+      final userName = _firstValue(anchor, const ['nick', 'nickname', 'name']);
+      if (!RegExp(r'^\d+$').hasMatch(roomId) ||
+          userName.isEmpty ||
+          !seen.add(roomId)) {
+        continue;
+      }
+      rooms.add(
+        _SubscriptionRoom(
+          roomId: roomId,
+          userName: userName,
+          face: _firstValue(anchor, const ['logo', 'hdLogo']),
+        ),
+      );
+    }
+    return rooms;
   }
 
   /// The two platforms use different response field names. Traverse the public
