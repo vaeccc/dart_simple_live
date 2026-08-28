@@ -12,8 +12,6 @@ jobs:
     steps:
       #签出代码
       - uses: actions/checkout@v5
-        with:
-          ref: master
 
       #APK签名设置
       - name: Download Android keystore
