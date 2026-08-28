@@ -15,6 +15,7 @@ import 'package:simple_live_app/models/db/follow_user_tag.dart';
 import 'package:simple_live_app/models/db/history.dart';
 import 'package:simple_live_app/services/bilibili_account_service.dart';
 import 'package:simple_live_app/services/db_service.dart';
+import 'package:simple_live_app/services/yy_account_service.dart';
 import 'package:udp/udp.dart';
 import 'package:shelf/shelf.dart' as shelf;
 import 'package:shelf/shelf_io.dart' as shelf_io;
@@ -197,6 +198,7 @@ class SyncService extends GetxService {
       serverRouter.post('/sync/history', _syncHistoryReuqest);
       serverRouter.post('/sync/blocked_word', _syncBlockedWordReuqest);
       serverRouter.post('/sync/account/bilibili', _syncBiliAccountReuqest);
+      serverRouter.post('/sync/account/yy', _syncYyAccountRequest);
 
       var server = await shelf_io.serve(
         serverRouter,
@@ -372,7 +374,6 @@ class SyncService extends GetxService {
   Future<shelf.Response> _syncBiliAccountReuqest(shelf.Request request) async {
     try {
       var body = await request.readAsString();
-      Log.d('_syncBiliAccountReuqest: $body');
       var jsonBody = json.decode(body);
       var cookie = jsonBody['cookie'];
       BiliBiliAccountService.instance.setCookie(cookie);
@@ -387,6 +388,23 @@ class SyncService extends GetxService {
         'status': false,
         'message': e.toString(),
       });
+    }
+  }
+
+  /// Sync YY's web-login session without ever logging its cookie.
+  Future<shelf.Response> _syncYyAccountRequest(shelf.Request request) async {
+    try {
+      var body = await request.readAsString();
+      var jsonBody = json.decode(body);
+      var cookie = jsonBody['cookie'];
+      if (cookie is! String || cookie.isEmpty) {
+        throw 'YY 登录信息无效';
+      }
+      await YyAccountService.instance.setCookie(cookie);
+      SmartDialog.showToast('已同步 YY 账号');
+      return toJsonResponse({'status': true, 'message': 'success'});
+    } catch (e) {
+      return toJsonResponse({'status': false, 'message': e.toString()});
     }
   }
 

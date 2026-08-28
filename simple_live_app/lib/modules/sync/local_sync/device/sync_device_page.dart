@@ -64,6 +64,16 @@ class SyncDevicePage extends GetView<SyncDeviceController> {
                     controller.syncBiliAccount();
                   },
                 ),
+                AppStyle.divider,
+                ListTile(
+                  leading: const Icon(Remix.account_circle_line),
+                  title: const Text("同步 YY 账号"),
+                  subtitle: const Text("仅发送到当前局域网设备"),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    controller.syncYyAccount();
+                  },
+                ),
               ],
             ),
           ),
