@@ -31,6 +31,7 @@ class YyWebLoginPage extends GetView<YyWebLoginController> {
           mixedContentMode: MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
         ),
         onWebViewCreated: controller.onWebViewCreated,
+        onLoadStop: controller.onLoadStop,
         onReceivedError: (_, __, ___) => controller.loadError(),
         onReceivedHttpError: (_, __, error) {
           final statusCode = error.statusCode;
