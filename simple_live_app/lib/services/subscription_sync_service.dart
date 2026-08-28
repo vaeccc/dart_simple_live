@@ -75,9 +75,14 @@ class SubscriptionSyncService extends GetxService {
   }
 
   void _ensureSuccess(dynamic response, String name) {
-    if (response is! Map ||
-        response['resultCode'] != 0 && response['code'] != 0) {
+    if (response is! Map) {
       throw StateError('$name读取失败');
+    }
+    for (final key in const ['resultCode', 'code', 'ret']) {
+      final value = response[key];
+      if (value != null && value.toString() != '0') {
+        throw StateError('$name读取失败');
+      }
     }
   }
 

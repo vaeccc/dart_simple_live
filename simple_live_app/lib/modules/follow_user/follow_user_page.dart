@@ -24,10 +24,13 @@ class FollowUserPage extends GetView<FollowUserController> {
       appBar: AppBar(
         title: const Text("关注用户"),
         actions: [
-          IconButton(
-            tooltip: '同步已登录平台订阅',
+          TextButton.icon(
+            style: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+            ),
             onPressed: controller.syncPlatformSubscriptions,
-            icon: const Icon(Icons.sync),
+            icon: const Icon(Icons.sync, size: 20),
+            label: const Text('同步订阅'),
           ),
           PopupMenuButton(
             itemBuilder: (context) {

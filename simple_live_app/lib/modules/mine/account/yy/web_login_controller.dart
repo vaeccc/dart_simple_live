@@ -1,6 +1,8 @@
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:simple_live_app/services/follow_service.dart';
+import 'package:simple_live_app/services/subscription_sync_service.dart';
 import 'package:simple_live_app/services/yy_account_service.dart';
 
 class YyWebLoginController extends GetxController {
@@ -61,7 +63,14 @@ class YyWebLoginController extends GetxController {
         .map((entry) => '${entry.key}=${entry.value}')
         .join(';');
     await YyAccountService.instance.setCookie(value);
-    SmartDialog.showToast('YY 登录已保存');
+    final result = await SubscriptionSyncService.instance
+        .syncLoggedInPlatforms();
+    await FollowService.instance.loadData();
+    if (result.platforms.contains('YY')) {
+      SmartDialog.showToast('YY 登录已保存，已导入 ${result.added} 个订阅');
+    } else {
+      SmartDialog.showToast('YY 登录已保存；订阅可在“关注”页点击“同步订阅”重试');
+    }
     Get.back();
   }
 }
