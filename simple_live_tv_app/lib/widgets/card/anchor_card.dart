@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:simple_live_tv_app/app/app_focus_node.dart';
 import 'package:simple_live_tv_app/app/app_style.dart';
+import 'package:simple_live_tv_app/widgets/site_logo.dart';
 import 'package:simple_live_tv_app/app/sites.dart';
 import 'package:simple_live_tv_app/routes/app_navigation.dart';
 import 'package:simple_live_tv_app/widgets/highlight_widget.dart';
@@ -76,8 +77,8 @@ class AnchorCard extends StatelessWidget {
                           TextSpan(
                             children: [
                               WidgetSpan(
-                                child: Image.asset(
-                                  site.logo,
+                                child: SiteLogo(
+                                  asset: site.logo,
                                   width: 32.w,
                                 ),
                               ),

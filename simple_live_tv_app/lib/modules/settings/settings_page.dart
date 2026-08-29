@@ -9,10 +9,12 @@ import 'package:simple_live_tv_app/app/utils.dart';
 import 'package:simple_live_tv_app/modules/settings/settings_controller.dart';
 import 'package:simple_live_tv_app/services/bilibili_account_service.dart';
 import 'package:simple_live_tv_app/services/follow_user_service.dart';
+import 'package:simple_live_tv_app/services/yy_account_service.dart';
 import 'package:simple_live_tv_app/widgets/app_scaffold.dart';
 import 'package:simple_live_tv_app/widgets/button/highlight_button.dart';
 import 'package:simple_live_tv_app/widgets/button/highlight_list_tile.dart';
 import 'package:simple_live_tv_app/widgets/settings_item_widget.dart';
+import 'package:simple_live_tv_app/widgets/site_logo.dart';
 
 class SettingsPage extends GetView<SettingsController> {
   const SettingsPage({super.key});
@@ -430,6 +432,22 @@ class SettingsPage extends GetView<SettingsController> {
               height: 64.w,
             ),
             onTap: controller.bilibiliTap,
+          ),
+        ),
+        AppStyle.vGap24,
+        Obx(
+          () => HighlightListTile(
+            focusNode: controller.yyFocusNode,
+            title: 'YY 账号',
+            subtitle: YyAccountService.instance.logined.value
+                ? '已通过局域网同步，点击退出'
+                : '未登录，请在 APP 的局域网同步中发送 YY 账号',
+            leading: SiteLogo(
+              asset: 'assets/images/yy.svg',
+              width: 64.w,
+              height: 64.w,
+            ),
+            onTap: controller.yyTap,
           ),
         ),
         AppStyle.vGap24,

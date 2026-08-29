@@ -4,6 +4,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:simple_live_tv_app/app/app_focus_node.dart';
 import 'package:simple_live_tv_app/app/app_style.dart';
+import 'package:simple_live_tv_app/widgets/site_logo.dart';
 import 'package:simple_live_tv_app/app/sites.dart';
 import 'package:simple_live_tv_app/modules/search/anchor/search_anchor_controller.dart';
 import 'package:simple_live_tv_app/routes/app_navigation.dart';
@@ -78,8 +79,8 @@ class SearchAnchorPage extends GetView<SearchAnchorController> {
                 .map(
                   (e) => Obx(
                     () => HighlightButton(
-                      icon: Image.asset(
-                        e.logo,
+                      icon: SiteLogo(
+                        asset: e.logo,
                         width: 48.w,
                         height: 48.w,
                         fit: BoxFit.contain,

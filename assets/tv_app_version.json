@@ -1,7 +1,7 @@
 {
-    "version": "1.6.6",
-    "version_num": 10606,
-    "version_desc": "- 仅保留局域网数据同步\n- 修复 APP 与 TV 同步连接\n- 支持同步 YY 登录会话",
+    "version": "1.6.7",
+    "version_num": 10607,
+    "version_desc": "- 修复 YY 图标裁切，统一使用完整矢量图标\n- 设置中显示 YY 账号同步状态并支持退出",
     "prerelease": false,
     "download_url": "https://github.com/xiaoyaocz/dart_simple_live/releases"
 }

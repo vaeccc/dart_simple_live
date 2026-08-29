@@ -33,7 +33,7 @@ class Sites {
     ),
     "yy": Site(
       id: "yy",
-      logo: "assets/images/yy.png",
+      logo: "assets/images/yy.svg",
       name: "YY直播",
       liveSite: YySite(),
       index: 4,

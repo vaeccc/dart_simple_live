@@ -6,6 +6,7 @@ import 'package:simple_live_tv_app/widgets/net_image.dart';
 import 'package:get/get.dart';
 import 'package:simple_live_tv_app/app/app_focus_node.dart';
 import 'package:simple_live_tv_app/app/app_style.dart';
+import 'package:simple_live_tv_app/widgets/site_logo.dart';
 import 'package:simple_live_tv_app/app/sites.dart';
 import 'package:simple_live_tv_app/modules/category/category_controller.dart';
 import 'package:simple_live_tv_app/widgets/app_scaffold.dart';
@@ -76,8 +77,8 @@ class CategoryPage extends GetView<CategoryController> {
                 .map(
                   (e) => Obx(
                     () => HighlightButton(
-                      icon: Image.asset(
-                        e.logo,
+                      icon: SiteLogo(
+                        asset: e.logo,
                         width: 48.w,
                         height: 48.w,
                         fit: BoxFit.contain,
@@ -164,8 +165,8 @@ class CategoryPage extends GetView<CategoryController> {
                   borderRadius: 16.w,
                   cacheWidth: 100,
                 )
-              : Image.asset(
-                  "assets/images/${controller.site.id}.png",
+              : SiteLogo(
+                  asset: controller.site.logo,
                   width: 64.w,
                   height: 64.w,
                 ),

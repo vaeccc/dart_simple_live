@@ -5,6 +5,7 @@ import 'package:simple_live_tv_app/app/controller/base_controller.dart';
 import 'package:simple_live_tv_app/app/utils.dart';
 import 'package:simple_live_tv_app/routes/app_navigation.dart';
 import 'package:simple_live_tv_app/services/bilibili_account_service.dart';
+import 'package:simple_live_tv_app/services/yy_account_service.dart';
 
 class SettingsController extends BaseController
     with GetTickerProviderStateMixin {
@@ -52,6 +53,7 @@ class SettingsController extends BaseController
   var updateFollowThreadFocusNode = AppFocusNode();
 
   var bilibiliFoucsNode = AppFocusNode();
+  var yyFocusNode = AppFocusNode();
   var versionFocusNode = AppFocusNode();
   void bilibiliTap() async {
     if (BiliBiliAccountService.instance.logined.value) {
@@ -61,6 +63,16 @@ class SettingsController extends BaseController
       }
     } else {
       AppNavigator.toBiliBiliLogin();
+    }
+  }
+
+  void yyTap() async {
+    if (!YyAccountService.instance.logined.value) {
+      return;
+    }
+    var result = await Utils.showAlertDialog('确定要退出 YY 账号吗？', title: '退出登录');
+    if (result) {
+      await YyAccountService.instance.setCookie('');
     }
   }
 
