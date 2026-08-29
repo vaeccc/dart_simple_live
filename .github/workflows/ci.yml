@@ -1,4 +1,4 @@
-name: CI
+name: CI 校验（不发布安装包）
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
       - run: dart test test/yy_site_test.dart
 
   app:
-    name: APP Android debug build
+    name: APP 编译校验
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -42,15 +42,9 @@ jobs:
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter build apk --debug
-      - name: Upload APP debug APK
-        uses: actions/upload-artifact@v7
-        with:
-          name: simple-live-app-debug-apk
-          path: simple_live_app/build/app/outputs/flutter-apk/app-debug.apk
-          if-no-files-found: error
 
   tv:
-    name: TV Android debug build
+    name: TV 编译校验
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -64,9 +58,3 @@ jobs:
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter build apk --debug
-      - name: Upload TV debug APK
-        uses: actions/upload-artifact@v7
-        with:
-          name: simple-live-tv-debug-apk
-          path: simple_live_tv_app/build/app/outputs/flutter-apk/app-debug.apk
-          if-no-files-found: error

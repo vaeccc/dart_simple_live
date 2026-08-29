@@ -1,4 +1,4 @@
-name: app-build-action
+name: 发布 TV 正式版
 #推送Tag时触发
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
           echo "keyAlias=${{ secrets.TV_KEY_ALIAS }}" >> simple_live_tv_app/android/key.properties
 
       # 设置JAVA环境
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: "zulu"
           java-version: "17"
@@ -76,7 +76,7 @@ jobs:
 
       #上传至Release
       - name: Upload Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: "${{ fromJson(steps.version.outputs.content).version }}"
           body: "# Android TV \n${{ fromJson(steps.version.outputs.content).version_desc }}"
