@@ -5,6 +5,7 @@ import 'package:simple_live_app/modules/mine/account/account_controller.dart';
 import 'package:simple_live_app/services/bilibili_account_service.dart';
 import 'package:simple_live_app/services/douyin_account_service.dart';
 import 'package:simple_live_app/services/yy_account_service.dart';
+import 'package:simple_live_app/services/huya_account_service.dart';
 import 'package:simple_live_app/widgets/site_logo.dart';
 
 class AccountPage extends GetView<AccountController> {
@@ -65,16 +66,24 @@ class AccountPage extends GetView<AccountController> {
             enabled: false,
             trailing: const Icon(Icons.chevron_right),
           ),
-          ListTile(
-            leading: Image.asset(
-              'assets/images/huya.png',
-              width: 36,
-              height: 36,
+          Obx(
+            () => ListTile(
+              leading: Image.asset(
+                'assets/images/huya.png',
+                width: 36,
+                height: 36,
+              ),
+              title: const Text('虎牙直播'),
+              subtitle: Text(
+                HuyaAccountService.instance.logined.value
+                    ? '已通过官方网页登录'
+                    : '登录后可同步官方订阅',
+              ),
+              trailing: HuyaAccountService.instance.logined.value
+                  ? const Icon(Icons.logout)
+                  : const Icon(Icons.qr_code),
+              onTap: controller.huyaTap,
             ),
-            title: const Text("虎牙直播"),
-            subtitle: const Text("无需登录"),
-            enabled: false,
-            trailing: const Icon(Icons.chevron_right),
           ),
           Obx(
             () => ListTile(

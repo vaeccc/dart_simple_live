@@ -296,6 +296,96 @@ class YySite extends LiveSite {
     );
   }
 
+  /// Parses YY's official public search page (`/search-{keyword}/120`).
+  ///
+  /// Search pages are server rendered and do not require a login session. Keep
+  /// the parser independent from HTTP so markup changes result in an empty
+  /// search result rather than a crash.
+  static List<LiveRoomItem> parseSearchRooms(String html) {
+    final items = <LiveRoomItem>[];
+    final seen = <String>{};
+    final cards = RegExp(
+      r'''<li\s+class=["']s1["'][^>]*>([\s\S]*?)</li>''',
+      caseSensitive: false,
+    ).allMatches(html);
+    for (final card in cards) {
+      final body = card.group(1) ?? '';
+      final roomId = RegExp(r'''href=["']/(\d+)["']''')
+              .firstMatch(body)
+              ?.group(1) ??
+          '';
+      if (!RegExp(r'^\d+$').hasMatch(roomId) || !seen.add(roomId)) continue;
+      final title = _decodeHtmlEntities(
+        RegExp(r'''<span[^>]*class=["'][^"']*title[^"']*["'][^>]*>([\s\S]*?)</span>''', caseSensitive: false)
+                .firstMatch(body)
+                ?.group(1)
+                ?.replaceAll(RegExp(r'<[^>]+>'), '')
+                .trim() ??
+            _htmlAttribute(body, 'title', tag: 'a'),
+      );
+      final userName = _decodeHtmlEntities(
+        RegExp(r'''<span[^>]*class=["'][^"']*intro[^"']*["'][^>]*>([\s\S]*?)</span>''', caseSensitive: false)
+                .firstMatch(body)
+                ?.group(1)
+                ?.replaceAll(RegExp(r'<[^>]+>'), '')
+                .trim() ??
+            '',
+      );
+      final cover = _toHttps(_htmlAttribute(body, 'data-original', tag: 'img'));
+      items.add(LiveRoomItem(
+        roomId: roomId,
+        title: title.isEmpty ? userName : title,
+        cover: cover,
+        userName: userName.isEmpty ? title : userName,
+        online: _parseOnlineText(_firstTagText(body, 'usr')),
+      ));
+    }
+    return items;
+  }
+
+  /// Parses the presenter tab of YY's official public search page.
+  static List<LiveAnchorItem> parseSearchAnchors(String html) {
+    final items = <LiveAnchorItem>[];
+    final seen = <String>{};
+    final cards = RegExp(
+      r'''<li\s+class=["']anchor-list["'][^>]*>([\s\S]*?)</li>''',
+      caseSensitive: false,
+    ).allMatches(html);
+    for (final card in cards) {
+      final body = card.group(1) ?? '';
+      final roomId = RegExp(r'''href=["']/(\d+)["']''')
+              .firstMatch(body)
+              ?.group(1) ??
+          '';
+      if (!RegExp(r'^\d+$').hasMatch(roomId) || !seen.add(roomId)) continue;
+      final userName = _decodeHtmlEntities(
+        RegExp(r'''class=["'][^"']*name-nick[^"']*["'][^>]*>([\s\S]*?)</span>''', caseSensitive: false)
+                .firstMatch(body)
+                ?.group(1)
+                ?.replaceAll(RegExp(r'<[^>]+>'), '')
+                .trim() ??
+            '',
+      );
+      if (userName.isEmpty) continue;
+      items.add(LiveAnchorItem(
+        roomId: roomId,
+        avatar: _toHttps(_htmlAttribute(body, 'data-original', tag: 'img')),
+        userName: userName,
+        liveStatus: true,
+      ));
+    }
+    return items;
+  }
+
+  static int? parseSearchTotalPages(String html) {
+    return int.tryParse(
+      RegExp(r'''totalPage\s*:\s*['"]?(\d+)''', caseSensitive: false)
+              .firstMatch(html)
+              ?.group(1) ??
+          '',
+    );
+  }
+
   @override
   Future<LiveCategoryResult> getRecommendRooms({int page = 1}) async {
     final allItems = await _getHomepageRecommendationRooms();
@@ -354,10 +444,10 @@ class YySite extends LiveSite {
     String keyword, {
     int page = 1,
   }) async {
-    if (page != 1) {
+    final normalizedKeyword = keyword.trim();
+    if (normalizedKeyword.isEmpty) {
       return LiveSearchRoomResult(hasMore: false, items: []);
     }
-    final normalizedKeyword = keyword.trim();
     try {
       final roomId = parseRoomId(normalizedKeyword);
       final detail = await getRoomDetail(roomId: roomId);
@@ -374,8 +464,8 @@ class YySite extends LiveSite {
         ],
       );
     } on FormatException {
-      final rooms = await _searchPublicRooms(normalizedKeyword);
-      return LiveSearchRoomResult(hasMore: false, items: rooms);
+      final result = await _searchPublicRooms(normalizedKeyword, page: page);
+      return LiveSearchRoomResult(hasMore: result.hasMore, items: result.items);
     }
   }
 
@@ -384,22 +474,14 @@ class YySite extends LiveSite {
     String keyword, {
     int page = 1,
   }) async {
-    if (page != 1 || keyword.trim().isEmpty) {
+    if (keyword.trim().isEmpty) {
       return LiveSearchAnchorResult(hasMore: false, items: []);
     }
-    final rooms = await _searchPublicRooms(keyword.trim());
+    final html = await _getSearchPage(keyword.trim(), tab: '1', page: page);
+    final totalPages = parseSearchTotalPages(html) ?? page;
     return LiveSearchAnchorResult(
-      hasMore: false,
-      items: rooms
-          .map(
-            (room) => LiveAnchorItem(
-              roomId: room.roomId,
-              avatar: room.cover,
-              userName: room.userName,
-              liveStatus: true,
-            ),
-          )
-          .toList(),
+      hasMore: page < totalPages,
+      items: parseSearchAnchors(html),
     );
   }
 
@@ -463,7 +545,7 @@ class YySite extends LiveSite {
         .where((url) => url.isNotEmpty)
         .toList();
     if (urls.isEmpty) {
-      throw StateError('YY 未返回可播放的 FLV 地址');
+      throw StateError('YY 未返回可播放地址');
     }
     return Future.value(
       LivePlayUrl(
@@ -495,30 +577,55 @@ class YySite extends LiveSite {
     return parseRecommendRooms(html);
   }
 
-  Future<List<LiveRoomItem>> _searchPublicRooms(String keyword) async {
-    if (keyword.isEmpty) return [];
-    final candidates = await _getHomepageRecommendationRooms();
-    final normalizedKeyword = keyword.toLowerCase();
-    return candidates
-        .where(
-          (room) =>
-              room.title.toLowerCase().contains(normalizedKeyword) ||
-              room.userName.toLowerCase().contains(normalizedKeyword),
-        )
-        .toList();
+  Future<LiveSearchRoomResult> _searchPublicRooms(
+    String keyword, {
+    required int page,
+  }) async {
+    final html = await _getSearchPage(keyword, tab: '120', page: page);
+    final totalPages = parseSearchTotalPages(html) ?? page;
+    return LiveSearchRoomResult(
+      hasMore: page < totalPages,
+      items: parseSearchRooms(html),
+    );
+  }
+
+  Future<String> _getSearchPage(
+    String keyword, {
+    required String tab,
+    required int page,
+  }) {
+    final safePage = page < 1 ? 1 : page;
+    return HttpClient.instance.getText(
+      '$_baseUrl/search-${Uri.encodeComponent(keyword)}/$tab',
+      queryParameters: safePage == 1 ? null : {'c': safePage},
+      header: _requestHeaders(),
+    );
   }
 
   Future<YyStreamData> _getStreams(String roomId) async {
+    YyStreamData hls = const YyStreamData(urls: []);
+    YyStreamData flv = const YyStreamData(urls: []);
+    Object? hlsError;
+    Object? flvError;
     try {
-      return await _getHlsStreams(roomId);
+      hls = await _getHlsStreams(roomId);
     } catch (error) {
-      // YY's legacy HLS endpoint is normally more stable, but retain the
-      // current web endpoint as a fallback when it is temporarily unavailable.
-      CoreLog.d(
-        '[YY] HLS endpoint failed, falling back to stream-manager: $error',
-      );
-      return _getFlvStreams(roomId);
+      hlsError = error;
+      CoreLog.d('[YY] HLS endpoint failed: $error');
     }
+    try {
+      // Keep FLV URLs even when HLS succeeds so the player can move to this
+      // protocol immediately when a playlist/CDN rejects the HLS request.
+      flv = await _getFlvStreams(roomId);
+    } catch (error) {
+      flvError = error;
+      CoreLog.d('[YY] FLV endpoint failed: $error');
+    }
+    final urls = <String>{...hls.urls, ...flv.urls}.toList();
+    if (urls.isEmpty && hlsError != null && flvError != null) {
+      throw StateError('YY 播放地址获取失败');
+    }
+    return YyStreamData(urls: urls);
   }
 
   Future<YyStreamData> _getHlsStreams(String roomId) async {

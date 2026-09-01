@@ -31,6 +31,8 @@ import 'package:simple_live_app/modules/mine/account/bilibili/web_login_controll
 import 'package:simple_live_app/modules/mine/account/bilibili/web_login_page.dart';
 import 'package:simple_live_app/modules/mine/account/yy/web_login_controller.dart';
 import 'package:simple_live_app/modules/mine/account/yy/web_login_page.dart';
+import 'package:simple_live_app/modules/mine/account/huya/web_login_controller.dart';
+import 'package:simple_live_app/modules/mine/account/huya/web_login_page.dart';
 import 'package:simple_live_app/modules/settings/appstyle_setting_page.dart';
 import 'package:simple_live_app/modules/settings/auto_exit_settings_page.dart';
 import 'package:simple_live_app/modules/settings/danmu_settings_page.dart';
@@ -161,6 +163,11 @@ class AppPages {
       name: RoutePath.kYyWebLogin,
       page: () => const YyWebLoginPage(),
       bindings: [BindingsBuilder.put(() => YyWebLoginController())],
+    ),
+    GetPage(
+      name: RoutePath.kHuyaWebLogin,
+      page: () => const HuyaWebLoginPage(),
+      bindings: [BindingsBuilder.put(() => HuyaWebLoginController())],
     ),
     // 数据同步
     GetPage(name: RoutePath.kSync, page: () => const SyncPage()),

@@ -470,6 +470,13 @@ class LiveRoomController extends PlayerController with WidgetsBindingObserver {
   @override
   void mediaError(String error) async {
     super.mediaError(error);
+    // First exhaust URLs from the current room. YY orders HLS before FLV and
+    // Huya supplies its CDN alternatives in this list.
+    if (currentLineIndex >= 0 && currentLineIndex + 1 < playUrls.length) {
+      Log.d('播放失败，切换到下一条线路');
+      changePlayLine(currentLineIndex + 1);
+      return;
+    }
     if (mediaErrorRetryCount < 2) {
       final attempt = mediaErrorRetryCount + 1;
       Log.d("播放失败，尝试第$attempt次刷新播放地址");
@@ -483,21 +490,14 @@ class LiveRoomController extends PlayerController with WidgetsBindingObserver {
         await refreshPlaybackUrls();
       } catch (e) {
         Log.logPrint(e);
-        // The endpoint can fail during a network handoff. Keep the existing
-        // playlist as a last chance before moving to another line.
-        setPlayer();
+        errorMsg.value = '无法刷新播放地址，请稍后重试';
+        SmartDialog.showToast(errorMsg.value);
       }
       return;
     }
 
-    if (playUrls.length - 1 == currentLineIndex) {
-      errorMsg.value = "播放失败";
-      SmartDialog.showToast("播放失败:$error");
-    } else {
-      //currentLineIndex += 1;
-      //setPlayer();
-      changePlayLine(currentLineIndex + 1);
-    }
+    errorMsg.value = "播放失败";
+    SmartDialog.showToast("播放失败:$error");
   }
 
   /// Re-reads time-limited URLs before retrying the player.

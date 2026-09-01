@@ -12,6 +12,9 @@ import 'package:simple_live_core/src/model/tars/huya_user_id.dart';
 import 'package:tars_dart/tars/net/base_tars_http.dart';
 
 class HuyaSite implements LiveSite {
+  /// Optional session supplied by the host application after official web
+  /// login. The core never persists or logs this value.
+  String cookie = '';
   static const baseUrl = "https://m.huya.com/";
   final String kUserAgent =
       "Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36 Edg/117.0.0.0";
@@ -420,6 +423,7 @@ class HuyaSite implements LiveSite {
       queryParameters: {},
       header: {
         "user-agent": kUserAgent,
+        if (cookie.isNotEmpty) 'cookie': cookie,
       },
     );
     var text = RegExp(

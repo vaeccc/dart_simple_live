@@ -108,5 +108,36 @@ void main() {
       expect(YySite.parseCategoryModuleId(html), '308');
       expect(YySite.parseCategoryTotalCount(html), 251);
     });
+
+    test('parses official YY live search cards and pagination', () {
+      const html = '''
+<li class="s1"><a class="box" href="/1382745169" title="体育老师">
+<img data-original="//example.invalid/cover.jpg" />
+<span class="usr">1.2万</span><span class="title needLight">直播标题</span>
+<span class="intro needLight">测试主播</span></a></li>
+<script>var pageInfo = { tabs: '120', totalPage:'2', q:'测试' };</script>
+''';
+      final rooms = YySite.parseSearchRooms(html);
+      expect(rooms, hasLength(1));
+      expect(rooms.single.roomId, '1382745169');
+      expect(rooms.single.title, '直播标题');
+      expect(rooms.single.userName, '测试主播');
+      expect(rooms.single.online, 12000);
+      expect(YySite.parseSearchTotalPages(html), 2);
+    });
+
+    test('parses official YY anchor search cards and empty markup safely', () {
+      const html = '''
+<li class="anchor-list"><a href="/123456"><img data-original="//example.invalid/avatar.jpg" /></a>
+<span class="needLight name-nick">主播A</span></li>
+''';
+      final anchors = YySite.parseSearchAnchors(html);
+      expect(anchors, hasLength(1));
+      expect(anchors.single.roomId, '123456');
+      expect(anchors.single.userName, '主播A');
+      expect(anchors.single.avatar, 'https://example.invalid/avatar.jpg');
+      expect(YySite.parseSearchRooms('<html></html>'), isEmpty);
+      expect(YySite.parseSearchAnchors('<html></html>'), isEmpty);
+    });
   });
 }

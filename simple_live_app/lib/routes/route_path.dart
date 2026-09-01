@@ -60,6 +60,9 @@ class RoutePath {
   /// YY 网页扫码登录
   static const kYyWebLogin = "/settings/account/yy/web_login";
 
+  /// 虎牙网页登录
+  static const kHuyaWebLogin = "/settings/account/huya/web_login";
+
   /// 数据同步
   static const kLocalSync = "/local_sync";
 

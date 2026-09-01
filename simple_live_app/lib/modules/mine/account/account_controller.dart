@@ -8,9 +8,23 @@ import 'package:simple_live_app/routes/route_path.dart';
 import 'package:simple_live_app/services/bilibili_account_service.dart';
 import 'package:simple_live_app/services/douyin_account_service.dart';
 import 'package:simple_live_app/services/yy_account_service.dart';
+import 'package:simple_live_app/services/huya_account_service.dart';
 import 'package:simple_live_core/simple_live_core.dart';
 
 class AccountController extends GetxController {
+  void huyaTap() async {
+    if (HuyaAccountService.instance.logined.value) {
+      final confirmed =
+          await Utils.showAlertDialog('确定要退出虎牙账号吗？', title: '退出登录');
+      if (confirmed) {
+        await HuyaAccountService.instance.logout();
+        SmartDialog.showToast('已退出虎牙账号');
+      }
+      return;
+    }
+    Get.toNamed(RoutePath.kHuyaWebLogin);
+  }
+
   void yyTap() async {
     if (YyAccountService.instance.logined.value) {
       final confirmed = await Utils.showAlertDialog(
