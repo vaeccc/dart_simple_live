@@ -2,6 +2,11 @@ name: 发布 APP 正式版（含未签名 iOS 构建）
 
 on:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "统一 Release 标签（需与 TV 发布使用相同的 release_* 标签）"
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -76,11 +81,11 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: android-release-${{ github.run_number }}
-          name: "Android Release Build #${{ github.run_number }}"
+          tag_name: ${{ inputs.release_tag }}
+          name: "Simple Live ${{ inputs.release_tag }}"
           target_commitish: ${{ github.sha }}
           generate_release_notes: true
-          make_latest: false
+          make_latest: true
           files: |
             simple_live_app/build/release-apks/*.apk
         env:

@@ -3,7 +3,7 @@ name: 发布 TV 正式版
 on:
   push:
     tags:
-      - "tv_*"
+      - "release_*"
 jobs:
   build-tv:
     runs-on: macos-latest
@@ -84,9 +84,11 @@ jobs:
       - name: Upload Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "${{ fromJson(steps.version.outputs.content).version }}"
-          body: "# Android TV \n${{ fromJson(steps.version.outputs.content).version_desc }}"
+          tag_name: ${{ github.ref_name }}
+          name: "Simple Live ${{ github.ref_name }}"
+          body: "# Android TV\n${{ fromJson(steps.version.outputs.content).version_desc }}"
           prerelease: ${{ fromJson(steps.version.outputs.content).prerelease }}
+          make_latest: true
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
             simple_live_tv_app/build/release-apks/*.apk
