@@ -129,3 +129,15 @@ jobs:
           path: simple_live_app/build/unsigned-ios/*.app.zip
           if-no-files-found: error
           retention-days: 14
+
+      - name: Attach unsigned iOS/iPadOS package to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.release_tag }}
+          name: "Simple Live ${{ inputs.release_tag }}"
+          target_commitish: ${{ github.sha }}
+          make_latest: true
+          files: |
+            simple_live_app/build/unsigned-ios/*.app.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
