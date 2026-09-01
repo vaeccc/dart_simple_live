@@ -310,13 +310,14 @@ class YySite extends LiveSite {
     ).allMatches(html);
     for (final card in cards) {
       final body = card.group(1) ?? '';
-      final roomId = RegExp(r'''href=["']/(\d+)["']''')
-              .firstMatch(body)
-              ?.group(1) ??
-          '';
+      final roomId =
+          RegExp(r'''href=["']/(\d+)["']''').firstMatch(body)?.group(1) ?? '';
       if (!RegExp(r'^\d+$').hasMatch(roomId) || !seen.add(roomId)) continue;
       final title = _decodeHtmlEntities(
-        RegExp(r'''<span[^>]*class=["'][^"']*title[^"']*["'][^>]*>([\s\S]*?)</span>''', caseSensitive: false)
+        RegExp(
+                  r'''<span[^>]*class=["'][^"']*title[^"']*["'][^>]*>([\s\S]*?)</span>''',
+                  caseSensitive: false,
+                )
                 .firstMatch(body)
                 ?.group(1)
                 ?.replaceAll(RegExp(r'<[^>]+>'), '')
@@ -324,7 +325,10 @@ class YySite extends LiveSite {
             _htmlAttribute(body, 'title', tag: 'a'),
       );
       final userName = _decodeHtmlEntities(
-        RegExp(r'''<span[^>]*class=["'][^"']*intro[^"']*["'][^>]*>([\s\S]*?)</span>''', caseSensitive: false)
+        RegExp(
+                  r'''<span[^>]*class=["'][^"']*intro[^"']*["'][^>]*>([\s\S]*?)</span>''',
+                  caseSensitive: false,
+                )
                 .firstMatch(body)
                 ?.group(1)
                 ?.replaceAll(RegExp(r'<[^>]+>'), '')
@@ -332,13 +336,15 @@ class YySite extends LiveSite {
             '',
       );
       final cover = _toHttps(_htmlAttribute(body, 'data-original', tag: 'img'));
-      items.add(LiveRoomItem(
-        roomId: roomId,
-        title: title.isEmpty ? userName : title,
-        cover: cover,
-        userName: userName.isEmpty ? title : userName,
-        online: _parseOnlineText(_firstTagText(body, 'usr')),
-      ));
+      items.add(
+        LiveRoomItem(
+          roomId: roomId,
+          title: title.isEmpty ? userName : title,
+          cover: cover,
+          userName: userName.isEmpty ? title : userName,
+          online: _parseOnlineText(_firstTagText(body, 'usr')),
+        ),
+      );
     }
     return items;
   }
@@ -353,13 +359,14 @@ class YySite extends LiveSite {
     ).allMatches(html);
     for (final card in cards) {
       final body = card.group(1) ?? '';
-      final roomId = RegExp(r'''href=["']/(\d+)["']''')
-              .firstMatch(body)
-              ?.group(1) ??
-          '';
+      final roomId =
+          RegExp(r'''href=["']/(\d+)["']''').firstMatch(body)?.group(1) ?? '';
       if (!RegExp(r'^\d+$').hasMatch(roomId) || !seen.add(roomId)) continue;
       final userName = _decodeHtmlEntities(
-        RegExp(r'''class=["'][^"']*name-nick[^"']*["'][^>]*>([\s\S]*?)</span>''', caseSensitive: false)
+        RegExp(
+                  r'''class=["'][^"']*name-nick[^"']*["'][^>]*>([\s\S]*?)</span>''',
+                  caseSensitive: false,
+                )
                 .firstMatch(body)
                 ?.group(1)
                 ?.replaceAll(RegExp(r'<[^>]+>'), '')
@@ -367,21 +374,24 @@ class YySite extends LiveSite {
             '',
       );
       if (userName.isEmpty) continue;
-      items.add(LiveAnchorItem(
-        roomId: roomId,
-        avatar: _toHttps(_htmlAttribute(body, 'data-original', tag: 'img')),
-        userName: userName,
-        liveStatus: true,
-      ));
+      items.add(
+        LiveAnchorItem(
+          roomId: roomId,
+          avatar: _toHttps(_htmlAttribute(body, 'data-original', tag: 'img')),
+          userName: userName,
+          liveStatus: true,
+        ),
+      );
     }
     return items;
   }
 
   static int? parseSearchTotalPages(String html) {
     return int.tryParse(
-      RegExp(r'''totalPage\s*:\s*['"]?(\d+)''', caseSensitive: false)
-              .firstMatch(html)
-              ?.group(1) ??
+      RegExp(
+            r'''totalPage\s*:\s*['"]?(\d+)''',
+            caseSensitive: false,
+          ).firstMatch(html)?.group(1) ??
           '',
     );
   }

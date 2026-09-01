@@ -30,7 +30,8 @@ class HuyaWebLoginController extends GetxController {
     }
     final values = <String, String>{};
     for (final cookie in cookies) {
-      if (cookie.value.isNotEmpty) values.putIfAbsent(cookie.name, () => cookie.value);
+      if (cookie.value.isNotEmpty)
+        values.putIfAbsent(cookie.name, () => cookie.value);
     }
     if (!_hasLoginCookie(values.keys)) {
       SmartDialog.showToast('暂未检测到虎牙登录状态，请完成官方登录后重试');
@@ -39,7 +40,8 @@ class HuyaWebLoginController extends GetxController {
     await HuyaAccountService.instance.setCookie(
       values.entries.map((entry) => '${entry.key}=${entry.value}').join('; '),
     );
-    final result = await SubscriptionSyncService.instance.syncLoggedInPlatforms();
+    final result = await SubscriptionSyncService.instance
+        .syncLoggedInPlatforms();
     await FollowService.instance.loadData();
     if (result.platforms.contains('虎牙')) {
       SmartDialog.showToast('虎牙登录已保存，已导入 ${result.added} 个订阅');

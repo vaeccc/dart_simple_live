@@ -171,7 +171,8 @@ class SubscriptionSyncService extends GetxService {
       final anchor = item['anchorInfo'];
       if (anchor is! Map) continue;
       final liveUrl = item['liveUrl']?.toString() ?? '';
-      final roomId = RegExp(r'\d+').firstMatch(liveUrl)?.group(0) ??
+      final roomId =
+          RegExp(r'\d+').firstMatch(liveUrl)?.group(0) ??
           _firstValue(anchor, const ['yynum', 'yyno']);
       final userName = _firstValue(anchor, const ['nick', 'nickname', 'name']);
       if (!RegExp(r'^\d+$').hasMatch(roomId) ||

@@ -22,20 +22,27 @@ class HuyaSubscriptionParser {
         'room_id',
         'profileRoom',
       ]);
-      final userName = _first(node, const ['sNick', 'nick', 'userName', 'name']);
+      final userName = _first(node, const [
+        'sNick',
+        'nick',
+        'userName',
+        'name',
+      ]);
       if (RegExp(r'^\d+$').hasMatch(roomId) &&
           userName.isNotEmpty &&
           seen.add(roomId)) {
-        rooms.add(HuyaSubscriptionRoom(
-          roomId: roomId,
-          userName: userName,
-          face: _first(node, const [
-            'sAvatar',
-            'avatar',
-            'avatarUrl',
-            'sVideoCaptureUrl',
-          ]),
-        ));
+        rooms.add(
+          HuyaSubscriptionRoom(
+            roomId: roomId,
+            userName: userName,
+            face: _first(node, const [
+              'sAvatar',
+              'avatar',
+              'avatarUrl',
+              'sVideoCaptureUrl',
+            ]),
+          ),
+        );
       }
       for (final child in node.values) {
         visit(child);
@@ -57,14 +64,16 @@ class HuyaSubscriptionParser {
     ).allMatches(html);
     for (final card in cards) {
       final body = card.group(1) ?? '';
-      final roomId = RegExp(r'''href=["'](?:https?://www\.huya\.com)?/(\d+)["']''')
-              .firstMatch(body)
-              ?.group(1) ??
-          RegExp(r'''data-(?:roomid|room-id)=["'](\d+)["']''')
-                  .firstMatch(body)
-                  ?.group(1) ??
+      final roomId =
+          RegExp(
+            r'''href=["'](?:https?://www\.huya\.com)?/(\d+)["']''',
+          ).firstMatch(body)?.group(1) ??
+          RegExp(
+            r'''data-(?:roomid|room-id)=["'](\d+)["']''',
+          ).firstMatch(body)?.group(1) ??
           '';
-      final userName = RegExp(
+      final userName =
+          RegExp(
             r'''(?:data-nick|title)=["']([^"']+)["']''',
             caseSensitive: false,
           ).firstMatch(body)?.group(1)?.trim() ??
@@ -74,16 +83,19 @@ class HuyaSubscriptionParser {
           !seen.add(roomId)) {
         continue;
       }
-      final face = RegExp(
+      final face =
+          RegExp(
             r'''<img[^>]+(?:data-original|src)=["']([^"']+)["']''',
             caseSensitive: false,
           ).firstMatch(body)?.group(1)?.trim() ??
           '';
-      rooms.add(HuyaSubscriptionRoom(
-        roomId: roomId,
-        userName: _decode(userName),
-        face: face.startsWith('//') ? 'https:$face' : face,
-      ));
+      rooms.add(
+        HuyaSubscriptionRoom(
+          roomId: roomId,
+          userName: _decode(userName),
+          face: face.startsWith('//') ? 'https:$face' : face,
+        ),
+      );
     }
     return rooms;
   }

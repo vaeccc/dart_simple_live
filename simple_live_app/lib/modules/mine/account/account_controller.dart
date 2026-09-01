@@ -14,8 +14,10 @@ import 'package:simple_live_core/simple_live_core.dart';
 class AccountController extends GetxController {
   void huyaTap() async {
     if (HuyaAccountService.instance.logined.value) {
-      final confirmed =
-          await Utils.showAlertDialog('确定要退出虎牙账号吗？', title: '退出登录');
+      final confirmed = await Utils.showAlertDialog(
+        '确定要退出虎牙账号吗？',
+        title: '退出登录',
+      );
       if (confirmed) {
         await HuyaAccountService.instance.logout();
         SmartDialog.showToast('已退出虎牙账号');
