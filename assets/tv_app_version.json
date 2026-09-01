@@ -1,7 +1,7 @@
 {
-    "version": "1.6.7",
-    "version_num": 10607,
-    "version_desc": "- 修复 YY 图标裁切，统一使用完整矢量图标\n- 设置中显示 YY 账号同步状态并支持退出",
+    "version": "1.6.8",
+    "version_num": 10608,
+    "version_desc": "- 虎牙网页登录与关注同步优化\n- YY 搜索与播放稳定性优化\n- 修复平台图标显示与数据同步体验",
     "prerelease": false,
     "download_url": "https://github.com/xiaoyaocz/dart_simple_live/releases"
 }
