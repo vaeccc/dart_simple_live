@@ -6,6 +6,7 @@ import 'package:simple_live_core/src/common/http_client.dart';
 import 'package:crypto/crypto.dart';
 import 'package:simple_live_core/src/model/tars/get_cdn_token_ex_req.dart';
 import 'package:simple_live_core/src/model/tars/get_cdn_token_ex_resp.dart';
+import 'package:simple_live_core/src/model/tars/get_user_subscribe_to_info_list.dart';
 import 'package:simple_live_core/src/model/tars/huya_user_id.dart';
 import 'package:tars_dart/tars/net/base_tars_http.dart';
 
@@ -302,6 +303,66 @@ class HuyaSite implements LiveSite {
     tReq.sStreamName = stream;
     var resp = await tupClient.tupRequest(func, tReq, GetCdnTokenExResp());
     return resp.sFlvToken;
+  }
+
+  /// Reads one page of the official desktop follow list through Huya's TARS
+  /// endpoint. The supplied session is used only for this request and is never
+  /// logged or persisted by the core package.
+  Future<HuyaSubscriptionPage> getSubscribedRooms({
+    required String sessionCookie,
+    int page = 0,
+  }) async {
+    final cookie = sessionCookie.trim();
+    if (cookie.isEmpty) throw StateError('虎牙登录已失效');
+
+    final uid = _cookieValue(cookie, 'udb_uid');
+    final request = GetUserSubscribeToInfoListReq()
+      ..tId = (HuyaUserId()
+        ..lUid = int.tryParse(uid) ?? 0
+        ..sHuYaUA = 'webh5'
+        ..sCookie = cookie)
+      ..iPageIndex = page;
+    final client = BaseTarsHttp(
+      'http://wup.huya.com',
+      'commui',
+      headers: {
+        ...requestHeaders,
+        'Cookie': cookie,
+        'Referer': 'https://www.huya.com/myfollow',
+      },
+    );
+    final response = await client.tupRequest(
+      'getUserSubscribeToInfoList',
+      request,
+      GetUserSubscribeToInfoListRsp(),
+    );
+    if (response.sMessage.isNotEmpty && response.vItems.isEmpty) {
+      throw StateError(response.sMessage);
+    }
+    return HuyaSubscriptionPage(
+      total: response.iTotal,
+      pageSize: response.iPageSize,
+      pageIndex: response.iPageIndex,
+      items: response.vItems
+          .where((item) => item.iRoomId > 0 && item.sNick.trim().isNotEmpty)
+          .map(
+            (item) => HuyaSubscriptionRoom(
+              roomId: item.iRoomId.toString(),
+              userName: item.sNick.trim(),
+              face: item.sAvatar.isNotEmpty
+                  ? item.sAvatar
+                  : item.sVideoCaptureUrl,
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  String _cookieValue(String cookie, String name) {
+    final match = RegExp(
+      '(?:^|;\\s*)${RegExp.escape(name)}=([^;]+)',
+    ).firstMatch(cookie);
+    return match?.group(1) ?? '';
   }
 
   @override
@@ -671,6 +732,34 @@ class HuyaSite implements LiveSite {
     //尚不支持
     return Future.value([]);
   }
+}
+
+class HuyaSubscriptionPage {
+  const HuyaSubscriptionPage({
+    required this.total,
+    required this.pageSize,
+    required this.pageIndex,
+    required this.items,
+  });
+
+  final int total;
+  final int pageSize;
+  final int pageIndex;
+  final List<HuyaSubscriptionRoom> items;
+
+  bool get hasMore => pageSize > 0 && (pageIndex + 1) * pageSize < total;
+}
+
+class HuyaSubscriptionRoom {
+  const HuyaSubscriptionRoom({
+    required this.roomId,
+    required this.userName,
+    required this.face,
+  });
+
+  final String roomId;
+  final String userName;
+  final String face;
 }
 
 class HuyaUrlDataModel {

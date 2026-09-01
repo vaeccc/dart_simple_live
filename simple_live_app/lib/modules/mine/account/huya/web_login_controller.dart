@@ -38,14 +38,22 @@ class HuyaWebLoginController extends GetxController {
       SmartDialog.showToast('暂未检测到虎牙登录状态，请完成官方登录后重试');
       return;
     }
-    await HuyaAccountService.instance.setCookie(
+    final account = HuyaAccountService.instance;
+    await account.setCookie(
       values.entries.map((entry) => '${entry.key}=${entry.value}').join('; '),
     );
+    if (!await account.validateSession()) {
+      await account.logout();
+      SmartDialog.showToast('虎牙网页登录态未生效，请完成登录后等待页面跳转再点“完成登录”');
+      return;
+    }
     final result = await SubscriptionSyncService.instance
         .syncLoggedInPlatforms();
     await FollowService.instance.loadData();
     if (result.platforms.contains('虎牙')) {
       SmartDialog.showToast('虎牙登录已保存，已导入 ${result.added} 个订阅');
+    } else if (result.failures.contains('虎牙')) {
+      SmartDialog.showToast('虎牙登录已保存，但订阅读取失败，请重新登录后重试');
     } else {
       SmartDialog.showToast('虎牙登录已保存；可在“关注”页重新同步订阅');
     }

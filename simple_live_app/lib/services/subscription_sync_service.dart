@@ -1,14 +1,13 @@
-import 'dart:convert';
-
 import 'package:get/get.dart';
 import 'package:simple_live_app/app/constant.dart';
+import 'package:simple_live_app/app/sites.dart';
 import 'package:simple_live_app/models/db/follow_user.dart';
 import 'package:simple_live_app/requests/http_client.dart';
 import 'package:simple_live_app/services/bilibili_account_service.dart';
 import 'package:simple_live_app/services/db_service.dart';
 import 'package:simple_live_app/services/yy_account_service.dart';
 import 'package:simple_live_app/services/huya_account_service.dart';
-import 'package:simple_live_app/services/huya_subscription_parser.dart';
+import 'package:simple_live_core/simple_live_core.dart';
 
 /// Imports subscriptions only from platforms that have an authenticated app
 /// account. The import is additive so it never removes users or custom tags
@@ -87,27 +86,26 @@ class SubscriptionSyncService extends GetxService {
   }
 
   Future<int> _syncHuya() async {
-    final response = await HttpClient.instance.getText(
-      'https://www.huya.com/myfollow',
-      header: {
-        'Cookie': HuyaAccountService.instance.cookie,
-        'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
-            '(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        'Referer': 'https://www.huya.com/',
-      },
-    );
-    if (response.contains('请登录') || response.contains('立即登录')) {
+    if (!await HuyaAccountService.instance.validateSession()) {
       throw StateError('虎牙登录已失效');
     }
-    List<HuyaSubscriptionRoom> rooms = const [];
-    try {
-      rooms = HuyaSubscriptionParser.parseJson(jsonDecode(response));
-    } on FormatException {
-      rooms = HuyaSubscriptionParser.parseHtml(response);
+    final liveSite = Sites.allSites[Constant.kHuya]?.liveSite;
+    if (liveSite is! HuyaSite) {
+      throw StateError('虎牙服务不可用');
     }
-    if (rooms.isEmpty && response.contains('登录')) {
-      throw StateError('虎牙登录已失效');
+    final rooms = <HuyaSubscriptionRoom>[];
+    final seen = <String>{};
+    var page = 0;
+    while (page < 100) {
+      final response = await liveSite.getSubscribedRooms(
+        sessionCookie: HuyaAccountService.instance.cookie,
+        page: page,
+      );
+      for (final room in response.items) {
+        if (seen.add(room.roomId)) rooms.add(room);
+      }
+      if (!response.hasMore || response.items.isEmpty) break;
+      page++;
     }
     return _saveRooms(
       rooms
