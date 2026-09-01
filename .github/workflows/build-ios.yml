@@ -1,0 +1,77 @@
+name: 构建未签名 iOS/iPadOS IPA
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-ios-unsigned:
+    name: iOS/iPadOS Release unsigned IPA
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: simple_live_app
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v5
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.38.3
+          cache: true
+
+      - name: Show selected Xcode and SDK
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+
+      - name: Restore Flutter and CocoaPods dependencies
+        run: |
+          flutter pub get
+          cd ios
+          pod install
+
+      - name: Build unsigned device Release application
+        run: |
+          flutter build ios --release --no-codesign
+
+      - name: Create standard unsigned IPA
+        run: |
+          version="$(awk '/^version:/ {print $2}' pubspec.yaml | cut -d+ -f1)"
+          app_path="build/ios/iphoneos/Runner.app"
+          ipa_path="build/unsigned-ios/simple-live-ios-ipados-v${version}-unsigned.ipa"
+
+          test -d "$app_path"
+          test -f "$app_path/Info.plist"
+          mkdir -p build/unsigned-ios/Payload
+          ditto "$app_path" build/unsigned-ios/Payload/Runner.app
+          (
+            cd build/unsigned-ios
+            ditto -c -k --sequesterRsrc --keepParent Payload "$(basename "$ipa_path")"
+            rm -rf Payload
+          )
+
+      - name: Verify IPA structure and device architecture
+        run: |
+          ipa_path="$(find build/unsigned-ios -maxdepth 1 -name '*.ipa' -print -quit)"
+          test -n "$ipa_path"
+          unzip -l "$ipa_path" | grep -q 'Payload/$'
+          unzip -l "$ipa_path" | grep -q 'Payload/Runner.app/Info.plist$'
+
+          executable="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' build/ios/iphoneos/Runner.app/Info.plist)"
+          test -n "$executable"
+          architectures="$(xcrun lipo -archs "build/ios/iphoneos/Runner.app/$executable")"
+          echo "Device architectures: $architectures"
+          echo "$architectures" | grep -qw arm64
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v7
+        with:
+          name: simple-live-ios-ipados-unsigned-ipa
+          path: simple_live_app/build/unsigned-ios/*.ipa
+          if-no-files-found: error
+          retention-days: 14
