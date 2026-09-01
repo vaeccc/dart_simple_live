@@ -4,12 +4,13 @@ import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:simple_live_tv_app/app/app_focus_node.dart';
 import 'package:simple_live_tv_app/app/app_style.dart';
+import 'package:simple_live_tv_app/modules/sync/sync_controller.dart';
 import 'package:simple_live_tv_app/services/sync_service.dart';
 import 'package:simple_live_tv_app/widgets/app_scaffold.dart';
 import 'package:simple_live_tv_app/widgets/button/highlight_button.dart';
 
 /// Displays the local-network endpoint exposed by the TV.
-class SyncPage extends StatelessWidget {
+class SyncPage extends GetView<SyncController> {
   const SyncPage({super.key});
 
   @override
@@ -41,53 +42,103 @@ class SyncPage extends StatelessWidget {
           ),
           AppStyle.vGap24,
           Expanded(
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '局域网同步',
-                    style: AppStyle.titleStyleWhite.copyWith(
-                      fontSize: 32.w,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  AppStyle.vGap16,
-                  Obx(
-                    () => Visibility(
-                      visible: SyncService.instance.httpRunning.value,
-                      child: QrImageView(
-                        data: SyncService.instance.ipAddress.value,
-                        version: QrVersions.auto,
-                        backgroundColor: Colors.white,
-                        padding: AppStyle.edgeInsetsA24,
-                        size: 420.0.w,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '局域网同步',
+                        style: AppStyle.titleStyleWhite.copyWith(
+                          fontSize: 32.w,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ),
-                  AppStyle.vGap24,
-                  Obx(
-                    () => Text(
-                      SyncService.instance.httpRunning.value
-                          ? '服务已启动：${SyncService.instance.ipAddress.value.split(';').map((e) => '$e:${SyncService.httpPort}').join('；')}'
-                          : 'HTTP 服务未启动：${SyncService.instance.httpErrorMsg}，请尝试重启应用',
-                      style: AppStyle.textStyleWhite,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  AppStyle.vGap12,
-                  Obx(
-                    () => Visibility(
-                      visible: SyncService.instance.httpRunning.value,
-                      child: Text(
-                        '请用 APP 扫描二维码或输入 IP 地址进行连接\n连接后可选择要同步到电视的数据',
-                        style: AppStyle.textStyleWhite,
-                        textAlign: TextAlign.center,
+                      AppStyle.vGap16,
+                      Obx(
+                        () => Visibility(
+                          visible: SyncService.instance.httpRunning.value,
+                          child: QrImageView(
+                            data: SyncService.instance.ipAddress.value,
+                            version: QrVersions.auto,
+                            backgroundColor: Colors.white,
+                            padding: AppStyle.edgeInsetsA24,
+                            size: 420.0.w,
+                          ),
+                        ),
                       ),
+                      AppStyle.vGap24,
+                      Obx(
+                        () => Text(
+                          SyncService.instance.httpRunning.value
+                              ? '服务已启动：${SyncService.instance.ipAddress.value.split(';').map((e) => '$e:${SyncService.httpPort}').join('；')}'
+                              : 'HTTP 服务未启动：${SyncService.instance.httpErrorMsg}，请尝试重启应用',
+                          style: AppStyle.textStyleWhite,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      AppStyle.vGap12,
+                      Obx(
+                        () => Visibility(
+                          visible: SyncService.instance.httpRunning.value,
+                          child: Text(
+                            '请用 APP 扫描二维码或输入 IP 地址进行连接\n连接后可选择要同步到电视的数据',
+                            style: AppStyle.textStyleWhite,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 600.w,
+                  child: Obx(
+                    () => ListView(
+                      children: [
+                        Text(
+                          '发现的设备',
+                          style: AppStyle.titleStyleWhite.copyWith(
+                            fontSize: 28.w,
+                          ),
+                        ),
+                        AppStyle.vGap12,
+                        for (final client in SyncService.instance.scanClients)
+                          Card(
+                            child: ListTile(
+                              title: Text(client.name),
+                              subtitle: Text(
+                                '${client.type} · ${client.address}',
+                              ),
+                              trailing: Wrap(
+                                spacing: 8.w,
+                                children: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        controller.syncFollow(client),
+                                    child: const Text('关注'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        controller.syncHistory(client),
+                                    child: const Text('历史'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        controller.syncBlockedWords(client),
+                                    child: const Text('屏蔽词'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],

@@ -26,6 +26,7 @@ class SyncService extends GetxService {
   static SyncService get instance => Get.find<SyncService>();
 
   UDP? udp;
+  final RxList<SyncClient> scanClients = <SyncClient>[].obs;
   static const int udpPort = 23235;
   static const int httpPort = 23234;
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -56,6 +57,8 @@ class SyncService extends GetxService {
       if (str.startsWith('{') && str.endsWith('}')) {
         var data = json.decode(str);
 
+        if (data['id'] == deviceId) return;
+
         //处理Hello的广播
         if (data["type"] == "hello") {
           //如果http服务已经启动，就回复自己的信息
@@ -64,6 +67,21 @@ class SyncService extends GetxService {
           }
           return;
         }
+        final address = datagram.address.address;
+        final index = scanClients.indexWhere(
+          (element) => element.address == address,
+        );
+        if (index == -1) {
+          scanClients.add(
+            SyncClient(
+              id: data['id']?.toString() ?? '',
+              name: data['name']?.toString() ?? address,
+              address: address,
+              port: httpPort,
+              type: data['type']?.toString() ?? 'unknown',
+            ),
+          );
+        }
       } else if (str == 'Who is SimpleLive?') {
         //如果http服务已经启动，就回复自己的信息
         if (httpRunning.value) {
@@ -71,6 +89,18 @@ class SyncService extends GetxService {
         }
       }
     });
+  }
+
+  void refreshClients() {
+    scanClients.clear();
+    sendHello();
+  }
+
+  Future<void> sendHello() async {
+    await udp?.send(
+      json.encode({'id': deviceId, 'type': 'hello'}).codeUnits,
+      Endpoint.broadcast(port: const Port(udpPort)),
+    );
   }
 
   /// 发送自己的信息
@@ -340,4 +370,20 @@ class SyncService extends GetxService {
     server?.close(force: true);
     super.onClose();
   }
+}
+
+class SyncClient {
+  const SyncClient({
+    required this.id,
+    required this.name,
+    required this.address,
+    required this.port,
+    required this.type,
+  });
+
+  final String id;
+  final String name;
+  final String address;
+  final int port;
+  final String type;
 }
