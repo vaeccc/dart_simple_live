@@ -42,11 +42,6 @@ class HuyaWebLoginController extends GetxController {
     await account.setCookie(
       values.entries.map((entry) => '${entry.key}=${entry.value}').join('; '),
     );
-    if (!await account.validateSession()) {
-      await account.logout();
-      SmartDialog.showToast('虎牙网页登录态未生效，请完成登录后等待页面跳转再点“完成登录”');
-      return;
-    }
     final result = await SubscriptionSyncService.instance
         .syncLoggedInPlatforms();
     await FollowService.instance.loadData();

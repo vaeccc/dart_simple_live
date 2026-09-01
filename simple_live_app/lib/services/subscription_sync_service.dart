@@ -86,9 +86,6 @@ class SubscriptionSyncService extends GetxService {
   }
 
   Future<int> _syncHuya() async {
-    if (!await HuyaAccountService.instance.validateSession()) {
-      throw StateError('虎牙登录已失效');
-    }
     final liveSite = Sites.allSites[Constant.kHuya]?.liveSite;
     if (liveSite is! HuyaSite) {
       throw StateError('虎牙服务不可用');
