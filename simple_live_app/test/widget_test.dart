@@ -14,8 +14,8 @@ import 'package:simple_live_app/main.dart';
 class _TestAppSettingsController extends AppSettingsController {
   // The production initializer needs Hive-backed services, which this widget
   // shell test intentionally does not start.
-  // ignore: must_call_super
   @override
+  // ignore: must_call_super
   void onInit() {}
 }
 
