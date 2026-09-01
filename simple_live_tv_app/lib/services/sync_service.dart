@@ -14,6 +14,7 @@ import 'package:simple_live_tv_app/models/db/follow_user.dart';
 import 'package:simple_live_tv_app/models/db/history.dart';
 import 'package:simple_live_tv_app/services/bilibili_account_service.dart';
 import 'package:simple_live_tv_app/services/db_service.dart';
+import 'package:simple_live_tv_app/services/huya_account_service.dart';
 import 'package:simple_live_tv_app/services/yy_account_service.dart';
 import 'package:udp/udp.dart';
 import 'package:shelf/shelf.dart' as shelf;
@@ -88,9 +89,7 @@ class SyncService extends GetxService {
 
     await udp!.send(
       json.encode(data).codeUnits,
-      Endpoint.broadcast(
-        port: const Port(udpPort),
-      ),
+      Endpoint.broadcast(port: const Port(udpPort)),
     );
     Log.i("send udp info: $data");
   }
@@ -151,6 +150,7 @@ class SyncService extends GetxService {
       serverRouter.post('/sync/blocked_word', _syncBlockedWordReuqest);
       serverRouter.post('/sync/account/bilibili', _syncBiliAccountReuqest);
       serverRouter.post('/sync/account/yy', _syncYyAccountRequest);
+      serverRouter.post('/sync/account/huya', _syncHuyaAccountRequest);
 
       var server = await shelf_io.serve(
         serverRouter,
@@ -199,8 +199,9 @@ class SyncService extends GetxService {
   /// 同步关注用户列表
   Future<shelf.Response> _syncFollowUserReuqest(shelf.Request request) async {
     try {
-      var overlay =
-          int.parse(request.requestedUri.queryParameters['overlay'] ?? '0');
+      var overlay = int.parse(
+        request.requestedUri.queryParameters['overlay'] ?? '0',
+      );
 
       var body = await request.readAsString();
       Log.d('_syncFollowUserReuqest: $body');
@@ -215,23 +216,18 @@ class SyncService extends GetxService {
 
       SmartDialog.showToast('已同步关注用户列表');
       EventBus.instance.emit(Constant.kUpdateFollow, 0);
-      return toJsonResponse({
-        'status': true,
-        'message': 'success',
-      });
+      return toJsonResponse({'status': true, 'message': 'success'});
     } catch (e) {
-      return toJsonResponse({
-        'status': false,
-        'message': e.toString(),
-      });
+      return toJsonResponse({'status': false, 'message': e.toString()});
     }
   }
 
   /// 同步观看记录
   Future<shelf.Response> _syncHistoryReuqest(shelf.Request request) async {
     try {
-      var overlay =
-          int.parse(request.requestedUri.queryParameters['overlay'] ?? '0');
+      var overlay = int.parse(
+        request.requestedUri.queryParameters['overlay'] ?? '0',
+      );
       var body = await request.readAsString();
       Log.d('_syncFollowUserReuqest: $body');
       var jsonBody = json.decode(body);
@@ -252,23 +248,18 @@ class SyncService extends GetxService {
 
       SmartDialog.showToast('已同步观看记录');
       EventBus.instance.emit(Constant.kUpdateHistory, 0);
-      return toJsonResponse({
-        'status': true,
-        'message': 'success',
-      });
+      return toJsonResponse({'status': true, 'message': 'success'});
     } catch (e) {
-      return toJsonResponse({
-        'status': false,
-        'message': e.toString(),
-      });
+      return toJsonResponse({'status': false, 'message': e.toString()});
     }
   }
 
   /// 同步弹幕屏蔽词
   Future<shelf.Response> _syncBlockedWordReuqest(shelf.Request request) async {
     try {
-      var overlay =
-          int.parse(request.requestedUri.queryParameters['overlay'] ?? '0');
+      var overlay = int.parse(
+        request.requestedUri.queryParameters['overlay'] ?? '0',
+      );
       var body = await request.readAsString();
       Log.d('_syncBlockedWordReuqest: $body');
       var jsonBody = json.decode(body);
@@ -279,15 +270,9 @@ class SyncService extends GetxService {
         AppSettingsController.instance.addShieldList(keyword.trim());
       }
       SmartDialog.showToast('已同步弹幕屏蔽词');
-      return toJsonResponse({
-        'status': true,
-        'message': 'success',
-      });
+      return toJsonResponse({'status': true, 'message': 'success'});
     } catch (e) {
-      return toJsonResponse({
-        'status': false,
-        'message': e.toString(),
-      });
+      return toJsonResponse({'status': false, 'message': e.toString()});
     }
   }
 
@@ -300,15 +285,9 @@ class SyncService extends GetxService {
       BiliBiliAccountService.instance.setCookie(cookie);
       BiliBiliAccountService.instance.loadUserInfo();
       SmartDialog.showToast('已同步哔哩哔哩账号');
-      return toJsonResponse({
-        'status': true,
-        'message': 'success',
-      });
+      return toJsonResponse({'status': true, 'message': 'success'});
     } catch (e) {
-      return toJsonResponse({
-        'status': false,
-        'message': e.toString(),
-      });
+      return toJsonResponse({'status': false, 'message': e.toString()});
     }
   }
 
@@ -329,12 +308,27 @@ class SyncService extends GetxService {
     }
   }
 
+  /// Sync Huya's web-login session without logging its cookie.
+  Future<shelf.Response> _syncHuyaAccountRequest(shelf.Request request) async {
+    try {
+      var body = await request.readAsString();
+      var jsonBody = json.decode(body);
+      var cookie = jsonBody['cookie'];
+      if (cookie is! String || cookie.trim().isEmpty) {
+        throw '虎牙登录信息无效';
+      }
+      await HuyaAccountService.instance.setCookie(cookie);
+      SmartDialog.showToast('已同步虎牙账号');
+      return toJsonResponse({'status': true, 'message': 'success'});
+    } catch (e) {
+      return toJsonResponse({'status': false, 'message': e.toString()});
+    }
+  }
+
   shelf.Response toJsonResponse(Map<String, dynamic> data) {
     return shelf.Response.ok(
       json.encode(data),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: {'Content-Type': 'application/json'},
       encoding: Encoding.getByName('utf-8'),
     );
   }

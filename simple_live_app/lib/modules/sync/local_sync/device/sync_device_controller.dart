@@ -9,6 +9,7 @@ import 'package:simple_live_app/models/sync_client_info_model.dart';
 import 'package:simple_live_app/requests/sync_client_request.dart';
 import 'package:simple_live_app/services/bilibili_account_service.dart';
 import 'package:simple_live_app/services/db_service.dart';
+import 'package:simple_live_app/services/huya_account_service.dart';
 import 'package:simple_live_app/services/sync_service.dart';
 import 'package:simple_live_app/services/yy_account_service.dart';
 
@@ -93,7 +94,9 @@ class SyncDeviceController extends BaseController {
       SmartDialog.showLoading(msg: "同步中...");
 
       await request.syncBiliAccount(
-          client, BiliBiliAccountService.instance.cookie);
+        client,
+        BiliBiliAccountService.instance.cookie,
+      );
       SmartDialog.showToast("已同步哔哩哔哩账号");
     } catch (e) {
       SmartDialog.showToast("同步失败:$e");
@@ -114,6 +117,23 @@ class SyncDeviceController extends BaseController {
       SmartDialog.showToast("已同步 YY 账号");
     } catch (e) {
       SmartDialog.showToast("同步失败:$e");
+      Log.logPrint(e);
+    } finally {
+      SmartDialog.dismiss();
+    }
+  }
+
+  void syncHuyaAccount() async {
+    try {
+      if (!HuyaAccountService.instance.logined.value) {
+        SmartDialog.showToast('未登录虎牙');
+        return;
+      }
+      SmartDialog.showLoading(msg: '同步中...');
+      await request.syncHuyaAccount(client, HuyaAccountService.instance.cookie);
+      SmartDialog.showToast('已同步虎牙账号');
+    } catch (e) {
+      SmartDialog.showToast('同步失败:$e');
       Log.logPrint(e);
     } finally {
       SmartDialog.dismiss();

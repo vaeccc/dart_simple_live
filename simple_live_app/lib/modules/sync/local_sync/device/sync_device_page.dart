@@ -11,9 +11,7 @@ class SyncDevicePage extends GetView<SyncDeviceController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("同步"),
-      ),
+      appBar: AppBar(title: const Text("同步")),
       body: ListView(
         padding: AppStyle.edgeInsetsA12.copyWith(top: 0),
         children: [
@@ -22,7 +20,8 @@ class SyncDevicePage extends GetView<SyncDeviceController> {
               leading: buildIcon(),
               title: Text(controller.info.name),
               subtitle: Text(
-                  "${controller.info.type.toUpperCase()}   ${controller.info.address}"),
+                "${controller.info.type.toUpperCase()}   ${controller.info.address}",
+              ),
             ),
           ),
           AppStyle.vGap12,
@@ -72,6 +71,16 @@ class SyncDevicePage extends GetView<SyncDeviceController> {
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     controller.syncYyAccount();
+                  },
+                ),
+                AppStyle.divider,
+                ListTile(
+                  leading: const Icon(Remix.account_circle_line),
+                  title: const Text('同步虎牙账号'),
+                  subtitle: const Text('仅发送到当前可信局域网设备'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    controller.syncHuyaAccount();
                   },
                 ),
               ],

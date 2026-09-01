@@ -5,6 +5,7 @@ import 'package:simple_live_tv_app/app/controller/base_controller.dart';
 import 'package:simple_live_tv_app/app/utils.dart';
 import 'package:simple_live_tv_app/routes/app_navigation.dart';
 import 'package:simple_live_tv_app/services/bilibili_account_service.dart';
+import 'package:simple_live_tv_app/services/huya_account_service.dart';
 import 'package:simple_live_tv_app/services/yy_account_service.dart';
 
 class SettingsController extends BaseController
@@ -54,6 +55,7 @@ class SettingsController extends BaseController
 
   var bilibiliFoucsNode = AppFocusNode();
   var yyFocusNode = AppFocusNode();
+  var huyaFocusNode = AppFocusNode();
   var versionFocusNode = AppFocusNode();
   void bilibiliTap() async {
     if (BiliBiliAccountService.instance.logined.value) {
@@ -76,4 +78,13 @@ class SettingsController extends BaseController
     }
   }
 
+  void huyaTap() async {
+    if (!HuyaAccountService.instance.logined.value) {
+      return;
+    }
+    var result = await Utils.showAlertDialog('确定要退出虎牙账号吗？', title: '退出登录');
+    if (result) {
+      await HuyaAccountService.instance.logout();
+    }
+  }
 }

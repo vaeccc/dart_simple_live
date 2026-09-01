@@ -20,6 +20,7 @@ import 'package:simple_live_tv_app/routes/route_path.dart';
 import 'package:simple_live_tv_app/services/bilibili_account_service.dart';
 import 'package:simple_live_tv_app/services/db_service.dart';
 import 'package:simple_live_tv_app/services/follow_user_service.dart';
+import 'package:simple_live_tv_app/services/huya_account_service.dart';
 import 'package:simple_live_tv_app/services/local_storage_service.dart';
 import 'package:simple_live_tv_app/services/sync_service.dart';
 import 'package:simple_live_tv_app/services/yy_account_service.dart';
@@ -77,6 +78,7 @@ Future initServices() async {
 
   Get.put(BiliBiliAccountService());
   Get.put(YyAccountService());
+  Get.put(HuyaAccountService());
 
   Get.put(SyncService());
 
@@ -114,9 +116,9 @@ class MyApp extends StatelessWidget {
             ),
             //字体大小不跟随系统变化
             builder: (context, child) => MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                textScaler: const TextScaler.linear(1.0),
-              ),
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: const TextScaler.linear(1.0)),
               child: child!,
             ),
           ),

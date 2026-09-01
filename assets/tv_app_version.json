@@ -1,7 +1,7 @@
 {
-    "version": "1.6.8",
-    "version_num": 10608,
-    "version_desc": "- 虎牙网页登录与关注同步优化\n- YY 搜索与播放稳定性优化\n- 修复平台图标显示与数据同步体验",
+    "version": "1.6.9",
+    "version_num": 10609,
+    "version_desc": "- 支持将虎牙网页登录态从 APP 同步到 TV\n- TV 端安全保存虎牙会话并支持退出登录\n- 优化局域网账号同步提示",
     "prerelease": false,
     "download_url": "https://github.com/xiaoyaocz/dart_simple_live/releases"
 }

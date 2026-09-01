@@ -19,9 +19,7 @@ class SyncClientRequest {
     var data = await HttpClient.instance.postJson(
       url,
       data: body,
-      queryParameters: {
-        'overlay': overlay ? '1' : '0',
-      },
+      queryParameters: {'overlay': overlay ? '1' : '0'},
     );
 
     if (data["status"]) {
@@ -32,17 +30,15 @@ class SyncClientRequest {
   }
 
   Future<bool> syncTag(
-      SyncClinet client,
-      dynamic body, {
-        bool overlay = false,
-      }) async {
+    SyncClinet client,
+    dynamic body, {
+    bool overlay = false,
+  }) async {
     var url = "http://${client.address}:${client.port}/sync/tag";
     var data = await HttpClient.instance.postJson(
       url,
       data: body,
-      queryParameters: {
-        'overlay': overlay ? '1' : '0',
-      },
+      queryParameters: {'overlay': overlay ? '1' : '0'},
     );
 
     if (data["status"]) {
@@ -61,9 +57,7 @@ class SyncClientRequest {
     var data = await HttpClient.instance.postJson(
       url,
       data: body,
-      queryParameters: {
-        'overlay': overlay ? '1' : '0',
-      },
+      queryParameters: {'overlay': overlay ? '1' : '0'},
     );
 
     if (data["status"]) {
@@ -82,9 +76,7 @@ class SyncClientRequest {
     var data = await HttpClient.instance.postJson(
       url,
       data: body,
-      queryParameters: {
-        'overlay': overlay ? '1' : '0',
-      },
+      queryParameters: {'overlay': overlay ? '1' : '0'},
     );
 
     if (data["status"]) {
@@ -98,9 +90,7 @@ class SyncClientRequest {
     var url = "http://${client.address}:${client.port}/sync/account/bilibili";
     var data = await HttpClient.instance.postJson(
       url,
-      data: {
-        "cookie": cookie,
-      },
+      data: {"cookie": cookie},
     );
 
     if (data["status"]) {
@@ -112,6 +102,20 @@ class SyncClientRequest {
 
   Future<bool> syncYyAccount(SyncClinet client, String cookie) async {
     var url = "http://${client.address}:${client.port}/sync/account/yy";
+    var data = await HttpClient.instance.postJson(
+      url,
+      data: {"cookie": cookie},
+    );
+
+    if (data["status"]) {
+      return true;
+    } else {
+      throw data["message"];
+    }
+  }
+
+  Future<bool> syncHuyaAccount(SyncClinet client, String cookie) async {
+    var url = "http://${client.address}:${client.port}/sync/account/huya";
     var data = await HttpClient.instance.postJson(
       url,
       data: {"cookie": cookie},
