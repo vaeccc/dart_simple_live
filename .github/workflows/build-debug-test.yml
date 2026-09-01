@@ -1,0 +1,50 @@
+name: 构建 Debug 测试 APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  app:
+    name: APP Debug 测试包
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: simple_live_app
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.38.3
+          cache: true
+      - run: flutter pub get
+      - run: flutter build apk --debug
+      - uses: actions/upload-artifact@v7
+        with:
+          name: simple-live-app-debug-test
+          path: simple_live_app/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+
+  tv:
+    name: TV Debug 测试包
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: simple_live_tv_app
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.38.3
+          cache: true
+      - run: flutter pub get
+      - run: flutter build apk --debug
+      - uses: actions/upload-artifact@v7
+        with:
+          name: simple-live-tv-debug-test
+          path: simple_live_tv_app/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
