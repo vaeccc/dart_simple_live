@@ -1,0 +1,37 @@
+name: 构建未签名 iOS/iPadOS 测试产物
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-ios-unsigned:
+    name: iOS/iPadOS 未签名构建
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: simple_live_app
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.38.3
+          cache: true
+      - run: flutter pub get
+      - run: flutter build ios --release --no-codesign
+      - name: Package unsigned application bundle
+        run: |
+          version="$(awk '/^version:/ {print $2}' pubspec.yaml | cut -d+ -f1)"
+          mkdir -p build/unsigned-ios
+          ditto -c -k --sequesterRsrc --keepParent \
+            build/ios/iphoneos/Runner.app \
+            "build/unsigned-ios/simple-live-ios-ipados-v${version}-unsigned.app.zip"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: simple-live-ios-ipados-unsigned
+          path: simple_live_app/build/unsigned-ios/*.app.zip
+          if-no-files-found: error
+          retention-days: 14
