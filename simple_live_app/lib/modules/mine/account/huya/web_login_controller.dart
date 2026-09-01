@@ -30,8 +30,9 @@ class HuyaWebLoginController extends GetxController {
     }
     final values = <String, String>{};
     for (final cookie in cookies) {
-      if (cookie.value.isNotEmpty)
+      if (cookie.value.isNotEmpty) {
         values.putIfAbsent(cookie.name, () => cookie.value);
+      }
     }
     if (!_hasLoginCookie(values.keys)) {
       SmartDialog.showToast('暂未检测到虎牙登录状态，请完成官方登录后重试');
