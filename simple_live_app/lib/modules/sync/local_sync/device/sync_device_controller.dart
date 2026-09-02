@@ -31,19 +31,20 @@ class SyncDeviceController extends BaseController {
 
   void syncFollowAndTag() async {
     try {
-      var overlay = await showOverlayDialog();
       SmartDialog.showLoading(msg: "同步中...");
       var users = DBService.instance.getFollowList();
       var tags = DBService.instance.getFollowTagList();
       var data = json.encode(users.map((e) => e.toJson()).toList());
       var dataT = json.encode(tags.map((e) => e.toJson()).toList());
-      await request.syncFollow(client, data, overlay: overlay);
+      // Follow synchronization is intentionally additive. A device must never
+      // lose its existing follows merely because another device has fewer.
+      await request.syncFollow(client, data, overlay: false);
       if (info.type != 'tv') {
-        await request.syncTag(client, dataT, overlay: overlay);
-        SmartDialog.showToast("已同步关注列表和标签");
+        await request.syncTag(client, dataT, overlay: false);
+        SmartDialog.showToast("已合并关注列表和标签");
       } else {
         // TV only exposes the follow-list endpoint and does not use mobile tags.
-        SmartDialog.showToast("已同步关注列表到电视");
+        SmartDialog.showToast("已合并关注列表到电视");
       }
     } catch (e) {
       SmartDialog.showToast("同步失败:$e");

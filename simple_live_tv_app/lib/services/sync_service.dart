@@ -241,6 +241,11 @@ class SyncService extends GetxService {
       }
       for (var item in jsonBody) {
         var user = FollowUser.fromJson(item);
+        // Default LAN sync is additive so receiving a follow list does not
+        // overwrite the TV's existing local follows.
+        if (overlay == 0 && DBService.instance.followBox.containsKey(user.id)) {
+          continue;
+        }
         await DBService.instance.followBox.put(user.id, user);
       }
 

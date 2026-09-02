@@ -130,6 +130,11 @@ class SyncPage extends GetView<SyncController> {
                                         controller.syncBlockedWords(client),
                                     child: const Text('屏蔽词'),
                                   ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        controller.syncHuyaAccount(client),
+                                    child: const Text('虎牙账号'),
+                                  ),
                                 ],
                               ),
                             ),

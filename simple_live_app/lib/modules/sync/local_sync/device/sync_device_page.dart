@@ -31,6 +31,7 @@ class SyncDevicePage extends GetView<SyncDeviceController> {
                 ListTile(
                   leading: const Icon(Remix.heart_line),
                   title: const Text("同步关注列表"),
+                  subtitle: const Text("合并到目标设备，不删除已有关注"),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     controller.syncFollowAndTag();

@@ -3,6 +3,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:simple_live_tv_app/app/controller/app_settings_controller.dart';
 import 'package:simple_live_tv_app/requests/http_client.dart';
 import 'package:simple_live_tv_app/services/db_service.dart';
+import 'package:simple_live_tv_app/services/huya_account_service.dart';
 import 'package:simple_live_tv_app/services/sync_service.dart';
 
 /// Route binding retained for the local-network sync page.
@@ -33,6 +34,19 @@ class SyncController extends BaseController {
     AppSettingsController.instance.shieldList.toList(),
     '屏蔽词',
   );
+
+  Future<void> syncHuyaAccount(SyncClient client) async {
+    if (!HuyaAccountService.instance.logined.value) {
+      SmartDialog.showToast('本机未登录虎牙');
+      return;
+    }
+    await _sync(
+      client,
+      '/sync/account/huya',
+      {'cookie': HuyaAccountService.instance.cookie},
+      '虎牙账号',
+    );
+  }
 
   Future<void> _sync(
     SyncClient client,

@@ -20,7 +20,7 @@ Request Method：${err.requestOptions.method}
 Response Code：${err.response?.statusCode}
 Request URL：${err.requestOptions.uri}
 Request Query：${err.requestOptions.queryParameters}
-Request Data：${err.requestOptions.data}
+Request Data：${_maskData(err.requestOptions.data)}
 Request Headers：${err.requestOptions.headers}
 Response Headers：${err.response?.headers.map}
 Response Data：${err.response?.data}''', err.stackTrace);
@@ -37,11 +37,27 @@ Request Method：${response.requestOptions.method}
 Request Code：${response.statusCode}
 Request URL：${response.requestOptions.uri}
 Request Query：${response.requestOptions.queryParameters}
-Request Data：${response.requestOptions.data}
+Request Data：${_maskData(response.requestOptions.data)}
 Request Headers：${response.requestOptions.headers}
 Response Headers：${response.headers.map}
 Response Data：${response.data}''',
     );
     super.onResponse(response, handler);
+  }
+
+  String _maskData(dynamic data) {
+    if (data is Map) {
+      final result = Map<dynamic, dynamic>.from(data);
+      for (final key in result.keys.toList()) {
+        final name = key.toString().toLowerCase();
+        if (name.contains('cookie') ||
+            name.contains('token') ||
+            name.contains('password')) {
+          result[key] = '******';
+        }
+      }
+      return result.toString();
+    }
+    return data.toString();
   }
 }
