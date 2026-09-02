@@ -6,17 +6,19 @@
 
 <p align="center">简简单单地看直播。</p>
 
-## 下载
+## 下载与安装
 
-正式安装包统一发布在 [GitHub Releases](https://github.com/vaeccc/dart_simple_live/releases)。请勿将 Actions 的 debug 构建作为日常使用版本。
+请从 [Releases 正式版](https://github.com/vaeccc/dart_simple_live/releases) 下载。日常使用请不要下载 Actions 页面中的 debug 测试包。
 
-| 平台 | 下载内容 | 说明 |
+| 设备 | 应下载的文件 | 说明 |
 | --- | --- | --- |
-| Android APP | `simple-live-app-*-arm64-v8a.apk` | 大多数 Android 手机、平板请选择此版本。 |
-| Android TV | `simple-live-tv-*-arm64-v8a.apk` | 大多数 Android TV / 电视盒子请选择此版本。 |
-| iOS / iPadOS | `simple-live-ios-ipados-*-unsigned.ipa` | ARM64 Release IPA，未签名，需自行重签名后才可安装。 |
+| Android 手机/平板 | `simple-live-app-*-arm64-v8a.apk` | 绝大多数 Android 设备选择此文件。 |
+| Android TV / 电视盒子 | `simple-live-tv-*-arm64-v8a.apk` | 绝大多数电视与盒子选择此文件。 |
+| iPhone / iPad | `simple-live-ios-ipados-*-unsigned.ipa` | 未签名安装包，需要自行签名后才能安装。 |
 
-其他 Android 架构仅在设备明确需要时选择。iOS/iPadOS IPA 不包含 Apple 证书、描述文件或 Apple ID，Windows 不能直接将其安装到 iPhone/iPad。
+Android 如提示“禁止安装未知应用”，请在系统设置中允许当前浏览器或文件管理器安装应用。只有设备明确不支持 `arm64-v8a` 时，才尝试下载其他架构的 APK。
+
+> iOS/iPadOS 安装包没有 Apple 签名，不能直接点开安装；需要用自己的 Apple 开发者签名、TestFlight 或其他签名方式处理后使用。
 
 ## 支持的平台
 
@@ -26,77 +28,64 @@
 - 抖音直播
 - YY 直播
 
-客户端包括 Flutter APP、Android TV，以及仍在完善中的 Windows、macOS、Linux 客户端。
+## 主要功能
 
-## 虎牙与 YY
+- 搜索主播、直播间和房间号。
+- 输入直播间链接可直接打开。
+- 多清晰度、多播放线路；播放失败时自动尝试备用线路。
+- 收藏关注、观看历史和弹幕屏蔽词。
+- 虎牙与 YY 网页登录、关注同步。
+- 手机、平板和 TV 之间的局域网数据同步。
+
+## 虎牙与 YY 使用说明
 
 ### 虎牙
 
-- 支持主播/房间搜索、公开直播播放和多 CDN 播放线路。
-- APP 使用虎牙官方网页登录/二维码登录，不保存账号密码。
-- 登录会话使用安全存储保存；可以退出并清除会话。
-- 已登录后可将虎牙官方关注列表合并到本地关注。
+虎牙支持公开直播观看、主播/房间搜索和多个播放线路。
+
+在“我的/账号”中选择虎牙网页登录，按虎牙官方页面完成登录即可。应用不会要求或保存你的虎牙密码。登录后可将虎牙官方已关注的主播导入到本地关注列表。
 
 ### YY
 
-- 支持主播昵称、标题、房间号搜索及 YY 房间链接解析。
-- 支持公开直播播放；播放器会优先尝试 HLS，再切换 FLV，并在地址过期时有限次数重新获取播放信息。
-- APP 支持 YY 网页登录与关注同步。
+YY 支持主播昵称、标题、房间号和房间链接搜索。公开直播无需登录即可观看。
 
-弹幕不属于登录、搜索、关注同步或播放链路的前置条件；某个平台的弹幕不可用不会阻止正常观看。
+需要查看受限内容或导入 YY 关注时，可在“我的/账号”中完成 YY 网页登录。
 
 ## 局域网同步
 
-同步只在同一局域网内进行，不使用远程同步服务。APP、TV 需保持在同一 Wi-Fi/局域网，并允许本地网络访问。
+手机、平板和 TV 连接到同一个 Wi-Fi 后，可以互相同步数据；不使用远程同步服务器。
 
-1. 在 APP 或 TV 打开“数据同步”。
-2. 等待发现另一台设备；APP 也可扫描 TV 显示的二维码或手动输入 IP。
-3. 选择目标设备后，按需同步数据。
+1. 在两台设备上打开“数据同步”。
+2. 等待设备自动发现；手机 APP 也可以扫描 TV 的二维码或手动输入 TV IP。
+3. 选择目标设备，再点选需要同步的内容。
 
-可同步的数据：
+可同步的内容：
 
-- 关注列表：**默认合并**。接收端保留已有关注，只新增不存在的直播间，不会因为另一设备的列表较少而删除本机关注。
-- 观看历史：保留更新时间较新的记录。
-- 弹幕屏蔽词：合并去重。
-- 登录会话：哔哩哔哩、YY、虎牙均为手动触发的明确操作；虎牙可从 APP 或已登录的 TV 同步到当前选定设备。
+- **关注列表**：自动合并。不会删除或覆盖目标设备已有的关注，只会添加缺少的直播间。
+- **观看历史**：保留较新的记录。
+- **屏蔽词**：自动合并去重。
+- **登录账号**：哔哩哔哩、YY、虎牙都需要手动点击同步；虎牙可从已登录的 APP 或 TV 同步到当前选定设备。
 
-账号同步会传输登录 Cookie。请只在自己信任的局域网和设备之间使用，操作完成后可在账号设置中退出登录并清除本地会话。
+账号同步会传输登录状态。请只在自己信任的 Wi-Fi 和设备之间使用；不用时可在账号设置中退出登录。
 
-## 项目结构
+## 常见问题
 
-- `simple_live_core`：站点解析、播放地址与核心模型。
-- `simple_live_console`：基于核心库的命令行程序。
-- `simple_live_app`：Flutter 手机/平板客户端。
-- `simple_live_tv_app`：Flutter Android TV 客户端。
+### 为什么搜索或分类没有内容？
 
-## 开发与验证
+直播平台的公开接口、地区、网络状态和主播开播状态都会影响结果。请先确认网络可访问平台网站，或直接输入房间号/直播间链接打开。
 
-项目当前使用 Flutter `3.38`。常用验证命令：
+### 为什么点进直播间不能播放？
 
-```bash
-dart format .
-dart analyze
-dart test
+主播可能已经下播、播放地址已过期，或当前网络拦截了直播线路。返回后重新打开房间，应用会重新获取播放地址并尝试备用线路。
 
-cd simple_live_app
-flutter analyze
-flutter test
+### 为什么同步不到设备？
 
-cd ../simple_live_tv_app
-flutter analyze
-flutter test
-```
+确认两台设备处于同一局域网，且没有启用访客 Wi-Fi、AP 隔离或 VPN。iPhone/iPad 首次使用时，请允许“本地网络”权限。
 
-仓库仅维护 `master` 正式开发与发布分支。GitHub Actions 会执行核心、APP、TV 的分析、测试和构建校验；正式发布仅生成正式 APK 与 unsigned iOS IPA。
+### 为什么 iPhone/iPad 不能直接安装？
 
-## 参考
-
-- [AllLive](https://github.com/xiaoyaocz/AllLive)
-- [dart_tars_protocol](https://github.com/xiaoyaocz/dart_tars_protocol)
-- [wbt5/real-url](https://github.com/wbt5/real-url)
-- [lovelyyoshino/Bilibili-Live-API](https://github.com/lovelyyoshino/Bilibili-Live-API/blob/master/API.WebSocket.md)
-- [TarsCloud/Tars](https://github.com/TarsCloud/Tars)
+iOS 安装需要 Apple 签名。当前 Release 提供的是可后续重签名的 unsigned IPA，不是可直接安装的 TestFlight 或 App Store 版本。
 
 ## 声明
 
-本项目基于公开资料开发，仅供学习和交流编程技术使用。请遵守相关平台规则及当地法律法规，不得用于商业或违法用途。如有侵权，请联系维护者处理。
+本项目仅供学习与个人使用。请遵守各直播平台规则及当地法律法规，不得用于商业或违法用途。
