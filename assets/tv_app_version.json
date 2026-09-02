@@ -1,7 +1,7 @@
 {
-    "version": "1.6.10",
-    "version_num": 10610,
-    "version_desc": "- TV 可发现局域网内的 APP 和其他 TV\n- 支持从 TV 同步关注、观看历史和屏蔽词\n- 优化 iOS/iPadOS 局域网设备发现权限",
+    "version": "1.6.11",
+    "version_num": 10611,
+    "version_desc": "- 关注列表局域网同步改为合并，保留本机已有关注\n- TV 支持向已发现设备同步虎牙账号\n- 同步日志自动隐藏 Cookie、Token 等敏感信息",
     "prerelease": false,
-    "download_url": "https://github.com/xiaoyaocz/dart_simple_live/releases"
+    "download_url": "https://github.com/vaeccc/dart_simple_live/releases"
 }
