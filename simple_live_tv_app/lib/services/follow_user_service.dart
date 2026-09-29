@@ -111,6 +111,10 @@ class FollowUserService extends BasePageController<FollowUser> {
       final detail = await site.liveSite.getRoomDetail(roomId: item.roomId);
       item.roomDetail.value = detail;
       item.liveStatus.value = detail.status ? 2 : 1;
+      if (detail.title.isNotEmpty && item.roomTitle != detail.title) {
+        item.roomTitle = detail.title;
+        await DBService.instance.addFollow(item);
+      }
       //sortList();
       //updateLivingList();
     } catch (e) {

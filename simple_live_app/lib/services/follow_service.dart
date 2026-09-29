@@ -233,6 +233,10 @@ class FollowService extends GetxService {
         var detail = await site.liveSite.getRoomDetail(roomId: item.roomId);
         item.roomDetail.value = detail;
         item.liveStartTime = detail.showTime;
+        if (detail.title.isNotEmpty && item.roomTitle != detail.title) {
+          item.roomTitle = detail.title;
+          await DBService.instance.addFollow(item);
+        }
       } else {
         item.roomDetail.value = null;
         item.liveStartTime = null;
@@ -415,7 +419,8 @@ class FollowService extends GetxService {
             "userName": item.userName,
             "face": item.face,
             "addTime": item.addTime.toString(),
-            "tag": item.tag
+            "tag": item.tag,
+            "roomTitle": item.roomTitle,
           },
         )
         .toList();

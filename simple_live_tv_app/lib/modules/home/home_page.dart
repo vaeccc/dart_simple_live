@@ -211,7 +211,9 @@ class HomePage extends GetView<HomeController> {
                                 : item.face,
                             title: detail?.title.isNotEmpty == true
                                 ? detail!.title
-                                : item.userName,
+                                : (item.roomTitle.isNotEmpty
+                                    ? item.roomTitle
+                                    : item.userName),
                             anchor: detail?.userName.isNotEmpty == true
                                 ? detail!.userName
                                 : item.userName,

@@ -312,6 +312,7 @@ class LiveRoomController extends PlayerController with WidgetsBindingObserver {
               userName: roomDetail.userName,
               face: roomDetail.userAvatar,
               addTime: DateTime.now(),
+              roomTitle: roomDetail.title,
             ),
           );
         } else {
@@ -681,6 +682,7 @@ class LiveRoomController extends PlayerController with WidgetsBindingObserver {
         userName: detail.value?.userName ?? "",
         face: detail.value?.userAvatar ?? "",
         addTime: DateTime.now(),
+        roomTitle: detail.value?.title ?? "",
       ),
     );
     followed.value = true;

@@ -393,6 +393,7 @@ class LiveRoomController extends PlayerController with WidgetsBindingObserver {
         userName: detail.value?.userName ?? "",
         face: detail.value?.userAvatar ?? "",
         addTime: DateTime.now(),
+        roomTitle: detail.value?.title ?? "",
       ),
     );
     followed.value = true;

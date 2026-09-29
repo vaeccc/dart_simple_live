@@ -14,6 +14,7 @@ class FollowUser {
     required this.userName,
     required this.face,
     required this.addTime,
+    this.roomTitle = "",
   });
 
   ///id=siteId_roomId
@@ -35,6 +36,10 @@ class FollowUser {
   @HiveField(5)
   DateTime addTime;
 
+  /// 最近一次获取到的直播间标题，用于关注列表和跨设备同步。
+  @HiveField(6)
+  String roomTitle;
+
   /// 直播状态
   /// 0=未知(加载中) 1=未开播 2=直播中
   Rx<int> liveStatus = 0.obs;
@@ -52,6 +57,7 @@ class FollowUser {
         userName: json['userName'],
         face: json['face'],
         addTime: DateTime.parse(json['addTime']),
+        roomTitle: json['roomTitle'] ?? "",
       );
 
   Map<String, dynamic> toJson() => {
@@ -61,5 +67,6 @@ class FollowUser {
         'userName': userName,
         'face': face,
         'addTime': addTime.toString(),
+        'roomTitle': roomTitle,
       };
 }
