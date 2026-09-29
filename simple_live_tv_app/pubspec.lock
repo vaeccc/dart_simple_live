@@ -101,7 +101,7 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: HEAD
+      ref: b335f65fb577e5f355689d8a21ace6d034a5bb47
       resolved-ref: b335f65fb577e5f355689d8a21ace6d034a5bb47
       url: "https://github.com/xiaoyaocz/dart_quickjs"
     source: git

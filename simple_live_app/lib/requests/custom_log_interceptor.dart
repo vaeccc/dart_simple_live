@@ -21,24 +21,24 @@ ${err.message}
 
 Request Method：${err.requestOptions.method}
 Response Code：${err.response?.statusCode}
-Request URL：${err.requestOptions.uri}
-Request Query：${err.requestOptions.queryParameters}
+Request URL：${_maskUri(err.requestOptions.uri)}
+Request Query：${_maskData(err.requestOptions.queryParameters)}
 Request Data：${_maskData(err.requestOptions.data)}
 Request Headers：${_maskHeader(err.requestOptions.headers)}
-Response Headers：${err.response?.headers.map}
-Response Data：${err.response?.data}''', err.stackTrace);
+Response Headers：${_maskHeader(err.response?.headers.map ?? <String, dynamic>{})}
+Response Data：${_maskData(err.response?.data)}''', err.stackTrace);
     } else {
       CoreLog.e('''[HTTP Error] [${err.type}] [Time:${time}ms]
 ${err.message}
 
 Request Method：${err.requestOptions.method}
 Response Code：${err.response?.statusCode}
-Request URL：${err.requestOptions.uri}
-Request Query：${err.requestOptions.queryParameters}
-Request Data：${err.requestOptions.data}
+Request URL：${_maskUri(err.requestOptions.uri)}
+Request Query：${_maskData(err.requestOptions.queryParameters)}
+Request Data：${_maskData(err.requestOptions.data)}
 Request Headers：${_maskHeader(err.requestOptions.headers)}
-Response Headers：${err.response?.headers.map}
-Response Data：${err.response?.data}''', err.stackTrace);
+Response Headers：${_maskHeader(err.response?.headers.map ?? <String, dynamic>{})}
+Response Data：${_maskData(err.response?.data)}''', err.stackTrace);
     }
 
     super.onError(err, handler);
@@ -53,47 +53,58 @@ Response Data：${err.response?.data}''', err.stackTrace);
         '''【HTTP请求响应】 耗时:${time}ms
 Request Method：${response.requestOptions.method}
 Request Code：${response.statusCode}
-Request URL：${response.requestOptions.uri}
-Request Query：${response.requestOptions.queryParameters}
+Request URL：${_maskUri(response.requestOptions.uri)}
+Request Query：${_maskData(response.requestOptions.queryParameters)}
 Request Data：${_maskData(response.requestOptions.data)}
 Request Headers：${_maskHeader(response.requestOptions.headers)}
-Response Headers：${response.headers.map}
-Response Data：${response.data}''',
+Response Headers：${_maskHeader(response.headers.map)}
+Response Data：${_maskData(response.data)}''',
       );
     } else {
       CoreLog.i(
-        "[HTTP Response] [time:${time}ms] [${response.statusCode}] ${response.requestOptions.uri}",
+        "[HTTP Response] [time:${time}ms] [${response.statusCode}] ${_maskUri(response.requestOptions.uri)}",
       );
     }
     super.onResponse(response, handler);
   }
 
+  String _maskUri(Uri uri) {
+    return uri.replace(queryParameters: const <String, String>{}).toString();
+  }
+
   // Header脱敏
   String _maskHeader(Map<String, dynamic> header) {
-    var result = <String, dynamic>{};
+    final result = <String, dynamic>{};
     header.forEach((key, value) {
-      var k = key.toLowerCase();
-      if (k == "cookie" || k == "authorization") {
-        result[key] = "******";
-      } else {
-        result[key] = value;
-      }
+      final name = key.toLowerCase();
+      result[key] = _isSensitiveName(name) ? '******' : value;
     });
     return result.toString();
   }
 
-  String _maskData(dynamic data) {
-    if (data is Map) {
-      final result = Map<String, dynamic>.from(data);
-      for (final key in result.keys.toList()) {
-        if (key.toLowerCase().contains('cookie') ||
-            key.toLowerCase().contains('token') ||
-            key.toLowerCase().contains('password')) {
-          result[key] = '******';
+  String _maskData(dynamic data) => _maskValue(data).toString();
+
+  dynamic _maskValue(dynamic value) {
+    if (value is Map) {
+      return value.map((key, item) {
+        final name = key.toString().toLowerCase();
+        if (_isSensitiveName(name)) {
+          return MapEntry(key, '******');
         }
-      }
-      return result.toString();
+        return MapEntry(key, _maskValue(item));
+      });
     }
-    return data.toString();
+    if (value is Iterable) {
+      return value.map(_maskValue).toList();
+    }
+    return value;
+  }
+
+  bool _isSensitiveName(String name) {
+    return name.contains('cookie') ||
+        name.contains('token') ||
+        name.contains('password') ||
+        name.contains('secret') ||
+        name.contains('authorization');
   }
 }

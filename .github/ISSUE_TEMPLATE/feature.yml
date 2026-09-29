@@ -1,23 +1,23 @@
 name: 功能请求
 title: "[Feature] 请填写简短易读的标题"
-description: "请求开发新的功能/优化某项功能"
-assignees: xiaoyaocz
+description: "请求开发新的功能或优化现有功能"
+assignees: vaeccc
 labels:
   - "enhancement"
 body:
   - type: markdown
     attributes:
       value: |
-        你的Issue大概率会搁置很久，除非是那种我能随手解决的。
-        暂时不会添加新的平台支持（因为我自己用不上）。如果你有开发能力，建议的自行开发后提交个PR。
+        提交前请先确认没有相同或高度相似的 Issue。
+        如果涉及新增直播平台，请尽量提供公开接口、页面示例或可复现信息；如果可以提交 PR，也欢迎附上实现思路。
 
   - type: checkboxes
     id: terms
     attributes:
-      label: 非重复的Issue
-      description: 先去Issues列表中查找下是否存在相似的Issue，如果有了就不要重复发了
+      label: 非重复的 Issue
+      description: 请先在 Issues 中搜索相似问题。
       options:
-        - label: 已确认没有相似的Issue
+        - label: 已确认没有相似的 Issue
           required: true
 
   - type: textarea
@@ -26,17 +26,17 @@ body:
       required: true
     attributes:
       label: 功能描述
-      description: 请填写功能描述，如果你有多个建议、请求，请分开提交Issue
+      description: 请说明希望解决的问题、使用场景和预期效果；多个独立需求请分开提交。
 
   - type: checkboxes
     id: platform
     attributes:
       label: 平台
-      description: 这个功能针对什么平台
+      description: 这个功能针对哪些平台
       options:
         - label: Android
-        - label: iOS
-        - label: MacOS
+        - label: iOS / iPadOS
+        - label: macOS
         - label: Windows
         - label: Linux
         - label: Android TV
@@ -45,5 +45,4 @@ body:
     id: additional
     attributes:
       label: 附加信息
-      description: 可以附加相关截图、视频或链接（好让我知道要我抄哪个APP）
-
+      description: 可补充截图、视频、日志、接口说明或相关链接。

@@ -1,10 +1,10 @@
 name: simple_live_tv_app
-description: A new Flutter project.
+description: Simple Live Android TV client.
 publish_to: "none"
 version: 1.6.11+10611
 
 environment:
-  sdk: ">=3.1.2 <4.0.0"
+  sdk: ">=3.10.0 <4.0.0"
 
 dependencies:
   flutter:

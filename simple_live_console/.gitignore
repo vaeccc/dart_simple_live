@@ -2,4 +2,4 @@
 # Created by `dart pub`
 .dart_tool/
 build/
-pubspec.lock
+# pubspec.lock is committed because this is an executable application.

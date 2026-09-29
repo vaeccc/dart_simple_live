@@ -6,7 +6,7 @@ on:
       - "release_*"
 jobs:
   build-tv:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
@@ -38,7 +38,7 @@ jobs:
       - name: Flutter action
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.38.x"
+          flutter-version: "3.38.3"
           cache: true
 
       #更新Flutter的packages
@@ -68,6 +68,8 @@ jobs:
           name: android_tv
           path: |
             simple_live_tv_app/build/release-apks/*.apk
+          if-no-files-found: error
+          retention-days: 14
 
       #读取版本信息
       - name: Read version
