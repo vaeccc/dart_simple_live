@@ -1,5 +1,18 @@
+# IDE-local settings
 simple_live_app/.vscode/settings.json
 simple_live_tv_app/.vscode/settings.json
 
-# macOS Spotlight Search index file
+# OS metadata
 *.DS_Store
+
+# Repository-wide generated output
+**/.dart_tool/
+**/.fvm/
+**/build/
+**/*.log
+
+# Local Android build/signing configuration
+**/android/local.properties
+**/android/key.properties
+**/android/*.jks
+**/android/*.keystore
