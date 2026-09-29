@@ -25,54 +25,60 @@ class HttpClient {
     if (error is CoreError) return error;
     if (error is! DioException) return CoreError("$method请求失败");
 
-    switch (error.type) {
-      case DioExceptionType.badResponse:
-        return CoreError(
-          "$method请求返回异常状态",
-          statusCode: error.response?.statusCode ?? 0,
-          type: CoreErrorType.http,
-        );
-      case DioExceptionType.connectionTimeout:
-        return CoreError(
-          "$method请求连接超时",
-          type: CoreErrorType.connectTimeout,
-        );
-      case DioExceptionType.sendTimeout:
-        return CoreError(
-          "$method请求发送超时",
-          type: CoreErrorType.sendTimeout,
-        );
-      case DioExceptionType.receiveTimeout:
-        return CoreError(
-          "$method请求响应超时",
-          type: CoreErrorType.receiveTimeout,
-        );
-      case DioExceptionType.transformTimeout:
-        return CoreError(
-          "$method请求数据转换超时",
-          type: CoreErrorType.transformTimeout,
-        );
-      case DioExceptionType.cancel:
-        return CoreError(
-          "$method请求已取消",
-          type: CoreErrorType.cancelled,
-        );
-      case DioExceptionType.connectionError:
-        return CoreError(
-          "$method请求连接失败",
-          type: CoreErrorType.connection,
-        );
-      case DioExceptionType.badCertificate:
-        return CoreError(
-          "$method请求证书校验失败",
-          type: CoreErrorType.badCertificate,
-        );
-      case DioExceptionType.unknown:
-        return CoreError(
-          "$method请求失败",
-          type: CoreErrorType.unknown,
-        );
+    final typeName = error.type.name;
+    if (typeName == "transformTimeout") {
+      return CoreError(
+        "$method请求数据转换超时",
+        type: CoreErrorType.transformTimeout,
+      );
     }
+    if (error.type == DioExceptionType.badResponse) {
+      return CoreError(
+        "$method请求返回异常状态",
+        statusCode: error.response?.statusCode ?? 0,
+        type: CoreErrorType.http,
+      );
+    }
+    if (error.type == DioExceptionType.connectionTimeout) {
+      return CoreError(
+        "$method请求连接超时",
+        type: CoreErrorType.connectTimeout,
+      );
+    }
+    if (error.type == DioExceptionType.sendTimeout) {
+      return CoreError(
+        "$method请求发送超时",
+        type: CoreErrorType.sendTimeout,
+      );
+    }
+    if (error.type == DioExceptionType.receiveTimeout) {
+      return CoreError(
+        "$method请求响应超时",
+        type: CoreErrorType.receiveTimeout,
+      );
+    }
+    if (error.type == DioExceptionType.cancel) {
+      return CoreError(
+        "$method请求已取消",
+        type: CoreErrorType.cancelled,
+      );
+    }
+    if (error.type == DioExceptionType.connectionError) {
+      return CoreError(
+        "$method请求连接失败",
+        type: CoreErrorType.connection,
+      );
+    }
+    if (error.type == DioExceptionType.badCertificate) {
+      return CoreError(
+        "$method请求证书校验失败",
+        type: CoreErrorType.badCertificate,
+      );
+    }
+    return CoreError(
+      "$method请求失败",
+      type: CoreErrorType.unknown,
+    );
   }
 
   Future<String> getText(
