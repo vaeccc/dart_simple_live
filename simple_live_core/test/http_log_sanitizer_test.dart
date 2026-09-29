@@ -1,4 +1,4 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:simple_live_core/simple_live_core.dart';
 
 void main() {
