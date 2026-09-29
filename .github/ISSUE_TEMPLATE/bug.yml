@@ -1,7 +1,7 @@
 name: BUG报告
 title: "[BUG] 请填写简短易读的标题"
 description: "使用过程中遇到了BUG"
-assignees: xiaoyaocz
+assignees: vaeccc
 labels:
   - "bug"
 body:
@@ -48,7 +48,7 @@ body:
       description: 请上传日志文件
       placeholder: |
         可以在[其他设置]-[开启日志记录]后获取日志文件
- 
+
   - type: input
     id: version
     attributes:
@@ -57,7 +57,7 @@ body:
       placeholder: ex. 1.0.1
     validations:
       required: true
- 
+
   - type: dropdown
     id: release-type
     validations:
@@ -67,7 +67,7 @@ body:
       description: 使用的是什么版本，从哪里下载的
       options:
         - 正式版(Releases)
-        - 开发版(Actions)
+        - Debug 测试包(Actions，仅用于测试)
       default: 0
 
   - type: dropdown
