@@ -74,14 +74,10 @@ Response Data：${_maskData(response.data)}''',
 
   // Header脱敏
   String _maskHeader(Map<String, dynamic> header) {
-    var result = <String, dynamic>{};
+    final result = <String, dynamic>{};
     header.forEach((key, value) {
-      var k = key.toLowerCase();
-      if (k == "cookie" || k == "authorization") {
-        result[key] = "******";
-      } else {
-        result[key] = value;
-      }
+      final name = key.toLowerCase();
+      result[key] = _isSensitiveName(name) ? '******' : value;
     });
     return result.toString();
   }
