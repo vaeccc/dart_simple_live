@@ -3,6 +3,7 @@ enum CoreErrorType {
   connectTimeout,
   sendTimeout,
   receiveTimeout,
+  transformTimeout,
   cancelled,
   connection,
   badCertificate,

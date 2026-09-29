@@ -33,22 +33,45 @@ class HttpClient {
           type: CoreErrorType.http,
         );
       case DioExceptionType.connectionTimeout:
-        return CoreError("$method请求连接超时",
-            type: CoreErrorType.connectTimeout);
+        return CoreError(
+          "$method请求连接超时",
+          type: CoreErrorType.connectTimeout,
+        );
       case DioExceptionType.sendTimeout:
-        return CoreError("$method请求发送超时", type: CoreErrorType.sendTimeout);
+        return CoreError(
+          "$method请求发送超时",
+          type: CoreErrorType.sendTimeout,
+        );
       case DioExceptionType.receiveTimeout:
-        return CoreError("$method请求响应超时",
-            type: CoreErrorType.receiveTimeout);
+        return CoreError(
+          "$method请求响应超时",
+          type: CoreErrorType.receiveTimeout,
+        );
+      case DioExceptionType.transformTimeout:
+        return CoreError(
+          "$method请求数据转换超时",
+          type: CoreErrorType.transformTimeout,
+        );
       case DioExceptionType.cancel:
-        return CoreError("$method请求已取消", type: CoreErrorType.cancelled);
+        return CoreError(
+          "$method请求已取消",
+          type: CoreErrorType.cancelled,
+        );
       case DioExceptionType.connectionError:
-        return CoreError("$method请求连接失败", type: CoreErrorType.connection);
+        return CoreError(
+          "$method请求连接失败",
+          type: CoreErrorType.connection,
+        );
       case DioExceptionType.badCertificate:
-        return CoreError("$method请求证书校验失败",
-            type: CoreErrorType.badCertificate);
+        return CoreError(
+          "$method请求证书校验失败",
+          type: CoreErrorType.badCertificate,
+        );
       case DioExceptionType.unknown:
-        return CoreError("$method请求失败", type: CoreErrorType.unknown);
+        return CoreError(
+          "$method请求失败",
+          type: CoreErrorType.unknown,
+        );
     }
   }
 
