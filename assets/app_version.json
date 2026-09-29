@@ -1,7 +1,7 @@
 {
-  "version": "1.11.8",
-  "version_num": 11108,
-  "version_desc": "- 版本更新",
+  "version": "2.0.0",
+  "version_num": 20000,
+  "version_desc": "- 关注列表显示直播间卡片与直播详情\n- 优化 APP 关注列表卡片布局",
   "prerelease": false,
   "download_url": "https://github.com/vaeccc/dart_simple_live/releases"
 }

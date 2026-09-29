@@ -1,7 +1,7 @@
 {
-    "version": "1.6.11",
-    "version_num": 10611,
-    "version_desc": "- 关注列表局域网同步改为合并，保留本机已有关注\n- TV 支持向已发现设备同步虎牙账号\n- 同步日志自动隐藏 Cookie、Token 等敏感信息",
+    "version": "2.0.0",
+    "version_num": 20000,
+    "version_desc": "- TV 关注区域显示直播间卡片与直播详情\n- 关注列表保留本机已有关注并支持局域网同步\n- 优化关注列表展示",
     "prerelease": false,
     "download_url": "https://github.com/vaeccc/dart_simple_live/releases"
 }
