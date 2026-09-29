@@ -20,6 +20,7 @@ dependencies:
   dart_quickjs:
     git:
       url: https://github.com/xiaoyaocz/dart_quickjs
+      ref: b335f65fb577e5f355689d8a21ace6d034a5bb47
 
 dev_dependencies: 
   lints: ^2.0.0
