@@ -10,13 +10,17 @@ void main(List<String> arguments) async {
     return;
   }
 
-  var action = arguments.first.toLowerCase().replaceAll("-", "");
+  final action = arguments.first.toLowerCase().replaceAll("-", "");
+  if (action == "h" || action == "help") {
+    printHelp();
+    return;
+  }
   if (arguments.length < 2) {
     print("错误的参数");
     printHelp();
     return;
   }
-  var url = arguments[1];
+  final url = arguments[1];
   if (url.isEmpty) {
     print("[URL]不能为空");
     printHelp();
@@ -25,9 +29,7 @@ void main(List<String> arguments) async {
   if (action == "i") {
     await printInfo(url);
   } else if (action == "d") {
-    printDanmaku(url);
-  } else if (action == "h") {
-    printHelp();
+    await printDanmaku(url);
   } else {
     print("未知指令:$action");
     printHelp();
