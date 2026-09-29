@@ -18,8 +18,9 @@ class FollowUserPage extends GetView<FollowUserController> {
 
   @override
   Widget build(BuildContext context) {
-    var count = MediaQuery.of(context).size.width ~/ 500;
-    if (count < 1) count = 1;
+    // 与其他直播间列表保持一致，手机端至少显示两列，避免卡片过宽。
+    var count = MediaQuery.of(context).size.width ~/ 200;
+    if (count < 2) count = 2;
     return Scaffold(
       appBar: AppBar(
         title: const Text("关注用户"),
