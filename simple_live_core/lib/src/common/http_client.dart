@@ -1,32 +1,57 @@
-import 'package:simple_live_core/src/common/core_error.dart';
 import 'package:dio/dio.dart';
+import 'package:simple_live_core/src/common/core_error.dart';
 
 import 'custom_interceptor.dart';
 
 class HttpClient {
   static HttpClient? _httpUtil;
 
-  static HttpClient get instance {
-    _httpUtil ??= HttpClient();
-    return _httpUtil!;
-  }
+  static HttpClient get instance => _httpUtil ??= HttpClient();
 
-  late Dio dio;
+  late final Dio dio;
+
   HttpClient() {
     dio = Dio(
       BaseOptions(
-        connectTimeout: Duration(seconds: 20),
-        receiveTimeout: Duration(seconds: 20),
-        sendTimeout: Duration(seconds: 20),
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
+        sendTimeout: const Duration(seconds: 20),
       ),
     );
     dio.interceptors.add(CustomInterceptor());
   }
 
-  /// Get请求，返回String
-  /// * [url] 请求链接
-  /// * [queryParameters] 请求参数
-  /// * [cancel] 任务取消Token
+  CoreError _toCoreError(Object error, String method) {
+    if (error is CoreError) return error;
+    if (error is! DioException) return CoreError("$method请求失败");
+
+    switch (error.type) {
+      case DioExceptionType.badResponse:
+        return CoreError(
+          "$method请求返回异常状态",
+          statusCode: error.response?.statusCode ?? 0,
+          type: CoreErrorType.http,
+        );
+      case DioExceptionType.connectionTimeout:
+        return CoreError("$method请求连接超时",
+            type: CoreErrorType.connectTimeout);
+      case DioExceptionType.sendTimeout:
+        return CoreError("$method请求发送超时", type: CoreErrorType.sendTimeout);
+      case DioExceptionType.receiveTimeout:
+        return CoreError("$method请求响应超时",
+            type: CoreErrorType.receiveTimeout);
+      case DioExceptionType.cancel:
+        return CoreError("$method请求已取消", type: CoreErrorType.cancelled);
+      case DioExceptionType.connectionError:
+        return CoreError("$method请求连接失败", type: CoreErrorType.connection);
+      case DioExceptionType.badCertificate:
+        return CoreError("$method请求证书校验失败",
+            type: CoreErrorType.badCertificate);
+      case DioExceptionType.unknown:
+        return CoreError("$method请求失败", type: CoreErrorType.unknown);
+    }
+  }
+
   Future<String> getText(
     String url, {
     Map<String, dynamic>? queryParameters,
@@ -34,32 +59,21 @@ class HttpClient {
     CancelToken? cancel,
   }) async {
     try {
-      queryParameters ??= {};
-      header ??= {};
-      var result = await dio.get(
+      final result = await dio.get<String>(
         url,
-        queryParameters: queryParameters,
+        queryParameters: queryParameters ?? const <String, dynamic>{},
         options: Options(
           responseType: ResponseType.plain,
-          headers: header,
+          headers: header ?? const <String, dynamic>{},
         ),
         cancelToken: cancel,
       );
-      return result.data;
+      return result.data ?? "";
     } catch (e) {
-      if (e is DioException && e.type == DioExceptionType.badResponse) {
-        throw CoreError(e.message ?? "",
-            statusCode: e.response?.statusCode ?? 0);
-      } else {
-        throw CoreError("发送GET请求失败");
-      }
+      throw _toCoreError(e, "GET");
     }
   }
 
-  /// Get请求，返回Map
-  /// * [url] 请求链接
-  /// * [queryParameters] 请求参数
-  /// * [cancel] 任务取消Token
   Future<dynamic> getJson(
     String url, {
     Map<String, dynamic>? queryParameters,
@@ -67,33 +81,21 @@ class HttpClient {
     CancelToken? cancel,
   }) async {
     try {
-      queryParameters ??= {};
-      header ??= {};
-      var result = await dio.get(
+      final result = await dio.get(
         url,
-        queryParameters: queryParameters,
+        queryParameters: queryParameters ?? const <String, dynamic>{},
         options: Options(
           responseType: ResponseType.json,
-          headers: header,
+          headers: header ?? const <String, dynamic>{},
         ),
         cancelToken: cancel,
       );
       return result.data;
     } catch (e) {
-      if (e is DioException && e.type == DioExceptionType.badResponse) {
-        throw CoreError(e.message ?? "",
-            statusCode: e.response?.statusCode ?? 0);
-      } else {
-        throw CoreError("发送GET请求失败");
-      }
+      throw _toCoreError(e, "GET");
     }
   }
 
-  /// Post请求，返回Map
-  /// * [url] 请求链接
-  /// * [queryParameters] 请求参数
-  /// * [data] 内容
-  /// * [cancel] 任务取消Token
   Future<dynamic> postJson(
     String url, {
     Map<String, dynamic>? queryParameters,
@@ -103,16 +105,13 @@ class HttpClient {
     CancelToken? cancel,
   }) async {
     try {
-      queryParameters ??= {};
-      header ??= {};
-      data ??= {};
-      var result = await dio.post(
+      final result = await dio.post(
         url,
-        queryParameters: queryParameters,
-        data: data,
+        queryParameters: queryParameters ?? const <String, dynamic>{},
+        data: data ?? const <String, dynamic>{},
         options: Options(
           responseType: ResponseType.json,
-          headers: header,
+          headers: header ?? const <String, dynamic>{},
           contentType:
               formUrlEncoded ? Headers.formUrlEncodedContentType : null,
         ),
@@ -120,19 +119,10 @@ class HttpClient {
       );
       return result.data;
     } catch (e) {
-      if (e is DioException && e.type == DioExceptionType.badResponse) {
-        throw CoreError(e.message ?? "",
-            statusCode: e.response?.statusCode ?? 0);
-      } else {
-        throw CoreError("发送POST请求失败");
-      }
+      throw _toCoreError(e, "POST");
     }
   }
 
-  /// Head请求，返回Response
-  /// * [url] 请求链接
-  /// * [queryParameters] 请求参数
-  /// * [cancel] 任务取消Token
   Future<Response> head(
     String url, {
     Map<String, dynamic>? queryParameters,
@@ -140,25 +130,18 @@ class HttpClient {
     CancelToken? cancel,
   }) async {
     try {
-      queryParameters ??= {};
-      header ??= {};
-      var result = await dio.head(
+      return await dio.head(
         url,
-        queryParameters: queryParameters,
+        queryParameters: queryParameters ?? const <String, dynamic>{},
         options: Options(
-          headers: header,
+          headers: header ?? const <String, dynamic>{},
           receiveDataWhenStatusError: true,
+          validateStatus: (_) => true,
         ),
         cancelToken: cancel,
       );
-      return result;
     } catch (e) {
-      if (e is DioException && e.type == DioExceptionType.badResponse) {
-        //throw CoreError(e.message, statusCode: e.response?.statusCode ?? 0);
-        return e.response!;
-      } else {
-        throw CoreError("发送HEAD请求失败");
-      }
+      throw _toCoreError(e, "HEAD");
     }
   }
 }
