@@ -61,41 +61,44 @@ class BasePageController<T> extends BaseController {
   var canLoadMore = false.obs;
   var list = <T>[].obs;
 
-  Future refreshData() async {
+  Future<void> refreshData() async {
+    if (loadding) return;
     currentPage = 1;
-    list.value = [];
+    canLoadMore.value = false;
+    list.clear();
     await loadData();
   }
 
-  Future loadData() async {
+  Future<void> loadData() async {
+    if (loadding) return;
+
+    final pageToLoad = currentPage;
+    final isFirstPage = pageToLoad == 1;
     try {
-      if (loadding) return;
       loadding = true;
       pageError.value = false;
       pageEmpty.value = false;
       notLogin.value = false;
-      pageLoadding.value = currentPage == 1;
+      pageLoadding.value = isFirstPage;
 
-      var result = await getData(currentPage, pageSize);
-      //是否可以加载更多
-      if (result.isNotEmpty) {
-        currentPage++;
-        canLoadMore.value = true;
-        pageEmpty.value = false;
-      } else {
-        canLoadMore.value = false;
-        if (currentPage == 1) {
-          pageEmpty.value = true;
-        }
-      }
-      // 赋值数据
-      if (currentPage == 1) {
-        list.value = result;
+      final result = await getData(pageToLoad, pageSize);
+
+      if (isFirstPage) {
+        list.assignAll(result);
       } else {
         list.addAll(result);
       }
+
+      if (result.isNotEmpty) {
+        currentPage = pageToLoad + 1;
+        canLoadMore.value = true;
+      } else {
+        canLoadMore.value = false;
+      }
+      pageEmpty.value = isFirstPage && list.isEmpty;
     } catch (e) {
-      handleError(e, showPageError: currentPage == 1);
+      handleError(e, showPageError: isFirstPage);
+      pageEmpty.value = isFirstPage && list.isEmpty;
     } finally {
       loadding = false;
       pageLoadding.value = false;

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
+import 'package:simple_live_core/simple_live_core.dart';
 
 class Log {
   static RxList<DebugLogModel> debugLogs = <DebugLogModel>[].obs;
@@ -18,25 +19,25 @@ class Log {
   );
 
   static void d(String message) {
-    logger.d("${DateTime.now().toString()}\n$message");
+    logger.d("${DateTime.now()}\n${CoreLog.sanitize(message)}");
   }
 
   static void i(String message) {
-    logger.i("${DateTime.now().toString()}\n$message");
+    logger.i("${DateTime.now()}\n${CoreLog.sanitize(message)}");
   }
 
   static void e(String message, StackTrace stackTrace) {
-    logger.e("${DateTime.now().toString()}\n$message", stackTrace: stackTrace);
+    logger.e("${DateTime.now()}\n${CoreLog.sanitize(message)}", stackTrace: stackTrace);
   }
 
   static void w(String message) {
-    logger.w("${DateTime.now().toString()}\n$message");
+    logger.w("${DateTime.now()}\n${CoreLog.sanitize(message)}");
   }
 
   static void logPrint(dynamic obj) {
     //logger.e(obj.toString(), obj, obj?.stackTrace);
     if (kDebugMode) {
-      print(obj);
+      print(CoreLog.sanitize(obj));
     }
   }
 }

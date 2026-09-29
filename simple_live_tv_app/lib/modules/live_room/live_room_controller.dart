@@ -57,13 +57,20 @@ class LiveRoomController extends PlayerController with WidgetsBindingObserver {
   var currentLineIndex = -1;
   var currentLineInfo = "".obs;
 
+  int _roomRequestVersion = 0;
+  int _playbackRequestVersion = 0;
+  bool _handlingMediaFailure = false;
+  bool _suppressMediaEvents = false;
+
   /// 是否处于后台
   var isBackground = false;
 
   var datetime = "00:00".obs;
+  Timer? _clockTimer;
 
   void initTimer() {
-    Timer.periodic(const Duration(seconds: 1), (timer) {
+    _clockTimer?.cancel();
+    _clockTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       var now = DateTime.now();
       datetime.value =
           "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
@@ -141,154 +148,212 @@ class LiveRoomController extends PlayerController with WidgetsBindingObserver {
   }
 
   /// 加载直播间信息
-  void loadData() async {
+  Future<void> loadData() async {
+    final requestVersion = ++_roomRequestVersion;
+    final requestSite = site;
+    final requestRoomId = roomId;
+
     try {
       SmartDialog.showLoading(msg: "");
       pageLoadding.value = true;
-      detail.value = await site.liveSite.getRoomDetail(roomId: roomId);
 
+      final roomDetail = await requestSite.liveSite.getRoomDetail(
+        roomId: requestRoomId,
+      );
+      if (requestVersion != _roomRequestVersion) return;
+
+      detail.value = roomDetail;
       addHistory();
-      online.value = detail.value!.online;
-      liveStatus.value = detail.value!.status || detail.value!.isRecord;
+      online.value = roomDetail.online;
+      liveStatus.value = roomDetail.status || roomDetail.isRecord;
+
       if (liveStatus.value) {
-        getPlayQualites();
+        await getPlayQualites(requestVersion: requestVersion);
+        if (requestVersion != _roomRequestVersion) return;
       }
-      if (detail.value!.isRecord) {
+
+      if (roomDetail.isRecord) {
         SmartDialog.showToast("当前主播未开播，正在轮播录像");
       }
 
+      if (requestVersion != _roomRequestVersion) return;
       initDanmau();
-      liveDanmaku.start(detail.value?.danmakuData);
+      liveDanmaku.start(roomDetail.danmakuData);
     } catch (e) {
-      SmartDialog.showToast(e.toString());
+      if (requestVersion == _roomRequestVersion) {
+        SmartDialog.showToast(e.toString());
+      }
     } finally {
-      SmartDialog.dismiss(status: SmartStatus.loading);
-      pageLoadding.value = false;
+      if (requestVersion == _roomRequestVersion) {
+        SmartDialog.dismiss(status: SmartStatus.loading);
+        pageLoadding.value = false;
+      }
     }
   }
 
-  /// 初始化播放器
-  void getPlayQualites() async {
-    qualites.clear();
-    currentQuality = -1;
-    try {
-      var playQualites =
-          await site.liveSite.getPlayQualites(detail: detail.value!);
+  Future<void> getPlayQualites({required int requestVersion}) async {
+    if (requestVersion != _roomRequestVersion || detail.value == null) return;
 
+    qualites.clear();
+    playUrls.clear();
+    currentQuality = -1;
+    currentLineIndex = -1;
+
+    try {
+      final playQualites = await site.liveSite.getPlayQualites(
+        detail: detail.value!,
+      );
+      if (requestVersion != _roomRequestVersion) return;
       if (playQualites.isEmpty) {
         SmartDialog.showToast("无法读取播放清晰度");
         return;
       }
-      qualites.value = playQualites;
-      var qualityLevel = AppSettingsController.instance.qualityLevel.value;
+
+      qualites.assignAll(playQualites);
+      final qualityLevel = AppSettingsController.instance.qualityLevel.value;
       if (qualityLevel == 2) {
-        //最高
         currentQuality = 0;
       } else if (qualityLevel == 0) {
-        //最低
         currentQuality = playQualites.length - 1;
       } else {
-        //中间值
-        int middle = (playQualites.length / 2).floor();
-        currentQuality = middle;
+        currentQuality = (playQualites.length / 2).floor();
       }
 
-      getPlayUrl();
+      await getPlayUrl(expectedRoomRequestVersion: requestVersion);
     } catch (e) {
+      if (requestVersion != _roomRequestVersion) return;
       Log.logPrint(e);
       SmartDialog.showToast("无法读取播放清晰度");
     }
   }
 
-  void getPlayUrl() async {
-    playUrls.clear();
-    currentQualityInfo.value = qualites[currentQuality].quality;
-    currentLineInfo.value = "";
-    currentLineIndex = -1;
-    var playUrl = await site.liveSite
-        .getPlayUrls(detail: detail.value!, quality: qualites[currentQuality]);
-    if (playUrl.urls.isEmpty) {
-      SmartDialog.showToast("无法读取播放地址");
+  Future<void> getPlayUrl({int? expectedRoomRequestVersion}) async {
+    final roomVersion = expectedRoomRequestVersion ?? _roomRequestVersion;
+    if (roomVersion != _roomRequestVersion ||
+        detail.value == null ||
+        currentQuality < 0 ||
+        currentQuality >= qualites.length) {
       return;
     }
-    playUrls.value = playUrl.urls;
-    playHeaders = playUrl.headers;
-    currentLineIndex = 0;
-    currentLineInfo.value = "线路${currentLineIndex + 1}";
-    //重置错误次数
-    mediaErrorRetryCount = 0;
-    setPlayer();
+
+    final playbackVersion = ++_playbackRequestVersion;
+    final quality = qualites[currentQuality];
+    try {
+      final playUrl = await site.liveSite.getPlayUrls(
+        detail: detail.value!,
+        quality: quality,
+      );
+      if (roomVersion != _roomRequestVersion ||
+          playbackVersion != _playbackRequestVersion) {
+        return;
+      }
+      if (playUrl.urls.isEmpty) {
+        SmartDialog.showToast("无法读取播放地址");
+        return;
+      }
+
+      currentQualityInfo.value = quality.quality;
+      playUrls.assignAll(playUrl.urls);
+      playHeaders = playUrl.headers;
+      currentLineIndex = 0;
+      currentLineInfo.value = "线路1";
+      mediaErrorRetryCount = 0;
+      await setPlayer();
+    } catch (e) {
+      if (roomVersion != _roomRequestVersion ||
+          playbackVersion != _playbackRequestVersion) {
+        return;
+      }
+      Log.logPrint(e);
+      SmartDialog.showToast("无法读取播放地址");
+    }
   }
 
-  void changePlayLine(int index) {
+  Future<void> changePlayLine(int index) async {
+    if (index < 0 || index >= playUrls.length) {
+      Log.w("忽略无效线路索引：$index/${playUrls.length}");
+      return;
+    }
     currentLineIndex = index;
-    //重置错误次数
     mediaErrorRetryCount = 0;
-    setPlayer();
+    await setPlayer();
   }
 
-  void setPlayer() async {
+  Future<void> setPlayer() async {
+    if (currentLineIndex < 0 || currentLineIndex >= playUrls.length) {
+      Log.w("忽略播放器打开：线路索引$currentLineIndex无效");
+      return;
+    }
+
+    final playbackVersion = _playbackRequestVersion;
+    final targetUrl = playUrls[currentLineIndex];
+    final headers = playHeaders == null
+        ? null
+        : Map<String, String>.from(playHeaders!);
+
     currentLineInfo.value = "线路${currentLineIndex + 1}";
     errorMsg.value = "";
-    // 初始化播放器并设置 ao 参数
     await initializePlayer();
-    player.open(
-      Media(
-        playUrls[currentLineIndex],
-        httpHeaders: playHeaders,
-      ),
-    );
+    if (playbackVersion != _playbackRequestVersion) return;
 
-    Log.d("播放链接\r\n：${playUrls[currentLineIndex]}");
+    await player.open(Media(targetUrl, httpHeaders: headers));
+    Log.d("播放地址：$targetUrl");
   }
 
   @override
   void mediaEnd() async {
-    if (mediaErrorRetryCount < 2) {
-      Log.d("播放结束，尝试第${mediaErrorRetryCount + 1}次刷新");
-      if (mediaErrorRetryCount == 1) {
-        //延迟一秒再刷新
-        await Future.delayed(const Duration(seconds: 1));
+    if (_suppressMediaEvents || _handlingMediaFailure) return;
+    _handlingMediaFailure = true;
+    try {
+      if (currentLineIndex < 0 || currentLineIndex >= playUrls.length) return;
+
+      if (mediaErrorRetryCount < 2) {
+        Log.d("播放结束，尝试第${mediaErrorRetryCount + 1}次刷新");
+        if (mediaErrorRetryCount == 1) {
+          await Future.delayed(const Duration(seconds: 1));
+        }
+        mediaErrorRetryCount += 1;
+        await setPlayer();
+        return;
       }
-      mediaErrorRetryCount += 1;
-      //刷新一次
-      setPlayer();
-      return;
-    }
 
-    Log.d("播放结束");
-    // 遍历线路，如果全部链接都断开就是直播结束了
-    if (playUrls.length - 1 == currentLineIndex) {
-      liveStatus.value = false;
-    } else {
-      changePlayLine(currentLineIndex + 1);
-
-      //setPlayer();
+      if (currentLineIndex + 1 < playUrls.length) {
+        await changePlayLine(currentLineIndex + 1);
+      } else {
+        liveStatus.value = false;
+      }
+    } finally {
+      _handlingMediaFailure = false;
     }
   }
 
   int mediaErrorRetryCount = 0;
+
   @override
   void mediaError(String error) async {
-    if (mediaErrorRetryCount < 2) {
-      Log.d("播放失败，尝试第${mediaErrorRetryCount + 1}次刷新");
-      if (mediaErrorRetryCount == 1) {
-        //延迟一秒再刷新
-        await Future.delayed(const Duration(seconds: 1));
-      }
-      mediaErrorRetryCount += 1;
-      //刷新一次
-      setPlayer();
-      return;
-    }
+    if (_suppressMediaEvents || _handlingMediaFailure) return;
+    _handlingMediaFailure = true;
+    try {
+      if (currentLineIndex < 0 || currentLineIndex >= playUrls.length) return;
 
-    if (playUrls.length - 1 == currentLineIndex) {
-      errorMsg.value = "播放失败";
-      SmartDialog.showToast("播放失败:$error");
-    } else {
-      //currentLineIndex += 1;
-      //setPlayer();
-      changePlayLine(currentLineIndex + 1);
+      if (mediaErrorRetryCount < 2) {
+        Log.d("播放失败，尝试第${mediaErrorRetryCount + 1}次刷新");
+        if (mediaErrorRetryCount == 1) {
+          await Future.delayed(const Duration(seconds: 1));
+        }
+        mediaErrorRetryCount += 1;
+        await setPlayer();
+        return;
+      }
+
+      if (currentLineIndex + 1 < playUrls.length) {
+        await changePlayLine(currentLineIndex + 1);
+      } else {
+        errorMsg.value = "播放失败";
+        SmartDialog.showToast("播放失败:$error");
+      }
+    } finally {
+      _handlingMediaFailure = false;
     }
   }
 
@@ -356,6 +421,10 @@ class LiveRoomController extends PlayerController with WidgetsBindingObserver {
       return;
     }
 
+    _roomRequestVersion += 1;
+    _playbackRequestVersion += 1;
+    _suppressMediaEvents = true;
+
     rxSite.value = site;
     rxRoomId.value = roomId;
 
@@ -369,9 +438,10 @@ class LiveRoomController extends PlayerController with WidgetsBindingObserver {
 
     // 停止播放
     await player.stop();
+    _suppressMediaEvents = false;
 
     // 刷新信息
-    loadData();
+    unawaited(loadData());
   }
 
   void nextChannel() {
@@ -439,6 +509,12 @@ class LiveRoomController extends PlayerController with WidgetsBindingObserver {
 
   @override
   void onClose() {
+    _roomRequestVersion += 1;
+    _playbackRequestVersion += 1;
+    _suppressMediaEvents = true;
+    _clockTimer?.cancel();
+    doubleClickTimer?.cancel();
+    focusNode.dispose();
     liveDanmaku.stop();
 
     danmakuController = null;

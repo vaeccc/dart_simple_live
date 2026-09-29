@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:simple_live_app/app/utils.dart';
+import 'package:simple_live_core/simple_live_core.dart';
 
 class Log {
   static LogFileWriter? logFileWriter;
@@ -20,8 +21,10 @@ class Log {
   }
 
   static void writeLog(content, [Level level = Level.info]) {
-    logFileWriter
-        ?.write("[${level.name.toUpperCase()}] $_currentTime：$content");
+    final safeContent = CoreLog.sanitize(content);
+    logFileWriter?.write(
+      "[${level.name.toUpperCase()}] $_currentTime：$safeContent",
+    );
   }
 
   static RxList<DebugLogModel> debugLogs = <DebugLogModel>[].obs;
@@ -30,6 +33,7 @@ class Log {
     if (kReleaseMode) {
       return;
     }
+    content = CoreLog.sanitize(content);
     if (content.contains("请求响应")) {
       content = content.split("\n").join('\n💡 ');
     }
@@ -55,7 +59,7 @@ class Log {
 
   static void d(String message, [bool writeFile = true]) {
     addDebugLog(message, Colors.orange);
-    logger.d("${DateTime.now().toString()}\n$message");
+    logger.d("${DateTime.now()}\n${CoreLog.sanitize(message)}");
     if (writeFile) {
       writeLog(message, Level.debug);
     }
@@ -63,7 +67,7 @@ class Log {
 
   static void i(String message, [bool writeFile = true]) {
     addDebugLog(message, Colors.blue);
-    logger.i("${DateTime.now().toString()}\n$message");
+    logger.i("${DateTime.now()}\n${CoreLog.sanitize(message)}");
     if (writeFile) {
       writeLog(message, Level.info);
     }
@@ -72,7 +76,8 @@ class Log {
   static void e(String message, StackTrace stackTrace,
       [bool writeFile = true]) {
     addDebugLog('$message\r\n\r\n$stackTrace', Colors.red);
-    logger.e("${DateTime.now().toString()}\n$message", stackTrace: stackTrace);
+    logger.e("${DateTime.now()}\n${CoreLog.sanitize(message)}",
+        stackTrace: stackTrace);
     if (writeFile) {
       writeLog("$message\n$stackTrace", Level.error);
     }
@@ -80,7 +85,7 @@ class Log {
 
   static void w(String message, [bool writeFile = true]) {
     addDebugLog(message, Colors.pink);
-    logger.w("${DateTime.now().toString()}\n$message");
+    logger.w("${DateTime.now()}\n${CoreLog.sanitize(message)}");
     if (writeFile) {
       writeLog(message, Level.warning);
     }
@@ -93,7 +98,7 @@ class Log {
     }
     //logger.e(obj.toString(), obj, obj?.stackTrace);
     if (kDebugMode) {
-      print(obj);
+      print(CoreLog.sanitize(obj));
     }
   }
 

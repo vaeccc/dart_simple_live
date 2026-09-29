@@ -1,26 +1,14 @@
 import 'package:logger/logger.dart';
 
-enum RequestLogType {
-  /// 输出所有请求信息
-  /// 包括请求的URL，请求的参数，请求的头，请求的体，响应的头，响应的内容，耗时
-  all,
+import 'http_log_sanitizer.dart';
 
-  /// 简洁的输出
-  /// 仅输出请求的URL和响应的状态码
-  short,
-
-  /// 不输出请求信息
-  none,
-}
+enum RequestLogType { all, short, none }
 
 class CoreLog {
-  /// 是否启用日志
   static bool enableLog = true;
-
-  /// 请求日志模式
   static RequestLogType requestLogType = RequestLogType.all;
-
   static Function(Level, String)? onPrintLog;
+
   static Logger logger = Logger(
     printer: PrettyPrinter(
       methodCount: 0,
@@ -31,58 +19,46 @@ class CoreLog {
     ),
   );
 
-  static void d(String message) {
-    if (!enableLog) {
-      return;
-    }
-    onPrintLog?.call(Level.debug, message);
-    if (onPrintLog == null) {
-      logger.d("${DateTime.now().toString()}\n$message");
-    }
-  }
+  static String sanitize(Object? value) =>
+      HttpLogSanitizer.maskText(value?.toString() ?? '');
 
-  static void i(String message) {
-    if (!enableLog) {
-      return;
-    }
-    onPrintLog?.call(Level.info, message);
-    if (onPrintLog == null) {
-      logger.i("${DateTime.now().toString()}\n$message");
-    }
-  }
+  static void d(String message) => _write(Level.debug, message);
+  static void i(String message) => _write(Level.info, message);
+  static void w(String message) => _write(Level.warning, message);
 
   static void e(String message, StackTrace stackTrace) {
-    if (!enableLog) {
-      return;
-    }
-    onPrintLog?.call(Level.error, message);
+    if (!enableLog) return;
+    final safeMessage = sanitize(message);
+    onPrintLog?.call(Level.error, safeMessage);
     if (onPrintLog == null) {
-      logger.e("${DateTime.now().toString()}\n$message",
-          stackTrace: stackTrace);
+      logger.e("${DateTime.now()}\n$safeMessage", stackTrace: stackTrace);
     }
   }
 
-  static void error(e) {
-    if (!enableLog) {
-      return;
-    }
-    onPrintLog?.call(Level.error, e.toString());
+  static void error(Object? error) {
+    if (!enableLog) return;
+    final safeMessage = sanitize(error);
+    onPrintLog?.call(Level.error, safeMessage);
     if (onPrintLog == null) {
       logger.e(
-        "${DateTime.now().toString()}\n${e.toString()}",
-        error: e,
-        stackTrace: (e is Error) ? e.stackTrace : StackTrace.current,
+        "${DateTime.now()}\n$safeMessage",
+        error: safeMessage,
+        stackTrace: error is Error ? error.stackTrace : StackTrace.current,
       );
     }
   }
 
-  static void w(String message) {
-    if (!enableLog) {
-      return;
-    }
-    onPrintLog?.call(Level.warning, message);
-    if (onPrintLog == null) {
-      logger.w("${DateTime.now().toString()}\n$message");
+  static void _write(Level level, String message) {
+    if (!enableLog) return;
+    final safeMessage = sanitize(message);
+    onPrintLog?.call(level, safeMessage);
+    if (onPrintLog != null) return;
+    if (level == Level.debug) {
+      logger.d("${DateTime.now()}\n$safeMessage");
+    } else if (level == Level.warning) {
+      logger.w("${DateTime.now()}\n$safeMessage");
+    } else {
+      logger.i("${DateTime.now()}\n$safeMessage");
     }
   }
 }
