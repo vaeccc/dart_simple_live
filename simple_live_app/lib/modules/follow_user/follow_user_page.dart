@@ -7,11 +7,11 @@ import 'package:simple_live_app/app/utils.dart';
 import 'package:simple_live_app/models/db/follow_user.dart';
 import 'package:simple_live_app/models/db/follow_user_tag.dart';
 import 'package:simple_live_app/modules/follow_user/follow_user_controller.dart';
-import 'package:simple_live_app/routes/app_navigation.dart';
 import 'package:simple_live_app/services/follow_service.dart';
 import 'package:simple_live_app/widgets/filter_button.dart';
-import 'package:simple_live_app/widgets/follow_user_item.dart';
+import 'package:simple_live_app/widgets/live_room_card.dart';
 import 'package:simple_live_app/widgets/page_grid_view.dart';
+import 'package:simple_live_core/simple_live_core.dart';
 
 class FollowUserPage extends GetView<FollowUserController> {
   const FollowUserPage({Key? key}) : super(key: key);
@@ -160,19 +160,49 @@ class FollowUserPage extends GetView<FollowUserController> {
               itemBuilder: (_, i) {
                 var item = controller.list[i];
                 var site = Sites.allSites[item.siteId]!;
-                return FollowUserItem(
-                  item: item,
-                  onRemove: () {
-                    controller.removeItem(item);
-                  },
-                  onTap: () {
-                    AppNavigator.toLiveRoomDetail(
-                      site: site,
+                return Obx(
+                  () {
+                    final detail = item.roomDetail.value;
+                    final room = LiveRoomItem(
                       roomId: item.roomId,
+                      title: detail?.title.isNotEmpty == true
+                          ? detail!.title
+                          : item.userName,
+                      cover: detail?.cover.isNotEmpty == true
+                          ? detail!.cover
+                          : item.face,
+                      userName: detail?.userName.isNotEmpty == true
+                          ? detail!.userName
+                          : item.userName,
+                      online: detail?.online ?? 0,
                     );
-                  },
-                  onLongPress: () {
-                    setFollowTagDialog(item);
+                    return GestureDetector(
+                      onLongPress: () => setFollowTagDialog(item),
+                      child: Stack(
+                        children: [
+                          LiveRoomCard(site, room),
+                          Positioned(
+                            top: 4,
+                            right: 4,
+                            child: Material(
+                              color: Colors.black54,
+                              borderRadius: BorderRadius.circular(20),
+                              child: IconButton(
+                                tooltip: "取消关注",
+                                icon: const Icon(
+                                  Remix.dislike_line,
+                                  color: Colors.white,
+                                ),
+                                iconSize: 18,
+                                padding: const EdgeInsets.all(6),
+                                constraints: const BoxConstraints(),
+                                onPressed: () => controller.removeItem(item),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
                   },
                 );
               },

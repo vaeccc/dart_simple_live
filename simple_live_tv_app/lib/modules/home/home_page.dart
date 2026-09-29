@@ -6,13 +6,15 @@ import 'package:lottie/lottie.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:simple_live_tv_app/app/app_focus_node.dart';
 import 'package:simple_live_tv_app/app/app_style.dart';
+import 'package:simple_live_tv_app/app/sites.dart';
 import 'package:simple_live_tv_app/app/utils.dart';
 import 'package:simple_live_tv_app/modules/home/home_controller.dart';
+import 'package:simple_live_tv_app/routes/app_navigation.dart';
 import 'package:simple_live_tv_app/services/follow_user_service.dart';
 import 'package:simple_live_tv_app/widgets/app_scaffold.dart';
 import 'package:simple_live_tv_app/widgets/button/highlight_button.dart';
 import 'package:simple_live_tv_app/widgets/button/highlight_list_tile.dart';
-import 'package:simple_live_tv_app/widgets/card/anchor_card.dart';
+import 'package:simple_live_tv_app/widgets/card/live_room_card.dart';
 import 'package:simple_live_tv_app/widgets/button/home_big_button.dart';
 import 'package:simple_live_tv_app/widgets/net_image.dart';
 import 'package:simple_live_tv_app/widgets/status/app_empty_widget.dart';
@@ -192,7 +194,7 @@ class HomePage extends GetView<HomeController> {
                   () => MasonryGridView.count(
                     padding: AppStyle.edgeInsetsH48,
                     itemCount: FollowUserService.instance.list.length,
-                    crossAxisCount: 3,
+                    crossAxisCount: 5,
                     crossAxisSpacing: 48.w,
                     mainAxisSpacing: 48.w,
                     shrinkWrap: true,
@@ -200,13 +202,30 @@ class HomePage extends GetView<HomeController> {
                     itemBuilder: (_, i) {
                       var item = FollowUserService.instance.list[i];
                       return Obx(
-                        () => AnchorCard(
-                          face: item.face,
-                          name: item.userName,
-                          siteId: item.siteId,
-                          liveStatus: item.liveStatus.value,
-                          roomId: item.roomId,
-                        ),
+                        () {
+                          final detail = item.roomDetail.value;
+                          final site = Sites.allSites[item.siteId]!;
+                          return LiveRoomCard(
+                            cover: detail?.cover.isNotEmpty == true
+                                ? detail!.cover
+                                : item.face,
+                            title: detail?.title.isNotEmpty == true
+                                ? detail!.title
+                                : item.userName,
+                            anchor: detail?.userName.isNotEmpty == true
+                                ? detail!.userName
+                                : item.userName,
+                            online: detail?.online ?? 0,
+                            focusNode: item.focusNode,
+                            roomId: item.roomId,
+                            onTap: () {
+                              AppNavigator.toLiveRoomDetail(
+                                site: site,
+                                roomId: item.roomId,
+                              );
+                            },
+                          );
+                        },
                       );
                     },
                   ),
