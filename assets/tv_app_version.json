@@ -1,7 +1,7 @@
 {
-    "version": "2.0.0",
-    "version_num": 20000,
-    "version_desc": "- TV 关注区域显示直播间卡片与直播详情\n- 关注列表保留本机已有关注并支持局域网同步\n- 优化关注列表展示",
+    "version": "2.0.1",
+    "version_num": 20001,
+    "version_desc": "- 修复 TV 关注卡片不显示直播间标题的问题\n- APP 与 TV 同步关注数据时保留直播间标题",
     "prerelease": false,
     "download_url": "https://github.com/vaeccc/dart_simple_live/releases"
 }

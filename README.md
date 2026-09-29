@@ -14,15 +14,15 @@
 
 Simple Live 是一个基于 Flutter 的多平台直播客户端，支持手机、平板、桌面端和 Android TV。项目将平台接口、播放地址、弹幕与数据模型集中在 `simple_live_core` 中，APP 和 TV 客户端共享核心能力。
 
-## 2.0 版本下载
+## 2.0.1 版本下载
 
-前往 [GitHub Releases](https://github.com/vaeccc/dart_simple_live/releases/tag/release_2.0.0_tv_2.0.0) 下载正式版。日常使用请下载 Releases 中的正式包，不要下载 Actions 里的 Debug 测试包。
+前往 [GitHub Releases](https://github.com/vaeccc/dart_simple_live/releases/tag/release_2.0.1_tv_2.0.1) 下载正式版。日常使用请下载 Releases 中的正式包，不要下载 Actions 里的 Debug 测试包。
 
 | 设备 | 推荐文件 | 说明 |
 | --- | --- | --- |
-| Android 手机 / 平板 | `simple-live-app-v2.0.0-arm64-v8a.apk` | 绝大多数 Android 设备使用此版本。 |
-| Android TV / 电视盒子 | `simple-live-tv-v2.0.0-arm64-v8a.apk` | 适用于电视和电视盒子，针对遥控器与横屏操作优化。 |
-| iPhone / iPad | `simple-live-ios-ipados-v2.0.0-unsigned.ipa` | 未签名 IPA，需要自行签名后安装。 |
+| Android 手机 / 平板 | `simple-live-app-v2.0.1-arm64-v8a.apk` | 绝大多数 Android 设备使用此版本。 |
+| Android TV / 电视盒子 | `simple-live-tv-v2.0.1-arm64-v8a.apk` | 适用于电视和电视盒子，针对遥控器与横屏操作优化。 |
+| iPhone / iPad | `simple-live-ios-ipados-v2.0.1-unsigned.ipa` | 未签名 IPA，需要自行签名后安装。 |
 
 只有设备明确不支持 `arm64-v8a` 时，才尝试下载 `armeabi-v7a` 或 `x86_64` 架构的 APK。Android 如果提示禁止安装未知应用，请在系统设置中允许当前浏览器或文件管理器安装应用。
 
@@ -49,7 +49,7 @@ Simple Live 是一个基于 Flutter 的多平台直播客户端，支持手机�
 
 ## 快速开始
 
-1. 从 [Releases](https://github.com/vaeccc/dart_simple_live/releases/tag/release_2.0.0_tv_2.0.0) 下载适合设备的安装包。
+1. 从 [Releases](https://github.com/vaeccc/dart_simple_live/releases/tag/release_2.0.1_tv_2.0.1) 下载适合设备的安装包。
 2. 安装后选择直播平台，进入热门直播、直播分类或搜索直播。
 3. 在“关注”中管理主播，刷新后可看到直播状态和直播间详情。
 4. TV 端使用遥控器方向键移动焦点，按确认键打开直播间。
@@ -94,58 +94,6 @@ Release 中的 IPA 是未签名构建，不是 App Store 或 TestFlight 包，�
 ### 为什么关注列表暂时没有直播间标题？
 
 应用需要从对应平台刷新直播间详情。请在关注页面点击刷新，并等待状态更新完成；如果平台接口暂时不可用，会回退显示主播名称。
-
-## 项目结构
-
-| 目录 | 用途 |
-| --- | --- |
-| `simple_live_core` | 平台接口、播放地址、弹幕和直播数据模型。 |
-| `simple_live_app` | 手机、平板及桌面 Flutter 客户端。 |
-| `simple_live_tv_app` | Android TV 客户端。 |
-| `simple_live_console` | 基于 Core 的命令行工具。 |
-| `.github/workflows` | CI、Debug 构建和正式版发布流程。 |
-
-## 本地开发
-
-### 环境要求
-
-- Flutter `3.38.3`
-- Dart `>=3.10.0 <4.0.0`
-- Android 构建使用 Java 17
-
-APP 与 TV 项目通过 `.fvmrc` 固定 Flutter 版本。常用验证命令：
-
-```bash
-# APP
-cd simple_live_app
-flutter pub get
-flutter analyze
-flutter test
-flutter build apk --debug
-
-# TV
-cd simple_live_tv_app
-flutter pub get
-flutter analyze
-flutter test
-flutter build apk --debug
-
-# Console
-cd simple_live_console
-dart pub get
-dart analyze
-dart test
-```
-
-更完整的项目结构、测试策略和发布说明见 [开发与维护说明](docs/DEVELOPMENT.md)。
-
-## GitHub Actions
-
-- `ci.yml`：在 `master` 和 Pull Request 上执行分析、测试和 Debug 构建。
-- `build-debug-test.yml`：手动生成 APP/TV Debug 测试包。
-- `build-android-apk.yml`：手动发布 APP Android 正式 APK，并构建未签名 iOS/iPadOS IPA。
-- `publish_tv_app_release.yaml`：推送 `release_*` 标签时构建并发布 TV 正式 APK。
-- `build-ios.yml`：手动生成未签名 iOS/iPadOS 测试 IPA。
 
 ## 免责声明
 

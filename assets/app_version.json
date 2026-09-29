@@ -1,7 +1,7 @@
 {
-  "version": "2.0.0",
-  "version_num": 20000,
-  "version_desc": "- 关注列表显示直播间卡片与直播详情\n- 优化 APP 关注列表卡片布局",
+  "version": "2.0.1",
+  "version_num": 20001,
+  "version_desc": "- 修复关注列表直播间标题显示\n- APP 与 TV 同步关注数据时保留直播间标题",
   "prerelease": false,
   "download_url": "https://github.com/vaeccc/dart_simple_live/releases"
 }
