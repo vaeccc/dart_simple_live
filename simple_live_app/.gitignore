@@ -45,8 +45,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-/ios/Podfile.lock
-pubspec.lock
+# Application dependency lockfiles should be committed for reproducible builds.
 
 .fvm/
 
