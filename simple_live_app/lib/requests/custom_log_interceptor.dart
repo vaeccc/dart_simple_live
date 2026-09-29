@@ -21,11 +21,11 @@ ${err.message}
 
 Request Method：${err.requestOptions.method}
 Response Code：${err.response?.statusCode}
-Request URL：${err.requestOptions.uri}
+Request URL：${_maskUri(err.requestOptions.uri)}
 Request Query：${_maskData(err.requestOptions.queryParameters)}
 Request Data：${_maskData(err.requestOptions.data)}
 Request Headers：${_maskHeader(err.requestOptions.headers)}
-Response Headers：${err.response?.headers.map}
+Response Headers：${_maskHeader(err.response?.headers.map ?? <String, dynamic>{})}
 Response Data：${_maskData(err.response?.data)}''', err.stackTrace);
     } else {
       CoreLog.e('''[HTTP Error] [${err.type}] [Time:${time}ms]
@@ -33,11 +33,11 @@ ${err.message}
 
 Request Method：${err.requestOptions.method}
 Response Code：${err.response?.statusCode}
-Request URL：${err.requestOptions.uri}
+Request URL：${_maskUri(err.requestOptions.uri)}
 Request Query：${_maskData(err.requestOptions.queryParameters)}
 Request Data：${_maskData(err.requestOptions.data)}
 Request Headers：${_maskHeader(err.requestOptions.headers)}
-Response Headers：${err.response?.headers.map}
+Response Headers：${_maskHeader(err.response?.headers.map ?? <String, dynamic>{})}
 Response Data：${_maskData(err.response?.data)}''', err.stackTrace);
     }
 
@@ -53,19 +53,23 @@ Response Data：${_maskData(err.response?.data)}''', err.stackTrace);
         '''【HTTP请求响应】 耗时:${time}ms
 Request Method：${response.requestOptions.method}
 Request Code：${response.statusCode}
-Request URL：${response.requestOptions.uri}
+Request URL：${_maskUri(response.requestOptions.uri)}
 Request Query：${_maskData(response.requestOptions.queryParameters)}
 Request Data：${_maskData(response.requestOptions.data)}
 Request Headers：${_maskHeader(response.requestOptions.headers)}
-Response Headers：${response.headers.map}
+Response Headers：${_maskHeader(response.headers.map)}
 Response Data：${_maskData(response.data)}''',
       );
     } else {
       CoreLog.i(
-        "[HTTP Response] [time:${time}ms] [${response.statusCode}] ${response.requestOptions.uri}",
+        "[HTTP Response] [time:${time}ms] [${response.statusCode}] ${_maskUri(response.requestOptions.uri)}",
       );
     }
     super.onResponse(response, handler);
+  }
+
+  String _maskUri(Uri uri) {
+    return uri.replace(queryParameters: const <String, String>{}).toString();
   }
 
   // Header脱敏
