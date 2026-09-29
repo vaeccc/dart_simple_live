@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:simple_live_console/url_parser.dart';
 import 'package:simple_live_core/simple_live_core.dart';
 
 void main(List<String> arguments) async {
@@ -39,9 +40,9 @@ void printHelp() {
 }
 
 Future printInfo(String url) async {
-  var urlInfo = parseUrl(url);
-  LiveSite site = urlInfo.first;
-  var id = urlInfo.last;
+  final urlInfo = parseLiveUrl(url);
+  final LiveSite site = urlInfo.site;
+  final id = urlInfo.roomId;
   var detail = await site.getRoomDetail(roomId: id);
   print("来源：${site.name}");
   print("房间号：${detail.roomId}");
@@ -71,9 +72,9 @@ Future printInfo(String url) async {
 }
 
 Future printDanmaku(String url) async {
-  var urlInfo = parseUrl(url);
-  LiveSite site = urlInfo.first;
-  var id = urlInfo.last;
+  final urlInfo = parseLiveUrl(url);
+  final LiveSite site = urlInfo.site;
+  final id = urlInfo.roomId;
   var detail = await site.getRoomDetail(roomId: id);
   print("来源：${site.name}");
   print("房间号：${detail.roomId}");
@@ -97,30 +98,3 @@ Future printDanmaku(String url) async {
   await Future(() {});
 }
 
-List parseUrl(String url) {
-  if (RegExp(r'^\d+$').hasMatch(url.trim())) {
-    return [YySite(), YySite.parseRoomId(url)];
-  }
-  if (url.contains("bilibili.com")) {
-    var id =
-        RegExp(r"bilibili\.com/([\d|\w]+)").firstMatch(url)?.group(1) ?? "";
-    return [BiliBiliSite(), id];
-  }
-  if (url.contains("huya.com")) {
-    var id = RegExp(r"huya\.com/([\d|\w]+)").firstMatch(url)?.group(1) ?? "";
-    return [HuyaSite(), id];
-  }
-  if (url.contains("douyu.com")) {
-    var id = RegExp(r"douyu\.com/([\d|\w]+)").firstMatch(url)?.group(1) ?? "";
-    return [DouyuSite(), id];
-  }
-  if (url.contains("live.douyin.com")) {
-    var id =
-        RegExp(r"live\.douyin\.com/([\d|\w]+)").firstMatch(url)?.group(1) ?? "";
-    return [DouyinSite(), id];
-  }
-  if (url.contains("yy.com")) {
-    return [YySite(), YySite.parseRoomId(url)];
-  }
-  throw Exception("链接解析失败");
-}
