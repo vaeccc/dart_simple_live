@@ -135,10 +135,25 @@ class LocalStorageService extends GetxService {
     );
   }
 
+  String _safeLogValue(dynamic key, dynamic value) {
+    final normalizedKey = key.toString().toLowerCase();
+    const sensitiveFragments = [
+      'cookie',
+      'password',
+      'token',
+      'secret',
+      'authorization',
+    ];
+    if (sensitiveFragments.any(normalizedKey.contains)) {
+      return '******';
+    }
+    return value.toString();
+  }
+
   T getValue<T>(dynamic key, T defaultValue) {
     try {
       var value = settingsBox.get(key, defaultValue: defaultValue) as T;
-      Log.d("Get LocalStorage：$key\r\n$value");
+      Log.d("Get LocalStorage：$key\r\n${_safeLogValue(key, value)}");
       return value;
     } catch (e) {
       Log.logPrint(e);
@@ -147,7 +162,7 @@ class LocalStorageService extends GetxService {
   }
 
   Future setValue<T>(dynamic key, T value) async {
-    Log.d("Set LocalStorage：$key\r\n$value");
+    Log.d("Set LocalStorage：$key\r\n${_safeLogValue(key, value)}");
     return await settingsBox.put(key, value);
   }
 
