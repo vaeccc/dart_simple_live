@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:simple_live_core/src/common/core_log.dart';
 import 'package:simple_live_core/src/common/http_client.dart';
+import 'package:simple_live_core/src/common/json_helper.dart';
 import 'package:simple_live_core/src/danmaku/douyu_danmaku.dart';
 import 'package:simple_live_core/src/interface/live_danmaku.dart';
 import 'package:simple_live_core/src/interface/live_site.dart';
@@ -35,12 +36,17 @@ class DouyuSite implements LiveSite {
     var result = await HttpClient.instance.getJson(
       "https://m.douyu.com/api/cate/list",
     );
-    var subCateList = result["data"]["cate2Info"] as List;
-    for (var item in result["data"]["cate1Info"]) {
+    final data = jsonMap(jsonMap(result)?["data"]);
+    final subCateList = jsonList(data?["cate2Info"]);
+    for (var rawItem in jsonList(data?["cate1Info"])) {
+      final item = jsonMap(rawItem);
+      if (item == null) continue;
       var cate1Id = item["cate1Id"];
       var cate1Name = item["cate1Name"];
       List<LiveSubCategory> subCategories = [];
-      subCateList.where((x) => x["cate1Id"] == cate1Id).forEach((element) {
+      subCateList.where((x) => jsonMap(x)?["cate1Id"] == cate1Id).forEach((rawElement) {
+        final element = jsonMap(rawElement);
+        if (element == null) return;
         subCategories.add(
           LiveSubCategory(
             pic: element["icon"],
@@ -59,7 +65,9 @@ class DouyuSite implements LiveSite {
       );
     }
     // 根据ID排序
-    categories.sort((a, b) => int.parse(a.id).compareTo(int.parse(b.id)));
+    categories.sort(
+      (a, b) => jsonInt(a.id).compareTo(jsonInt(b.id)),
+    );
 
     return categories;
   }
@@ -74,21 +82,26 @@ class DouyuSite implements LiveSite {
       queryParameters: {},
     );
 
+    final data = jsonMap(jsonMap(result)?['data']);
     var items = <LiveRoomItem>[];
-    for (var item in result['data']['rl']) {
+    for (var rawItem in jsonList(data?['rl'])) {
+      final item = jsonMap(rawItem);
+      if (item == null) continue;
       if (item["type"] != 1) {
         continue;
       }
+      final roomId = jsonString(item['rid']);
+      if (roomId.isEmpty) continue;
       var roomItem = LiveRoomItem(
-        cover: item['rs16'].toString(),
-        online: item['ol'],
-        roomId: item['rid'].toString(),
-        title: item['rn'].toString(),
-        userName: item['nn'].toString(),
+        cover: jsonString(item['rs16']),
+        online: jsonInt(item['ol']),
+        roomId: roomId,
+        title: jsonString(item['rn']),
+        userName: jsonString(item['nn']),
       );
       items.add(roomItem);
     }
-    var hasMore = page < result['data']['pgcnt'];
+    var hasMore = page < jsonInt(data?['pgcnt']);
     return LiveCategoryResult(hasMore: hasMore, items: items);
   }
 
@@ -177,21 +190,26 @@ class DouyuSite implements LiveSite {
       queryParameters: {},
     );
 
+    final data = jsonMap(jsonMap(result)?['data']);
     var items = <LiveRoomItem>[];
-    for (var item in result['data']['rl']) {
+    for (var rawItem in jsonList(data?['rl'])) {
+      final item = jsonMap(rawItem);
+      if (item == null) continue;
       if (item["type"] != 1) {
         continue;
       }
+      final roomId = jsonString(item['rid']);
+      if (roomId.isEmpty) continue;
       var roomItem = LiveRoomItem(
-        cover: item['rs16'].toString(),
-        online: item['ol'],
-        roomId: item['rid'].toString(),
-        title: item['rn'].toString(),
-        userName: item['nn'].toString(),
+        cover: jsonString(item['rs16']),
+        online: jsonInt(item['ol']),
+        roomId: roomId,
+        title: jsonString(item['rn']),
+        userName: jsonString(item['nn']),
       );
       items.add(roomItem);
     }
-    var hasMore = page < result['data']['pgcnt'];
+    var hasMore = page < jsonInt(data?['pgcnt']);
     return LiveCategoryResult(hasMore: hasMore, items: items);
   }
 
@@ -277,17 +295,22 @@ class DouyuSite implements LiveSite {
       throw Exception(result['msg']);
     }
     var items = <LiveRoomItem>[];
-    for (var item in result["data"]["relateShow"]) {
+    final data = jsonMap(jsonMap(result)?["data"]);
+    for (var rawItem in jsonList(data?["relateShow"])) {
+      final item = jsonMap(rawItem);
+      if (item == null) continue;
+      final roomId = jsonString(item["rid"]);
+      if (roomId.isEmpty) continue;
       var roomItem = LiveRoomItem(
-        roomId: item["rid"].toString(),
-        title: item["roomName"].toString(),
-        cover: item["roomSrc"].toString(),
-        userName: item["nickName"].toString(),
-        online: parseHotNum(item["hot"].toString()),
+        roomId: roomId,
+        title: jsonString(item["roomName"]),
+        cover: jsonString(item["roomSrc"]),
+        userName: jsonString(item["nickName"]),
+        online: parseHotNum(jsonString(item["hot"])),
       );
       items.add(roomItem);
     }
-    var hasMore = result["data"]["relateShow"].isNotEmpty;
+    var hasMore = jsonList(data?["relateShow"]).isNotEmpty;
     return LiveSearchRoomResult(hasMore: hasMore, items: items);
   }
 
@@ -302,11 +325,8 @@ class DouyuSite implements LiveSite {
       },
     );
     Map roomInfo;
-    if (result is String) {
-      roomInfo = json.decode(result)["room"];
-    } else {
-      roomInfo = result["room"];
-    }
+    final decoded = jsonMap(jsonDecodeOrNull(result));
+    roomInfo = jsonMap(decoded?["room"]) ?? <String, dynamic>{};
     return roomInfo;
   }
 
@@ -344,20 +364,26 @@ class DouyuSite implements LiveSite {
     );
 
     var items = <LiveAnchorItem>[];
-    for (var item in result["data"]["relateUser"]) {
+    final data = jsonMap(jsonMap(result)?["data"]);
+    for (var rawItem in jsonList(data?["relateUser"])) {
+      final item = jsonMap(rawItem);
+      final anchorInfo = jsonMap(item?["anchorInfo"]);
+      if (anchorInfo == null) continue;
+      final roomId = jsonString(anchorInfo["rid"]);
+      if (roomId.isEmpty) continue;
       var liveStatus =
-          (int.tryParse(item["anchorInfo"]["isLive"].toString()) ?? 0) == 1;
+          jsonInt(anchorInfo["isLive"]) == 1;
       var roomType =
-          (int.tryParse(item["anchorInfo"]["roomType"].toString()) ?? 0);
+          jsonInt(anchorInfo["roomType"]);
       var roomItem = LiveAnchorItem(
-        roomId: item["anchorInfo"]["rid"].toString(),
-        avatar: item["anchorInfo"]["avatar"].toString(),
-        userName: item["anchorInfo"]["nickName"].toString(),
+        roomId: roomId,
+        avatar: jsonString(anchorInfo["avatar"]),
+        userName: jsonString(anchorInfo["nickName"]),
         liveStatus: liveStatus && roomType == 0,
       );
       items.add(roomItem);
     }
-    var hasMore = result["data"]["relateUser"].isNotEmpty;
+    var hasMore = jsonList(data?["relateUser"]).isNotEmpty;
     return LiveSearchAnchorResult(hasMore: hasMore, items: items);
   }
 

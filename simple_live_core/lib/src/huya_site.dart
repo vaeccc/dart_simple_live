@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:simple_live_core/simple_live_core.dart';
 import 'package:simple_live_core/src/common/http_client.dart';
+import 'package:simple_live_core/src/common/json_helper.dart';
 import 'package:crypto/crypto.dart';
 import 'package:simple_live_core/src/model/tars/get_cdn_token_ex_req.dart';
 import 'package:simple_live_core/src/model/tars/get_cdn_token_ex_resp.dart';
@@ -66,7 +67,9 @@ class HuyaSite implements LiveSite {
     );
 
     List<LiveSubCategory> subs = [];
-    for (var item in result["data"]) {
+    for (var rawItem in jsonList(jsonMap(result)?["data"])) {
+      final item = jsonMap(rawItem);
+      if (item == null) continue;
       var gid = "";
 
       if (item["gid"] is Map) {
@@ -106,28 +109,34 @@ class HuyaSite implements LiveSite {
         "page": page,
       },
     );
-    var result = json.decode(resultText);
+    final result = jsonMap(jsonDecodeOrNull(resultText));
+    final data = jsonMap(result?["data"]);
     var items = <LiveRoomItem>[];
-    for (var item in result["data"]["datas"]) {
-      var cover = item["screenshot"].toString();
+    for (var rawItem in jsonList(data?["datas"])) {
+      final item = jsonMap(rawItem);
+      if (item == null) continue;
+      final roomId = jsonString(item["profileRoom"]);
+      if (roomId.isEmpty) continue;
+      var cover = jsonString(item["screenshot"]);
       if (!cover.contains("?")) {
         cover += "?x-oss-process=style/w338_h190&";
       }
-      var title = item["introduction"]?.toString() ?? "";
+      var title = jsonString(item["introduction"]);
       if (title.isEmpty) {
-        title = item["roomName"]?.toString() ?? "";
+        title = jsonString(item["roomName"]);
       }
 
       var roomItem = LiveRoomItem(
-        roomId: item["profileRoom"].toString(),
+        roomId: roomId,
         title: title,
         cover: cover,
-        userName: item["nick"].toString(),
-        online: int.tryParse(item["totalCount"].toString()) ?? 0,
+        userName: jsonString(item["nick"]),
+        online: jsonInt(item["totalCount"]),
       );
       items.add(roomItem);
     }
-    var hasMore = result["data"]["page"] < result["data"]["totalPage"];
+    var hasMore =
+        jsonInt(data?["page"]) < jsonInt(data?["totalPage"]);
     return LiveCategoryResult(hasMore: hasMore, items: items);
   }
 

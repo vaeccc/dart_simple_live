@@ -71,6 +71,18 @@ void main() {
 
     test('treats a successful response without stream lines as offline', () {
       expect(YySite.parseStreamResponse({'result': 0}).urls, isEmpty);
+      expect(YySite.parseStreamResponse({}).urls, isEmpty);
+    });
+
+    test('rejects malformed JSON and expired room pages clearly', () {
+      expect(
+        () => YySite.parseHlsResponse('{invalid-json'),
+        throwsFormatException,
+      );
+      expect(
+        () => YySite.parseRoomPage('<html>room expired</html>'),
+        throwsFormatException,
+      );
     });
 
     test('parses homepage recommendation cards', () {

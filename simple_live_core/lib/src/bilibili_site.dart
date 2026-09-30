@@ -4,6 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:simple_live_core/src/common/core_log.dart';
 import 'package:simple_live_core/src/common/convert_helper.dart';
 import 'package:simple_live_core/src/common/http_client.dart';
+import 'package:simple_live_core/src/common/json_helper.dart';
 import 'package:simple_live_core/src/danmaku/bilibili_danmaku.dart';
 import 'package:simple_live_core/src/interface/live_danmaku.dart';
 import 'package:simple_live_core/src/interface/live_site.dart';
@@ -69,9 +70,13 @@ class BiliBiliSite implements LiveSite {
       },
       header: await getHeader(),
     );
-    for (var item in result["data"]) {
+    for (var rawItem in jsonList(jsonMap(result)?["data"])) {
+      final item = jsonMap(rawItem);
+      if (item == null) continue;
       List<LiveSubCategory> subs = [];
-      for (var subItem in item["list"]) {
+      for (var rawSubItem in jsonList(item["list"])) {
+        final subItem = jsonMap(rawSubItem);
+        if (subItem == null) continue;
         var subCategory = LiveSubCategory(
           id: subItem["id"].toString(),
           name: asT<String?>(subItem["name"]) ?? "",
@@ -107,15 +112,21 @@ class BiliBiliSite implements LiveSite {
       header: await getHeader(),
     );
 
-    var hasMore = result["data"]["has_more"] == 1;
+    final data = jsonMap(jsonMap(result)?["data"]);
+    final roomList = jsonList(data?["list"]);
+    var hasMore = data?["has_more"] == 1;
     var items = <LiveRoomItem>[];
-    for (var item in result["data"]["list"]) {
+    for (var rawItem in roomList) {
+      final item = jsonMap(rawItem);
+      if (item == null) continue;
+      final roomId = jsonString(item["roomid"]);
+      if (roomId.isEmpty) continue;
       var roomItem = LiveRoomItem(
-        roomId: item["roomid"].toString(),
-        title: item["title"].toString(),
-        cover: "${item["cover"]}@400w.jpg",
-        userName: item["uname"].toString(),
-        online: int.tryParse(item["online"].toString()) ?? 0,
+        roomId: roomId,
+        title: jsonString(item["title"]),
+        cover: "${jsonString(item["cover"])}@400w.jpg",
+        userName: jsonString(item["uname"]),
+        online: jsonInt(item["online"]),
       );
       items.add(roomItem);
     }
@@ -219,15 +230,21 @@ class BiliBiliSite implements LiveSite {
       header: await getHeader(),
     );
 
-    var hasMore = (result["data"]["list"] as List).isNotEmpty;
+    final data = jsonMap(jsonMap(result)?["data"]);
+    final roomList = jsonList(data?["list"]);
+    var hasMore = roomList.isNotEmpty;
     var items = <LiveRoomItem>[];
-    for (var item in result["data"]["list"]) {
+    for (var rawItem in roomList) {
+      final item = jsonMap(rawItem);
+      if (item == null) continue;
+      final roomId = jsonString(item["roomid"]);
+      if (roomId.isEmpty) continue;
       var roomItem = LiveRoomItem(
-        roomId: item["roomid"].toString(),
-        title: item["title"].toString(),
-        cover: "${item["cover"]}@400w.jpg",
-        userName: item["uname"].toString(),
-        online: int.tryParse(item["online"].toString()) ?? 0,
+        roomId: roomId,
+        title: jsonString(item["title"]),
+        cover: "${jsonString(item["cover"])}@400w.jpg",
+        userName: jsonString(item["uname"]),
+        online: jsonInt(item["online"]),
       );
       items.add(roomItem);
     }
@@ -236,8 +253,17 @@ class BiliBiliSite implements LiveSite {
 
   @override
   Future<LiveRoomDetail> getRoomDetail({required String roomId}) async {
-    var roomInfo = await getRoomInfo(roomId: roomId);
-    var realRoomId = roomInfo["room_info"]["room_id"].toString();
+    final roomInfo = await getRoomInfo(roomId: roomId);
+    final roomData = jsonMap(roomInfo["room_info"]);
+    final anchorData = jsonMap(roomInfo["anchor_info"]);
+    final anchorBaseData = jsonMap(anchorData?["base_info"]);
+    if (roomData == null || anchorBaseData == null) {
+      throw const FormatException('哔哩哔哩房间信息结构异常');
+    }
+    var realRoomId = jsonString(roomData["room_id"]);
+    if (realRoomId.isEmpty) {
+      throw const FormatException('哔哩哔哩房间号为空，房间可能已失效');
+    }
 
     const danmuInfoBaseUrl =
         "https://api.live.bilibili.com/xlive/web-room/v1/index/getDanmuInfo";
@@ -248,14 +274,16 @@ class BiliBiliSite implements LiveSite {
       queryParameters: queryParams,
       header: await getHeader(),
     );
-    List<String> serverHosts = (roomDanmakuResult["data"]["host_list"] as List)
-        .map<String>((e) => e["host"].toString())
+    final danmuData = jsonMap(jsonMap(roomDanmakuResult)?["data"]);
+    final serverHosts = jsonList(danmuData?["host_list"])
+        .map((item) => jsonString(jsonMap(item)?["host"]))
+        .where((host) => host.isNotEmpty)
         .toList();
 
     //var buvid = await getBuvid();
     // 从 roomInfo 中提取 live_start_time
     String? liveStartTime =
-        roomInfo["room_info"]?["live_start_time"]?.toString();
+        roomData["live_start_time"]?.toString();
 
     // 计算开播时长并打印到控制台 (参考斗鱼的实现)
     if (liveStartTime != null &&
@@ -281,19 +309,19 @@ class BiliBiliSite implements LiveSite {
 
     return LiveRoomDetail(
       roomId: realRoomId,
-      title: roomInfo["room_info"]["title"].toString(),
-      cover: roomInfo["room_info"]["cover"].toString(),
-      userName: roomInfo["anchor_info"]["base_info"]["uname"].toString(),
-      userAvatar: "${roomInfo["anchor_info"]["base_info"]["face"]}@100w.jpg",
-      online: asT<int?>(roomInfo["room_info"]["online"]) ?? 0,
-      status: (asT<int?>(roomInfo["room_info"]["live_status"]) ?? 0) == 1,
+      title: jsonString(roomData["title"]),
+      cover: jsonString(roomData["cover"]),
+      userName: jsonString(anchorBaseData["uname"]),
+      userAvatar: "${jsonString(anchorBaseData["face"])}@100w.jpg",
+      online: jsonInt(roomData["online"]),
+      status: jsonInt(roomData["live_status"]) == 1,
       url: "https://live.bilibili.com/$roomId",
-      introduction: roomInfo["room_info"]["description"].toString(),
+      introduction: jsonString(roomData["description"]),
       notice: "",
       danmakuData: BiliBiliDanmakuArgs(
         roomId: int.tryParse(realRoomId) ?? 0,
         uid: userId,
-        token: roomDanmakuResult["data"]["token"].toString(),
+        token: jsonString(danmuData?["token"]),
         serverHost: serverHosts.isNotEmpty
             ? serverHosts.first
             : "broadcastlv.chat.bilibili.com",
@@ -314,7 +342,7 @@ class BiliBiliSite implements LiveSite {
       header: await getHeader(),
     );
     CoreLog.d('Bilibili room detail loaded: roomId=$roomId');
-    return result["data"];
+    return jsonMap(jsonMap(result)?["data"]) ?? <String, dynamic>{};
   }
 
   @override
@@ -336,16 +364,22 @@ class BiliBiliSite implements LiveSite {
     );
 
     var items = <LiveRoomItem>[];
-    for (var item in result["data"]["result"]["live_room"] ?? []) {
-      var title = item["title"].toString();
+    final data = jsonMap(jsonMap(result)?["data"]);
+    final searchResult = jsonMap(data?["result"]);
+    for (var rawItem in jsonList(searchResult?["live_room"])) {
+      final item = jsonMap(rawItem);
+      if (item == null) continue;
+      final roomId = jsonString(item["roomid"]);
+      if (roomId.isEmpty) continue;
+      var title = jsonString(item["title"]);
       //移除title中的<em></em>标签
       title = title.replaceAll(RegExp(r"<.*?em.*?>"), "");
       var roomItem = LiveRoomItem(
-        roomId: item["roomid"].toString(),
+        roomId: roomId,
         title: title,
-        cover: "https:${item["cover"]}@400w.jpg",
-        userName: item["uname"].toString(),
-        online: int.tryParse(item["online"].toString()) ?? 0,
+        cover: "https:${jsonString(item["cover"])}@400w.jpg",
+        userName: jsonString(item["uname"]),
+        online: jsonInt(item["online"]),
       );
       items.add(roomItem);
     }
@@ -371,15 +405,20 @@ class BiliBiliSite implements LiveSite {
     );
 
     var items = <LiveAnchorItem>[];
-    for (var item in result["data"]["result"] ?? []) {
-      var uname = item["uname"].toString();
+    final data = jsonMap(jsonMap(result)?["data"]);
+    for (var rawItem in jsonList(data?["result"])) {
+      final item = jsonMap(rawItem);
+      if (item == null) continue;
+      final roomId = jsonString(item["roomid"]);
+      if (roomId.isEmpty) continue;
+      var uname = jsonString(item["uname"]);
       //移除title中的<em></em>标签
       uname = uname.replaceAll(RegExp(r"<.*?em.*?>"), "");
       var anchorItem = LiveAnchorItem(
-        roomId: item["roomid"].toString(),
-        avatar: "https:${item["uface"]}@400w.jpg",
+        roomId: roomId,
+        avatar: "https:${jsonString(item["uface"])}@400w.jpg",
         userName: uname,
-        liveStatus: item["is_live"],
+        liveStatus: jsonBool(item["is_live"]),
       );
       items.add(anchorItem);
     }
@@ -395,7 +434,8 @@ class BiliBiliSite implements LiveSite {
       },
       header: await getHeader(),
     );
-    return (asT<int?>(result["data"]["live_status"]) ?? 0) == 1;
+    final data = jsonMap(jsonMap(result)?["data"]);
+    return jsonInt(data?["live_status"]) == 1;
   }
 
   @override

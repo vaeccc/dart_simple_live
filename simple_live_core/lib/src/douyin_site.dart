@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:simple_live_core/simple_live_core.dart';
 import 'package:simple_live_core/src/common/convert_helper.dart';
 import 'package:simple_live_core/src/common/http_client.dart';
+import 'package:simple_live_core/src/common/json_helper.dart';
 import 'package:simple_live_core/src/scripts/douyin_sign.dart';
 
 class DouyinSite implements LiveSite {
@@ -84,13 +85,19 @@ class DouyinSite implements LiveSite {
           .replaceAll(']\\n', ""),
     );
 
-    for (var item in renderDataJson["categoryData"]) {
+    for (var rawItem in jsonList(jsonMap(renderDataJson)?["categoryData"])) {
+      final item = jsonMap(rawItem);
+      final partition = jsonMap(item?["partition"]);
+      if (partition == null) continue;
       List<LiveSubCategory> subs = [];
-      var id = '${item["partition"]["id_str"]},${item["partition"]["type"]}';
-      for (var subItem in item["sub_partition"]) {
+      var id = '${jsonString(partition["id_str"])},${jsonString(partition["type"])}';
+      for (var rawSubItem in jsonList(item?["sub_partition"])) {
+        final subItem = jsonMap(rawSubItem);
+        final subPartition = jsonMap(subItem?["partition"]);
+        if (subPartition == null) continue;
         var subCategory = LiveSubCategory(
-          id: '${subItem["partition"]["id_str"]},${subItem["partition"]["type"]}',
-          name: asT<String?>(subItem["partition"]["title"]) ?? "",
+          id: '${jsonString(subPartition["id_str"])},${jsonString(subPartition["type"])}',
+          name: jsonString(subPartition["title"]),
           parentId: id,
           pic: "",
         );
@@ -100,7 +107,7 @@ class DouyinSite implements LiveSite {
       var category = LiveCategory(
         children: subs,
         id: id,
-        name: asT<String?>(item["partition"]["title"]) ?? "",
+        name: jsonString(partition["title"]),
       );
       subs.insert(
         0,
@@ -159,19 +166,25 @@ class DouyinSite implements LiveSite {
       header: await getRequestHeaders(),
     );
 
-    var hasMore = (result["data"]["data"] as List).length >= 15;
+    final data = jsonMap(jsonMap(result)?["data"]);
+    final roomList = jsonList(data?["data"]);
+    var hasMore = roomList.length >= 15;
     var items = <LiveRoomItem>[];
-    for (var item in result["data"]["data"]) {
+    for (var rawItem in roomList) {
+      final item = jsonMap(rawItem);
+      final room = jsonMap(item?["room"]);
+      final owner = jsonMap(room?["owner"]);
+      if (item == null || room == null || owner == null) continue;
+      final roomId = jsonString(item["web_rid"]);
+      if (roomId.isEmpty) continue;
+      final coverUrls = jsonList(jsonMap(room["cover"])?["url_list"]);
       var roomItem = LiveRoomItem(
-        roomId: item["web_rid"],
-        title: item["room"]["title"].toString(),
-        cover: item["room"]["cover"]["url_list"][0].toString(),
-        userName: item["room"]["owner"]["nickname"].toString(),
+        roomId: roomId,
+        title: jsonString(room["title"]),
+        cover: coverUrls.isEmpty ? "" : jsonString(coverUrls.first),
+        userName: jsonString(owner["nickname"]),
         online:
-            int.tryParse(
-              item["room"]["room_view_stats"]["display_value"].toString(),
-            ) ??
-            0,
+            jsonInt(jsonMap(room["room_view_stats"])?["display_value"]),
       );
       items.add(roomItem);
     }
@@ -214,19 +227,25 @@ class DouyinSite implements LiveSite {
       header: await getRequestHeaders(),
     );
 
-    var hasMore = (result["data"]["data"] as List).length >= 15;
+    final data = jsonMap(jsonMap(result)?["data"]);
+    final roomList = jsonList(data?["data"]);
+    var hasMore = roomList.length >= 15;
     var items = <LiveRoomItem>[];
-    for (var item in result["data"]["data"]) {
+    for (var rawItem in roomList) {
+      final item = jsonMap(rawItem);
+      final room = jsonMap(item?["room"]);
+      final owner = jsonMap(room?["owner"]);
+      if (item == null || room == null || owner == null) continue;
+      final roomId = jsonString(item["web_rid"]);
+      if (roomId.isEmpty) continue;
+      final coverUrls = jsonList(jsonMap(room["cover"])?["url_list"]);
       var roomItem = LiveRoomItem(
-        roomId: item["web_rid"],
-        title: item["room"]["title"].toString(),
-        cover: item["room"]["cover"]["url_list"][0].toString(),
-        userName: item["room"]["owner"]["nickname"].toString(),
+        roomId: roomId,
+        title: jsonString(room["title"]),
+        cover: coverUrls.isEmpty ? "" : jsonString(coverUrls.first),
+        userName: jsonString(owner["nickname"]),
         online:
-            int.tryParse(
-              item["room"]["room_view_stats"]["display_value"].toString(),
-            ) ??
-            0,
+            jsonInt(jsonMap(room["room_view_stats"])?["display_value"]),
       );
       items.add(roomItem);
     }

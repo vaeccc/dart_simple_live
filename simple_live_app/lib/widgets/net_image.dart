@@ -17,14 +17,15 @@ class NetImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (picUrl.isEmpty) {
+    final normalizedUrl = picUrl.trim();
+    if (normalizedUrl.isEmpty) {
       return Image.asset(
         'assets/images/logo.png',
         width: width,
         height: height,
       );
     }
-    var pic = picUrl;
+    var pic = normalizedUrl;
     if (pic.startsWith("//")) {
       pic = 'https:$pic';
     }
@@ -35,6 +36,7 @@ class NetImage extends StatelessWidget {
         fit: fit,
         height: height,
         width: width,
+        cache: true,
         shape: BoxShape.rectangle,
         borderRadius: BorderRadius.circular(borderRadius),
         loadStateChanged: (e) {
