@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:simple_live_tv_app/app/log.dart';
+import 'package:simple_live_core/simple_live_core.dart';
 
 class CustomLogInterceptor extends Interceptor {
   @override
@@ -13,7 +15,8 @@ class CustomLogInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     var time =
         DateTime.now().millisecondsSinceEpoch - err.requestOptions.extra["ts"];
-    Log.e('''【HTTP请求错误-${err.type}】 耗时:${time}ms
+    if (!kReleaseMode) {
+      Log.e('''【HTTP请求错误-${err.type}】 耗时:${time}ms
 ${err.message}
 
 Request Method：${err.requestOptions.method}
@@ -24,6 +27,13 @@ Request Data：${_maskData(err.requestOptions.data)}
 Request Headers：${_maskHeader(err.requestOptions.headers)}
 Response Headers：${_maskHeader(err.response?.headers.map ?? <String, dynamic>{})}
 Response Data：${_maskData(err.response?.data)}''', err.stackTrace);
+    } else {
+      CoreLog.e(
+        '[HTTP Error] [${err.type}] [Time:${time}ms] '
+        '[${err.response?.statusCode}] ${_maskUri(err.requestOptions.uri)}',
+        err.stackTrace,
+      );
+    }
     super.onError(err, handler);
   }
 
@@ -31,8 +41,9 @@ Response Data：${_maskData(err.response?.data)}''', err.stackTrace);
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     var time = DateTime.now().millisecondsSinceEpoch -
         response.requestOptions.extra["ts"];
-    Log.i(
-      '''【HTTP请求响应】 耗时:${time}ms
+    if (!kReleaseMode) {
+      Log.i(
+        '''【HTTP请求响应】 耗时:${time}ms
 Request Method：${response.requestOptions.method}
 Request Code：${response.statusCode}
 Request URL：${_maskUri(response.requestOptions.uri)}
@@ -41,7 +52,13 @@ Request Data：${_maskData(response.requestOptions.data)}
 Request Headers：${_maskHeader(response.requestOptions.headers)}
 Response Headers：${_maskHeader(response.headers.map)}
 Response Data：${_maskData(response.data)}''',
-    );
+      );
+    } else {
+      CoreLog.i(
+        '[HTTP Response] [time:${time}ms] '
+        '[${response.statusCode}] ${_maskUri(response.requestOptions.uri)}',
+      );
+    }
     super.onResponse(response, handler);
   }
 

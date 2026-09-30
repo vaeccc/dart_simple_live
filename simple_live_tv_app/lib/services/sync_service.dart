@@ -55,7 +55,7 @@ class SyncService extends GetxService {
       udp = await UDP.bind(Endpoint.any(port: const Port(udpPort)));
       udp!.asStream().listen((datagram) {
       var str = String.fromCharCodes(datagram!.data);
-      Log.i("Received: $str from ${datagram.address}:${datagram.port}");
+      Log.i("Received UDP discovery message from ${datagram.address.address}");
       if (str.startsWith('{') && str.endsWith('}')) {
         var data = json.decode(str);
 
@@ -126,7 +126,7 @@ class SyncService extends GetxService {
       json.encode(data).codeUnits,
       Endpoint.broadcast(port: const Port(udpPort)),
     );
-    Log.i("send udp info: $data");
+    Log.i("Sent UDP discovery info on port $httpPort");
   }
 
   /// 读取本地IP
@@ -262,8 +262,10 @@ class SyncService extends GetxService {
       );
 
       var body = await request.readAsString();
-      Log.d('_syncFollowUserReuqest: $body');
       var jsonBody = json.decode(body);
+      Log.d(
+        '_syncFollowUserRequest: overlay=$overlay, items=${jsonBody is List ? jsonBody.length : 'invalid'}',
+      );
       if (overlay == 1) {
         await DBService.instance.followBox.clear();
       }
@@ -311,8 +313,10 @@ class SyncService extends GetxService {
         request.requestedUri.queryParameters['overlay'] ?? '0',
       );
       var body = await request.readAsString();
-      Log.d('_syncFollowUserReuqest: $body');
       var jsonBody = json.decode(body);
+      Log.d(
+        '_syncHistoryRequest: overlay=$overlay, items=${jsonBody is List ? jsonBody.length : 'invalid'}',
+      );
       if (overlay == 1) {
         await DBService.instance.historyBox.clear();
       }
@@ -343,8 +347,10 @@ class SyncService extends GetxService {
         request.requestedUri.queryParameters['overlay'] ?? '0',
       );
       var body = await request.readAsString();
-      Log.d('_syncBlockedWordReuqest: $body');
       var jsonBody = json.decode(body);
+      Log.d(
+        '_syncBlockedWordRequest: overlay=$overlay, items=${jsonBody is List ? jsonBody.length : 'invalid'}',
+      );
       if (overlay == 1) {
         AppSettingsController.instance.clearShieldList();
       }

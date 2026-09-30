@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:simple_live_core/src/common/core_log.dart';
 import 'package:simple_live_core/src/common/http_client.dart';
 import 'package:simple_live_core/src/danmaku/douyu_danmaku.dart';
 import 'package:simple_live_core/src/interface/live_danmaku.dart';
@@ -232,9 +233,9 @@ class DouyuSite implements LiveSite {
 
         String formattedDuration =
             '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-        print('斗鱼直播间 $roomId 开播时长: $formattedDuration');
+        CoreLog.d('Douyu room $roomId live duration: $formattedDuration');
       } catch (e) {
-        print('计算开播时长出错: $e');
+        CoreLog.error(e);
       }
     }
 
