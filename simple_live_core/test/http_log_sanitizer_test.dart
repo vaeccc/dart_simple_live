@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:simple_live_core/simple_live_core.dart';
+import 'package:simple_live_core/src/common/http_log_sanitizer.dart';
 
 void main() {
   test('log sanitizer removes URL queries', () {
