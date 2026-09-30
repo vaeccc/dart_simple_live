@@ -52,6 +52,9 @@ class FollowUserService extends BasePageController<FollowUser> {
   var updatedCount = 0;
   var updating = false.obs;
   var _updateTotal = 0;
+  static const _statusRequestTimeout = Duration(seconds: 15);
+  static const _statusRetryCount = 2;
+  var _updateGeneration = 0;
   @override
   Future<List<FollowUser>> getData(int page, int pageSize) async {
     if (page > 1) {
@@ -89,6 +92,7 @@ class FollowUserService extends BasePageController<FollowUser> {
 
     updatedCount = 0;
     _updateTotal = followList.length;
+    final generation = ++_updateGeneration;
     updating.value = true;
 
     final configuredThreadCount =
@@ -108,7 +112,11 @@ class FollowUserService extends BasePageController<FollowUser> {
           }
           var items = followList.sublist(start, end);
           for (var item in items) {
-            await updateLiveStatus(item, total: _updateTotal);
+            await updateLiveStatus(
+              item,
+              total: _updateTotal,
+              generation: generation,
+            );
           }
         }),
       );
@@ -119,10 +127,14 @@ class FollowUserService extends BasePageController<FollowUser> {
   Future<void> updateLiveStatus(
     FollowUser item, {
     required int total,
+    required int generation,
   }) async {
     try {
       var site = Sites.allSites[item.siteId]!;
-      final detail = await site.liveSite.getRoomDetail(roomId: item.roomId);
+      final detail = await _requestWithRetry(
+        () => site.liveSite.getRoomDetail(roomId: item.roomId),
+      );
+      if (generation != _updateGeneration || !list.contains(item)) return;
       item.roomDetail.value = detail;
       item.liveStatus.value = detail.status ? 2 : 1;
       if (detail.title.isNotEmpty && item.roomTitle != detail.title) {
@@ -134,12 +146,31 @@ class FollowUserService extends BasePageController<FollowUser> {
     } catch (e) {
       Log.logPrint(e);
     } finally {
-      updatedCount++;
-      if (updatedCount >= total) {
-        sortList();
-        updating.value = false;
+      if (generation == _updateGeneration) {
+        updatedCount++;
+        if (updatedCount >= total) {
+          sortList();
+          updating.value = false;
+        }
       }
     }
+  }
+
+  Future<T> _requestWithRetry<T>(Future<T> Function() request) async {
+    Object? lastError;
+    for (var attempt = 0; attempt < _statusRetryCount; attempt++) {
+      try {
+        return await request().timeout(_statusRequestTimeout);
+      } catch (error) {
+        lastError = error;
+        if (attempt + 1 < _statusRetryCount) {
+          await Future<void>.delayed(
+            Duration(milliseconds: 300 * (attempt + 1)),
+          );
+        }
+      }
+    }
+    throw lastError!;
   }
 
   void removeItem(FollowUser item, {bool refresh = true}) async {

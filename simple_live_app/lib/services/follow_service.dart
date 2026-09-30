@@ -46,6 +46,10 @@ class FollowService extends GetxService {
   /// 是否正在更新
   var updating = false.obs;
 
+  static const _statusRequestTimeout = Duration(seconds: 15);
+  static const _statusRetryCount = 2;
+  var _updateGeneration = 0;
+
   Timer? updateTimer;
 
   @override
@@ -190,14 +194,16 @@ class FollowService extends GetxService {
   }
 
   Future<void> startUpdateStatus() async {
-    if (followList.isEmpty || updating.value) {
+    if (followList.isEmpty) {
       updating.value = false;
       return;
     }
+    if (updating.value) return;
 
     updatedCount = 0;
     updating.value = true;
     final total = followList.length;
+    final generation = ++_updateGeneration;
 
     var concurrency = getOptimalConcurrency();
 
@@ -213,7 +219,11 @@ class FollowService extends GetxService {
     Future<void> worker(int workerId) async {
       while (taskQueue.isNotEmpty) {
         var item = taskQueue.removeFirst();
-        await updateLiveStatus(item, total: total);
+        await updateLiveStatus(
+          item,
+          total: total,
+          generation: generation,
+        );
       }
     }
 
@@ -231,15 +241,22 @@ class FollowService extends GetxService {
   Future<void> updateLiveStatus(
     FollowUser item, {
     required int total,
+    required int generation,
   }) async {
     try {
       var site = Sites.allSites[item.siteId]!;
       // 先只查状态
-      var isLiving = await site.liveSite.getLiveStatus(roomId: item.roomId);
+      var isLiving = await _requestWithRetry(
+        () => site.liveSite.getLiveStatus(roomId: item.roomId),
+      );
+      if (generation != _updateGeneration || !followList.contains(item)) return;
       item.liveStatus.value = isLiving ? 2 : 1;
       if (item.liveStatus.value == 2) {
         // 只有正在直播时才查详细信息
-        var detail = await site.liveSite.getRoomDetail(roomId: item.roomId);
+        var detail = await _requestWithRetry(
+          () => site.liveSite.getRoomDetail(roomId: item.roomId),
+        );
+        if (generation != _updateGeneration || !followList.contains(item)) return;
         item.roomDetail.value = detail;
         item.liveStartTime = detail.showTime;
         if (detail.title.isNotEmpty && item.roomTitle != detail.title) {
@@ -247,21 +264,43 @@ class FollowService extends GetxService {
           await DBService.instance.addFollow(item);
         }
       } else {
+        if (generation != _updateGeneration || !followList.contains(item)) return;
         item.roomDetail.value = null;
         item.liveStartTime = null;
       }
     } catch (e) {
       Log.logPrint(e);
-      item.liveStatus.value = 0;
-      item.roomDetail.value = null;
-      item.liveStartTime = null;
+      if (generation == _updateGeneration && followList.contains(item)) {
+        item.liveStatus.value = 0;
+        item.roomDetail.value = null;
+        item.liveStartTime = null;
+      }
     } finally {
-      updatedCount++;
-      if (updatedCount >= total) {
-        filterData();
-        updating.value = false;
+      if (generation == _updateGeneration) {
+        updatedCount++;
+        if (updatedCount >= total) {
+          filterData();
+          updating.value = false;
+        }
       }
     }
+  }
+
+  Future<T> _requestWithRetry<T>(Future<T> Function() request) async {
+    Object? lastError;
+    for (var attempt = 0; attempt < _statusRetryCount; attempt++) {
+      try {
+        return await request().timeout(_statusRequestTimeout);
+      } catch (error) {
+        lastError = error;
+        if (attempt + 1 < _statusRetryCount) {
+          await Future<void>.delayed(
+            Duration(milliseconds: 300 * (attempt + 1)),
+          );
+        }
+      }
+    }
+    throw lastError!;
   }
 
   void filterData() {
