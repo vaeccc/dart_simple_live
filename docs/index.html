@@ -39,7 +39,7 @@
     .button:hover{background:var(--primary-hover)}
     .arch{margin-top:7px;font-size:12px;color:var(--muted);text-align:center}
     .alt-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
-    .alt-links a{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-height:54px;padding:9px 11px;border:1px solid rgba(82,111,196,.30);border-radius:11px;background:#fff;color:var(--text);transition:.15s}.alt-links .device-fit{font-size:12.5px;font-weight:700;line-height:1.25;color:var(--text)}.alt-links .arch-meta{margin-top:4px;font-size:10.5px;line-height:1.2;color:var(--muted)}
+    .alt-links a{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-height:54px;padding:9px 11px;border:1px solid rgba(82,111,196,.30);border-radius:11px;background:#fff;color:var(--text);transition:.15s}.alt-links .arch-name{font-size:12.5px;font-weight:700;line-height:1.2}.alt-links .arch-desc{margin-top:4px;font-size:11px;line-height:1.2;color:var(--muted)}
     .alt-links a:hover{border-color:rgba(82,111,196,.72);background:var(--soft)}
     .notice{background:var(--warning);border:1px solid #ead9ad;border-radius:14px;padding:12px 14px;font-size:12px;line-height:1.55;color:#7a6230;margin-top:10px}
     .quick-help{display:flex;align-items:center;justify-content:space-between;gap:16px;flex:0 0 auto;padding:9px 13px;background:#fff;border:1px solid var(--line);border-radius:13px;color:var(--muted);font-size:12px}
@@ -106,8 +106,8 @@
         <a id="app-arm64" class="button" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-app-v2.0.3-arm64-v8a.apk" rel="noreferrer">直接下载 ARM64 APK</a>
         <div class="arch">推荐 · arm64-v8a</div>
         <div class="alt-links">
-          <a id="app-v7" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-app-v2.0.3-armeabi-v7a.apk" rel="noreferrer"><span class="device-fit">旧款 32 位安卓手机 / 平板</span><span class="arch-meta">armeabi-v7a</span></a>
-          <a id="app-x64" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-app-v2.0.3-x86_64.apk" rel="noreferrer"><span class="device-fit">Android 模拟器 / x86 设备</span><span class="arch-meta">x86_64</span></a>
+          <a id="app-v7" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-app-v2.0.3-armeabi-v7a.apk" rel="noreferrer"><span class="arch-name">armeabi-v7a</span><span class="arch-desc">较旧的 32 位设备</span></a>
+          <a id="app-x64" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-app-v2.0.3-x86_64.apk" rel="noreferrer"><span class="arch-name">x86_64</span><span class="arch-desc">模拟器 / x86 设备</span></a>
         </div>
       </article>
 
@@ -119,8 +119,8 @@
         <a id="tv-arm64" class="button" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-tv-v2.0.3-arm64-v8a.apk" rel="noreferrer">直接下载 TV ARM64 APK</a>
         <div class="arch">推荐 · arm64-v8a</div>
         <div class="alt-links">
-          <a id="tv-v7" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-tv-v2.0.3-armeabi-v7a.apk" rel="noreferrer"><span class="device-fit">旧款 32 位电视 / 电视盒子</span><span class="arch-meta">armeabi-v7a</span></a>
-          <a id="tv-x64" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-tv-v2.0.3-x86_64.apk" rel="noreferrer"><span class="device-fit">x86 TV 设备 / 模拟器</span><span class="arch-meta">x86_64</span></a>
+          <a id="tv-v7" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-tv-v2.0.3-armeabi-v7a.apk" rel="noreferrer"><span class="arch-name">armeabi-v7a</span><span class="arch-desc">32 位电视设备</span></a>
+          <a id="tv-x64" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-tv-v2.0.3-x86_64.apk" rel="noreferrer"><span class="arch-name">x86_64</span><span class="arch-desc">x86 TV / 模拟器</span></a>
         </div>
       </article>
 
