@@ -38,8 +38,8 @@
     .button{display:flex;align-items:center;justify-content:center;height:46px;border-radius:12px;padding:0 14px;background:var(--primary);color:#fff;font-weight:700;font-size:14px;transition:.15s;margin-top:12px}
     .button:hover{background:var(--primary-hover)}
     .arch{margin-top:7px;font-size:12px;color:var(--muted);text-align:center}
-    .alt-links{display:grid;gap:8px;margin-top:8px}
-    .alt-links a{display:flex;align-items:center;min-height:38px;padding:7px 11px;border:1px solid rgba(82,111,196,.30);border-radius:10px;font-size:12px;background:#fff;color:var(--text);transition:.15s}
+    .alt-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+    .alt-links a{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-height:54px;padding:9px 11px;border:1px solid rgba(82,111,196,.30);border-radius:11px;background:#fff;color:var(--text);transition:.15s}.alt-links .arch-name{font-size:12.5px;font-weight:700;line-height:1.2}.alt-links .arch-desc{margin-top:4px;font-size:11px;line-height:1.2;color:var(--muted)}
     .alt-links a:hover{border-color:rgba(82,111,196,.72);background:var(--soft)}
     .notice{background:var(--warning);border:1px solid #ead9ad;border-radius:14px;padding:12px 14px;font-size:12px;line-height:1.55;color:#7a6230;margin-top:10px}
     .quick-help{display:flex;align-items:center;justify-content:space-between;gap:16px;flex:0 0 auto;padding:9px 13px;background:#fff;border:1px solid var(--line);border-radius:13px;color:var(--muted);font-size:12px}
@@ -68,7 +68,7 @@
       h1{font-size:36px}
       .lead{font-size:14px}
       .grid{grid-template-columns:1fr;display:grid;min-height:auto;margin:14px 0;flex:none}
-      .card{min-height:0;height:auto;padding:20px}
+      .card{min-height:0;height:auto;padding:20px}.alt-links{grid-template-columns:1fr}
       .card p{min-height:0}
       .quick-help{align-items:flex-start;flex-direction:column;gap:5px}
       footer{padding:10px 2px 6px}
@@ -106,8 +106,8 @@
         <a id="app-arm64" class="button" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-app-v2.0.3-arm64-v8a.apk" rel="noreferrer">直接下载 ARM64 APK</a>
         <div class="arch">推荐 · arm64-v8a</div>
         <div class="alt-links">
-          <a id="app-v7" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-app-v2.0.3-armeabi-v7a.apk" rel="noreferrer">下载 armeabi-v7a APK · 较旧的 32 位设备</a>
-          <a id="app-x64" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-app-v2.0.3-x86_64.apk" rel="noreferrer">下载 x86_64 APK · 模拟器 / x86 设备</a>
+          <a id="app-v7" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-app-v2.0.3-armeabi-v7a.apk" rel="noreferrer"><span class="arch-name">armeabi-v7a</span><span class="arch-desc">较旧的 32 位设备</span></a>
+          <a id="app-x64" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-app-v2.0.3-x86_64.apk" rel="noreferrer"><span class="arch-name">x86_64</span><span class="arch-desc">模拟器 / x86 设备</span></a>
         </div>
       </article>
 
@@ -119,8 +119,8 @@
         <a id="tv-arm64" class="button" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-tv-v2.0.3-arm64-v8a.apk" rel="noreferrer">直接下载 TV ARM64 APK</a>
         <div class="arch">推荐 · arm64-v8a</div>
         <div class="alt-links">
-          <a id="tv-v7" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-tv-v2.0.3-armeabi-v7a.apk" rel="noreferrer">下载 armeabi-v7a APK · 32 位电视设备</a>
-          <a id="tv-x64" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-tv-v2.0.3-x86_64.apk" rel="noreferrer">下载 x86_64 APK · x86 TV / 模拟器</a>
+          <a id="tv-v7" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-tv-v2.0.3-armeabi-v7a.apk" rel="noreferrer"><span class="arch-name">armeabi-v7a</span><span class="arch-desc">32 位电视设备</span></a>
+          <a id="tv-x64" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-tv-v2.0.3-x86_64.apk" rel="noreferrer"><span class="arch-name">x86_64</span><span class="arch-desc">x86 TV / 模拟器</span></a>
         </div>
       </article>
 
