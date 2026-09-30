@@ -11,7 +11,9 @@ import 'package:simple_live_core/simple_live_core.dart';
 class LiveRoomCard extends StatelessWidget {
   final Site site;
   final LiveRoomItem item;
-  const LiveRoomCard(this.site, this.item, {Key? key}) : super(key: key);
+  final int? liveStatus;
+  const LiveRoomCard(this.site, this.item, {this.liveStatus, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +77,28 @@ class LiveRoomCard extends StatelessWidget {
                   ),
                 ),
               ),
+              if (liveStatus != null && liveStatus != 0)
+                Positioned(
+                  left: 8,
+                  top: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: liveStatus == 2 ? Colors.green : Colors.black54,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      liveStatus == 2 ? "直播中" : "未开播",
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
           Padding(

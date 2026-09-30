@@ -15,6 +15,7 @@ class AnchorCard extends StatelessWidget {
   final String name;
   final String roomId;
   final int liveStatus;
+  final bool showLiveStatus;
   final bool autofocus;
   final Function()? onTap;
   final AppFocusNode? focusNode;
@@ -24,6 +25,7 @@ class AnchorCard extends StatelessWidget {
     required this.name,
     required this.liveStatus,
     required this.roomId,
+    this.showLiveStatus = false,
     this.autofocus = false,
     this.focusNode,
     this.onTap,
@@ -100,7 +102,7 @@ class AnchorCard extends StatelessWidget {
                 ],
               ),
             ),
-            if (liveStatus == 2)
+            if (liveStatus == 2 || (showLiveStatus && liveStatus == 1))
               Positioned(
                 right: 0,
                 top: 0,
@@ -108,14 +110,14 @@ class AnchorCard extends StatelessWidget {
                   padding:
                       AppStyle.edgeInsetsH16.copyWith(top: 4.w, bottom: 4.w),
                   decoration: BoxDecoration(
-                    color: Colors.green,
+                    color: liveStatus == 2 ? Colors.green : Colors.black54,
                     borderRadius: BorderRadius.only(
                       topRight: Radius.circular(12.w),
                       bottomLeft: Radius.circular(12.w),
                     ),
                   ),
                   child: Text(
-                    "直播中",
+                    liveStatus == 2 ? "直播中" : "未开播",
                     style: TextStyle(
                       fontSize: 24.w,
                       color: Colors.white,

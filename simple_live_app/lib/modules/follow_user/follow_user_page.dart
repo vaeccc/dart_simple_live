@@ -183,7 +183,11 @@ class FollowUserPage extends GetView<FollowUserController> {
                       onLongPress: () => setFollowTagDialog(item),
                       child: Stack(
                         children: [
-                          LiveRoomCard(site, room),
+                          LiveRoomCard(
+                            site,
+                            room,
+                            liveStatus: item.liveStatus.value,
+                          ),
                           Positioned(
                             top: 4,
                             right: 4,
