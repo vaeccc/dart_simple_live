@@ -1,8 +1,12 @@
 class HttpLogSanitizer {
   static const _masked = '******';
 
-  static String maskUri(Uri uri) =>
-      uri.replace(query: null, queryParameters: null).toString();
+  static String maskUri(Uri uri) {
+    final value = uri
+        .replace(queryParameters: const <String, String>{})
+        .toString();
+    return value.endsWith('?') ? value.substring(0, value.length - 1) : value;
+  }
 
   static String maskHeaders(Map<String, dynamic> headers) {
     final result = <String, dynamic>{};
