@@ -3,150 +3,355 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#0f172a">
-  <meta name="description" content="Simple Live 官方下载页：Android 手机版、Android TV 版及 iOS/iPadOS 未签名构建。">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="Simple Live 下载：Android 手机版、Android TV 版及 iOS/iPadOS 未签名构建。">
   <title>Simple Live 下载</title>
   <style>
     :root{
-      --bg:#f6f7f9;--panel:#fff;--text:#111827;--muted:#667085;--line:#e5e7eb;
-      --primary:#526fc4;--primary-hover:#465fa9;--soft:#f1f4fb;--warning:#fffaf0;
-      --shadow:0 10px 30px rgba(15,23,42,.06);--radius:20px
+      --bg:#ffffff;
+      --surface:#f7f7f8;
+      --surface-2:#f1f3f7;
+      --text:#111318;
+      --muted:#737984;
+      --line:#e8e9ed;
+      --accent:#6577b9;
+      --accent-dark:#5668a8;
+      --accent-soft:#eef1fb;
+      --warning-bg:#fffaf0;
+      --warning-line:#eee2c4;
+      --warning-text:#806a38;
+      --radius:26px;
+      --shadow:0 18px 55px rgba(17,19,24,.055);
     }
+
     *{box-sizing:border-box}
     html,body{margin:0;min-height:100%;background:var(--bg)}
-    body{color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.55}
-    a{text-decoration:none;color:inherit}
-    .wrap{max-width:1120px;min-height:100vh;margin:0 auto;padding:24px 24px 18px;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
-    header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex:0 0 auto}
-    .brand{display:flex;align-items:center;gap:11px;font-weight:700;font-size:17px}
-    .logo{width:36px;height:36px;border-radius:11px;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:800;box-shadow:var(--shadow)}
-    .github{padding:8px 12px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:13px;font-weight:600}
-    .hero{padding:20px 0 16px;flex:0 0 auto}
-    .eyebrow{display:inline-flex;align-items:center;padding:5px 9px;background:var(--soft);color:var(--primary);border-radius:999px;font-size:12px;font-weight:700}
-    h1{font-size:40px;line-height:1.08;letter-spacing:-.03em;margin:10px 0 8px}
-    .lead{max-width:760px;color:var(--muted);font-size:15px;margin:0}
-    .meta{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;color:var(--muted);font-size:12px}
-    .status{display:inline-flex;align-items:center;gap:6px}
-    .dot{width:7px;height:7px;border-radius:50%;background:#10b981}
-    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;flex:0 0 auto;margin:12px 0 14px;align-items:stretch}
-    .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);display:flex;flex-direction:column;height:372px}
-    .icon{width:44px;height:44px;border-radius:13px;background:var(--soft);display:grid;place-items:center;font-size:21px;margin-bottom:14px}
-    .card h2{font-size:21px;margin:0 0 7px}
-    .card p{color:var(--muted);font-size:13px;margin:0;min-height:62px;line-height:1.65}
-    .spacer{display:none}
-    .button{display:flex;align-items:center;justify-content:center;height:46px;border-radius:12px;padding:0 14px;background:var(--primary);color:#fff;font-weight:700;font-size:14px;transition:.15s;margin-top:12px}
-    .button:hover{background:var(--primary-hover)}
-    .arch{margin-top:7px;font-size:12px;color:var(--muted);text-align:center}
-    .alt-links{display:grid;gap:8px;margin-top:8px}
-    .alt-links a{display:flex;align-items:center;min-height:38px;padding:7px 11px;border:1px solid rgba(82,111,196,.30);border-radius:10px;font-size:12px;background:#fff;color:var(--text);transition:.15s}
-    .alt-links a:hover{border-color:rgba(82,111,196,.72);background:var(--soft)}
-    .notice{background:var(--warning);border:1px solid #ead9ad;border-radius:14px;padding:12px 14px;font-size:12px;line-height:1.55;color:#7a6230;margin-top:10px}
-    .quick-help{display:flex;align-items:center;justify-content:space-between;gap:16px;flex:0 0 auto;padding:9px 13px;background:#fff;border:1px solid var(--line);border-radius:13px;color:var(--muted);font-size:12px}
-    .quick-help strong{color:var(--text)}
-    .quick-help a{color:var(--primary);font-weight:700;white-space:nowrap}
-    footer{display:flex;justify-content:space-between;gap:16px;flex:0 0 auto;padding:8px 2px 0;color:var(--muted);font-size:11px}
-    @media(min-width:821px) and (max-height:720px){
-      .wrap{padding-top:12px}
-      .hero{padding:10px 0 6px}
-      .eyebrow{display:none}
-      h1{font-size:32px;margin:4px 0}
-      .lead{font-size:13px}
-      .meta{margin-top:5px}
-      .grid{margin:8px 0}
-      .card{padding:16px;height:338px}
-      .icon{width:36px;height:36px;margin-bottom:8px}
-      .card p{margin-bottom:10px}
-      .quick-help{padding:8px 12px}
-      footer{padding-top:5px}
+    body{
+      color:var(--text);
+      font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+      -webkit-font-smoothing:antialiased;
     }
+    a{text-decoration:none;color:inherit}
+
+    .page{
+      width:min(1180px,calc(100% - 48px));
+      min-height:100vh;
+      margin:0 auto;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      padding:22px 0 18px;
+    }
+
+    .nav{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:24px;
+    }
+    .brand{display:flex;align-items:center;gap:11px;font-size:16px;font-weight:700}
+    .mark{
+      width:38px;height:38px;border-radius:13px;
+      display:grid;place-items:center;
+      background:var(--text);color:#fff;
+      font-size:13px;font-weight:800;letter-spacing:-.03em;
+    }
+    .nav-link{
+      display:inline-flex;align-items:center;justify-content:center;
+      height:38px;padding:0 15px;border:1px solid var(--line);
+      border-radius:999px;background:#fff;
+      font-size:13px;font-weight:600;color:#3d4149;
+      transition:.18s ease;
+    }
+    .nav-link:hover{background:var(--surface)}
+
+    .hero{
+      text-align:center;
+      max-width:760px;
+      margin:0 auto 26px;
+    }
+    .badge{
+      display:inline-flex;align-items:center;gap:7px;
+      height:30px;padding:0 12px;border-radius:999px;
+      background:var(--surface);
+      color:#535861;font-size:12px;font-weight:650;
+    }
+    .badge-dot{width:6px;height:6px;border-radius:50%;background:#36b37e}
+    h1{
+      margin:15px 0 10px;
+      font-size:clamp(42px,5vw,64px);
+      line-height:1.02;
+      letter-spacing:-.055em;
+      font-weight:750;
+    }
+    .hero p{
+      margin:0 auto;
+      max-width:650px;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.75;
+    }
+    .version{
+      margin-top:10px;
+      color:#9a9ea6;
+      font-size:12px;
+    }
+
+    .downloads{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+    }
+    .platform{
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      min-height:354px;
+      padding:22px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:linear-gradient(180deg,#fff 0%,#fcfcfd 100%);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .platform::after{
+      content:"";
+      position:absolute;
+      width:150px;height:150px;
+      border-radius:50%;
+      right:-65px;top:-72px;
+      background:var(--accent-soft);
+      opacity:.72;
+      pointer-events:none;
+    }
+
+    .platform-head{position:relative;z-index:1}
+    .platform-icon{
+      width:46px;height:46px;border-radius:15px;
+      display:grid;place-items:center;
+      background:var(--surface-2);
+      margin-bottom:17px;
+    }
+    .platform-icon svg{width:23px;height:23px;stroke:#343944}
+    .platform h2{
+      margin:0 0 7px;
+      font-size:22px;
+      line-height:1.15;
+      letter-spacing:-.025em;
+    }
+    .platform-desc{
+      margin:0;
+      min-height:43px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+    }
+
+    .download-group{
+      margin-top:auto;
+      display:grid;
+      gap:8px;
+    }
+    .primary{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      min-height:48px;
+      padding:0 16px 0 17px;
+      border-radius:14px;
+      background:var(--text);
+      color:#fff;
+      font-size:13px;
+      font-weight:700;
+      transition:.18s ease;
+    }
+    .primary:hover{background:#292c32;transform:translateY(-1px)}
+    .primary small{font-size:11px;font-weight:600;color:#cfd2d9}
+
+    .recommended{
+      text-align:center;
+      margin:1px 0 2px;
+      color:#979ca5;
+      font-size:11px;
+    }
+
+    .secondary-grid{display:grid;grid-template-columns:1fr;gap:7px}
+    .secondary{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      min-height:39px;
+      padding:0 12px;
+      border:1px solid #dfe3ee;
+      border-radius:12px;
+      background:#fff;
+      color:#3d424b;
+      font-size:11.5px;
+      transition:.18s ease;
+    }
+    .secondary:hover{border-color:#b9c3e3;background:var(--accent-soft)}
+    .secondary span:last-child{color:#9297a1}
+
+    .ios-note{
+      margin-top:10px;
+      padding:11px 13px;
+      border:1px solid var(--warning-line);
+      border-radius:13px;
+      background:var(--warning-bg);
+      color:var(--warning-text);
+      font-size:11.5px;
+      line-height:1.55;
+    }
+
+    .bottom{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:18px;
+      margin-top:14px;
+      padding:0 4px;
+      color:#9599a2;
+      font-size:11px;
+    }
+    .bottom a{color:#5d6ea9;font-weight:650}
+    .tips{display:flex;gap:14px;flex-wrap:wrap}
+    .tips strong{color:#5f636c;font-weight:650}
+
     @media(max-width:820px){
-      html,body{min-height:100%}
-      body{overflow:auto}
-      .wrap{height:auto;min-height:100vh;padding:16px 18px;overflow:visible}
-      .hero{padding:22px 0 14px}
-      h1{font-size:36px}
-      .lead{font-size:14px}
-      .grid{grid-template-columns:1fr;display:grid;min-height:auto;margin:14px 0;flex:none}
-      .card{min-height:0;height:auto;padding:20px}
-      .card p{min-height:0}
-      .quick-help{align-items:flex-start;flex-direction:column;gap:5px}
-      footer{padding:10px 2px 6px}
-      .github{font-size:12px}
+      .page{
+        width:min(100% - 28px,560px);
+        min-height:100vh;
+        justify-content:flex-start;
+        padding:18px 0 28px;
+      }
+      .nav{margin-bottom:28px}
+      .hero{margin-bottom:24px}
+      h1{font-size:44px}
+      .downloads{grid-template-columns:1fr}
+      .platform{min-height:0}
+      .platform-desc{min-height:0;margin-bottom:24px}
+      .bottom{align-items:flex-start;flex-direction:column}
+    }
+
+    @media(min-width:821px) and (max-height:760px){
+      .page{padding:14px 0}
+      .nav{margin-bottom:13px}
+      .hero{margin-bottom:16px}
+      .badge{height:26px}
+      h1{font-size:46px;margin:10px 0 6px}
+      .hero p{font-size:13px;line-height:1.55}
+      .version{margin-top:6px}
+      .platform{min-height:322px;padding:18px}
+      .platform-icon{width:40px;height:40px;margin-bottom:12px}
+      .platform h2{font-size:20px}
+      .primary{min-height:44px}
+      .secondary{min-height:35px}
+      .bottom{margin-top:9px}
     }
   </style>
 </head>
 <body>
-  <main class="wrap">
-    <header>
+  <main class="page">
+    <nav class="nav">
       <a class="brand" href="./" aria-label="Simple Live 首页">
-        <span class="logo">SL</span>
+        <span class="mark">SL</span>
         <span>Simple Live</span>
       </a>
-      <a class="github" href="https://github.com/vaeccc/dart_simple_live" target="_blank" rel="noreferrer">GitHub 仓库 ↗</a>
-    </header>
+      <a class="nav-link" href="https://github.com/vaeccc/dart_simple_live" target="_blank" rel="noreferrer">GitHub ↗</a>
+    </nav>
 
     <section class="hero">
-      <span class="eyebrow">简简单单地看直播</span>
-      <h1>下载 Simple Live</h1>
-      <p class="lead">选择适合你设备的版本。下载文件直接来自本项目的 GitHub Releases，页面会自动跟随最新正式版本。</p>
-      <div class="meta">
-        <span id="version">当前下载版本 · 2.0.3</span>
-        <span id="published"></span>
-        <span id="status" class="status"><i class="dot"></i><span>固定版本下载 · 2.0.3</span></span>
+      <div class="badge"><span class="badge-dot"></span> Simple Live 2.0.3</div>
+      <h1>简简单单地看直播</h1>
+      <p>选择适合你设备的版本。Android 手机、Android TV 与 iOS / iPadOS 构建均直接来自 GitHub Releases。</p>
+      <div class="version">固定版本 · 2.0.3</div>
+    </section>
+
+    <section class="downloads" aria-label="下载 Simple Live">
+      <article class="platform">
+        <div class="platform-head">
+          <div class="platform-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="7" y="2.5" width="10" height="19" rx="2.2"></rect>
+              <path d="M10 5h4M11 18.5h2"></path>
+            </svg>
+          </div>
+          <h2>Android 手机版</h2>
+          <p class="platform-desc">适用于 Android 手机和平板。绝大多数近年的设备请选择 ARM64。</p>
+        </div>
+
+        <div class="download-group">
+          <a class="primary" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-app-v2.0.3-arm64-v8a.apk" rel="noreferrer">
+            <span>下载 ARM64 APK</span><small>推荐</small>
+          </a>
+          <div class="recommended">arm64-v8a</div>
+          <div class="secondary-grid">
+            <a class="secondary" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-app-v2.0.3-armeabi-v7a.apk" rel="noreferrer">
+              <span>armeabi-v7a</span><span>32 位设备</span>
+            </a>
+            <a class="secondary" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-app-v2.0.3-x86_64.apk" rel="noreferrer">
+              <span>x86_64</span><span>模拟器 / x86</span>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <article class="platform">
+        <div class="platform-head">
+          <div class="platform-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="5" width="18" height="13" rx="2.2"></rect>
+              <path d="m9 21 3-3 3 3M8.5 2.5 12 5l3.5-2.5"></path>
+            </svg>
+          </div>
+          <h2>Android TV</h2>
+          <p class="platform-desc">适用于 Android TV、电视盒子等大屏设备。现代设备优先选择 ARM64。</p>
+        </div>
+
+        <div class="download-group">
+          <a class="primary" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-tv-v2.0.3-arm64-v8a.apk" rel="noreferrer">
+            <span>下载 TV ARM64 APK</span><small>推荐</small>
+          </a>
+          <div class="recommended">arm64-v8a</div>
+          <div class="secondary-grid">
+            <a class="secondary" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-tv-v2.0.3-armeabi-v7a.apk" rel="noreferrer">
+              <span>armeabi-v7a</span><span>32 位电视</span>
+            </a>
+            <a class="secondary" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-tv-v2.0.3-x86_64.apk" rel="noreferrer">
+              <span>x86_64</span><span>x86 TV / 模拟器</span>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <article class="platform">
+        <div class="platform-head">
+          <div class="platform-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15.2 6.2c.8-1 1.3-2.3 1.2-3.7-1.3.1-2.6.9-3.4 1.9-.8.9-1.4 2.2-1.2 3.5 1.3.1 2.6-.7 3.4-1.7Z"></path>
+              <path d="M18.6 12.9c0-2.7 2.2-4 2.3-4.1-1.3-1.9-3.3-2.1-4-2.1-1.7-.2-3.3 1-4.2 1-.9 0-2.2-1-3.7-1-1.9 0-3.7 1.1-4.7 2.9-2 3.5-.5 8.7 1.4 11.5.9 1.4 2.1 2.9 3.6 2.8 1.4-.1 2-.9 3.7-.9 1.7 0 2.2.9 3.7.9 1.5 0 2.5-1.4 3.4-2.7 1.1-1.6 1.5-3.1 1.5-3.2-.1 0-3-.1-3-3.1Z"></path>
+            </svg>
+          </div>
+          <h2>iOS / iPadOS</h2>
+          <p class="platform-desc">提供未签名 IPA 构建，适用于需要自行签名或侧载的用户。</p>
+        </div>
+
+        <div class="download-group">
+          <a class="primary" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-ios-ipados-v2.0.3-unsigned.ipa" rel="noreferrer">
+            <span>下载未签名 IPA</span><small>2.0.3</small>
+          </a>
+          <div class="ios-note">未经过 App Store 签名，需要自行完成签名或使用侧载工具安装。</div>
+        </div>
+      </article>
+    </section>
+
+    <div class="bottom">
+      <div class="tips">
+        <span><strong>手机：</strong>优先 ARM64</span>
+        <span><strong>TV：</strong>优先 TV ARM64</span>
       </div>
-    </section>
-
-    <section class="grid" aria-label="下载选项">
-      <article class="card">
-        <div class="icon">📱</div>
-        <h2>Android 手机版</h2>
-        <p>适用于 Android 手机和平板。绝大多数近年的 Android 设备请选择 ARM64。</p>
-        <div class="spacer"></div>
-        <a id="app-arm64" class="button" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-app-v2.0.3-arm64-v8a.apk" rel="noreferrer">直接下载 ARM64 APK</a>
-        <div class="arch">推荐 · arm64-v8a</div>
-        <div class="alt-links">
-          <a id="app-v7" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-app-v2.0.3-armeabi-v7a.apk" rel="noreferrer">下载 armeabi-v7a APK · 较旧的 32 位设备</a>
-          <a id="app-x64" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-app-v2.0.3-x86_64.apk" rel="noreferrer">下载 x86_64 APK · 模拟器 / x86 设备</a>
-        </div>
-      </article>
-
-      <article class="card">
-        <div class="icon">📺</div>
-        <h2>Android TV 版</h2>
-        <p>适用于 Android TV、电视盒子等大屏设备。大多数现代电视设备请选择 ARM64。</p>
-        <div class="spacer"></div>
-        <a id="tv-arm64" class="button" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-tv-v2.0.3-arm64-v8a.apk" rel="noreferrer">直接下载 TV ARM64 APK</a>
-        <div class="arch">推荐 · arm64-v8a</div>
-        <div class="alt-links">
-          <a id="tv-v7" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-tv-v2.0.3-armeabi-v7a.apk" rel="noreferrer">下载 armeabi-v7a APK · 32 位电视设备</a>
-          <a id="tv-x64" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-tv-v2.0.3-x86_64.apk" rel="noreferrer">下载 x86_64 APK · x86 TV / 模拟器</a>
-        </div>
-      </article>
-
-      <article class="card">
-        <div class="icon">🍎</div>
-        <h2>iOS / iPadOS</h2>
-        <p>提供未签名 IPA 构建，适用于需要自行签名或侧载的用户。</p>
-        <div class="spacer"></div>
-        <a id="ios" class="button" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.3_tv_2.0.3/simple-live-ios-ipados-v2.0.3-unsigned.ipa" rel="noreferrer">直接下载未签名 IPA</a>
-        <div class="notice">此 IPA 未经过 App Store 签名，不能像 Android APK 一样直接安装，需要自行完成签名或侧载。</div>
-      </article>
-    </section>
-
-    <section class="quick-help">
-      <span><strong>Android 手机：</strong>优先 ARM64 · <strong>Android TV：</strong>优先 TV ARM64</span>
-      <a id="release-page" href="https://github.com/vaeccc/dart_simple_live/releases/tag/release_2.0.3_tv_2.0.3">查看 2.0.3 全部文件 ↗</a>
-    </section>
-
-    <footer>
-      <span>Simple Live · GitHub Pages</span>
-      <span>安装包由 GitHub Releases 提供</span>
-    </footer>
+      <a href="https://github.com/vaeccc/dart_simple_live/releases/tag/release_2.0.3_tv_2.0.3">查看 2.0.3 全部文件 ↗</a>
+    </div>
   </main>
-
-  <script>
-    document.getElementById("release-page").href =
-      "https://github.com/vaeccc/dart_simple_live/releases/tag/release_2.0.3_tv_2.0.3";
-  </script>
 </body>
 </html>
