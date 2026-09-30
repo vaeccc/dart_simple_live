@@ -96,7 +96,6 @@ jobs:
         with:
           tag_name: ${{ inputs.release_tag }}
           name: "Simple Live ${{ inputs.release_tag }}"
-          target_commitish: ${{ inputs.release_tag }}
           generate_release_notes: true
           make_latest: true
           files: |
@@ -170,7 +169,6 @@ jobs:
         with:
           tag_name: ${{ inputs.release_tag }}
           name: "Simple Live ${{ inputs.release_tag }}"
-          target_commitish: ${{ inputs.release_tag }}
           make_latest: true
           files: |
             simple_live_app/build/unsigned-ios/*.ipa
