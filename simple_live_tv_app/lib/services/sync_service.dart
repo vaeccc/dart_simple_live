@@ -203,7 +203,7 @@ class SyncService extends GetxService {
         final ip = await getLocalIP();
         ipAddress.value = ip;
 
-        Log.d('Serving at ${connectionAddress}');
+        Log.d('Serving at $connectionAddress');
         return;
       } on SocketException catch (e) {
         await server?.close(force: true);
