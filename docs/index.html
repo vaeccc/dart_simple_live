@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#0f172a">
   <meta name="description" content="Simple Live 官方下载页：Android 手机版、Android TV 版及 iOS/iPadOS 未签名构建。">
   <title>Simple Live 下载</title>
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/vaeccc/dart_simple_live/master/assets/logo.png">
   <style>
     :root{
       --bg:#f6f7f9;--panel:#fff;--text:#111827;--muted:#667085;--line:#e5e7eb;
@@ -19,7 +20,7 @@
     .wrap{max-width:1120px;min-height:100vh;margin:0 auto;padding:24px 24px 18px;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
     header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex:0 0 auto}
     .brand{display:flex;align-items:center;gap:11px;font-weight:700;font-size:17px}
-    .logo{width:36px;height:36px;border-radius:11px;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:800;box-shadow:var(--shadow)}
+    .logo{width:36px;height:36px;border-radius:11px;display:block;object-fit:cover;box-shadow:var(--shadow)}
     .github{padding:8px 12px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:13px;font-weight:600}
     .hero{padding:20px 0 16px;flex:0 0 auto}
     .eyebrow{display:inline-flex;align-items:center;padding:5px 9px;background:var(--soft);color:var(--primary);border-radius:999px;font-size:12px;font-weight:700}
@@ -79,7 +80,7 @@
   <main class="wrap">
     <header>
       <a class="brand" href="./" aria-label="Simple Live 首页">
-        <span class="logo">SL</span>
+        <img class="logo" src="https://raw.githubusercontent.com/vaeccc/dart_simple_live/master/assets/logo.png" alt="Simple Live Logo">
         <span>Simple Live</span>
       </a>
       <a class="github" href="https://github.com/vaeccc/dart_simple_live" target="_blank" rel="noreferrer">GitHub 仓库 ↗</a>
