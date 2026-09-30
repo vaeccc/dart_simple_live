@@ -168,7 +168,9 @@ class FollowUserPage extends GetView<FollowUserController> {
                       roomId: item.roomId,
                       title: detail?.title.isNotEmpty == true
                           ? detail!.title
-                          : item.userName,
+                          : (item.roomTitle.isNotEmpty
+                              ? item.roomTitle
+                              : item.userName),
                       cover: detail?.cover.isNotEmpty == true
                           ? detail!.cover
                           : item.face,
