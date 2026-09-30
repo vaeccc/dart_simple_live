@@ -197,10 +197,13 @@ class HuyaSite implements LiveSite {
     }
     try {
       var result = await HttpClient.instance.getJson(
-        "https://github.iill.moe/xiaoyaocz/dart_simple_live/master/assets/play_config.json",
+        "https://github.iill.moe/vaeccc/dart_simple_live/master/assets/play_config.json",
         queryParameters: {"ts": DateTime.now().millisecondsSinceEpoch},
       );
-      playUserAgent = json.decode(result)['huya']['user_agent'];
+      final config = result is Map<String, dynamic>
+          ? result
+          : json.decode(result as String) as Map<String, dynamic>;
+      playUserAgent = config['huya']['user_agent'];
     } catch (e) {
       CoreLog.error(e);
     }

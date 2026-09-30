@@ -28,7 +28,8 @@ class SyncService extends GetxService {
   UDP? udp;
   final RxList<SyncClient> scanClients = <SyncClient>[].obs;
   static const int udpPort = 23235;
-  static const int httpPort = 23234;
+  static const int defaultHttpPort = 23234;
+  int httpPort = defaultHttpPort;
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   NetworkInfo networkInfo = NetworkInfo();
   HttpServer? server;
@@ -49,9 +50,10 @@ class SyncService extends GetxService {
 
   /// 监听来自其他客户端的UDP广播
   /// - 如果收到广播，回复自己的信息
-  void listenUDP() async {
-    udp = await UDP.bind(Endpoint.any(port: const Port(udpPort)));
-    udp!.asStream().listen((datagram) {
+  Future<void> listenUDP() async {
+    try {
+      udp = await UDP.bind(Endpoint.any(port: const Port(udpPort)));
+      udp!.asStream().listen((datagram) {
       var str = String.fromCharCodes(datagram!.data);
       Log.i("Received: $str from ${datagram.address}:${datagram.port}");
       if (str.startsWith('{') && str.endsWith('}')) {
@@ -77,7 +79,8 @@ class SyncService extends GetxService {
               id: data['id']?.toString() ?? '',
               name: data['name']?.toString() ?? address,
               address: address,
-              port: httpPort,
+              port: int.tryParse(data['port']?.toString() ?? '') ??
+                  defaultHttpPort,
               type: data['type']?.toString() ?? 'unknown',
             ),
           );
@@ -88,7 +91,10 @@ class SyncService extends GetxService {
           sendInfo();
         }
       }
-    });
+      });
+    } catch (e) {
+      Log.logPrint('UDP discovery service failed: $e');
+    }
   }
 
   void refreshClients() {
@@ -113,11 +119,10 @@ class SyncService extends GetxService {
       "id": deviceId,
       "type": "tv",
       "name": name,
-      //"address": ip,
-      //"port": httpPort,
+      "port": httpPort,
     };
 
-    await udp!.send(
+    await udp?.send(
       json.encode(data).codeUnits,
       Endpoint.broadcast(port: const Port(udpPort)),
     );
@@ -170,38 +175,61 @@ class SyncService extends GetxService {
   }
 
   /// 初始化HTTP服务
-  void initServer() async {
-    try {
-      var serverRouter = Router();
-      serverRouter.get('/', _helloRequest);
-      serverRouter.get('/info', _infoRequest);
-      serverRouter.post('/sync/follow', _syncFollowUserReuqest);
-      serverRouter.post('/sync/history', _syncHistoryReuqest);
-      serverRouter.post('/sync/blocked_word', _syncBlockedWordReuqest);
-      serverRouter.post('/sync/account/bilibili', _syncBiliAccountReuqest);
-      serverRouter.post('/sync/account/yy', _syncYyAccountRequest);
-      serverRouter.post('/sync/account/huya', _syncHuyaAccountRequest);
+  Future<void> initServer() async {
+    final serverRouter = Router();
+    serverRouter.get('/', _helloRequest);
+    serverRouter.get('/info', _infoRequest);
+    serverRouter.post('/sync/follow', _syncFollowUserReuqest);
+    serverRouter.post('/sync/history', _syncHistoryReuqest);
+    serverRouter.post('/sync/blocked_word', _syncBlockedWordReuqest);
+    serverRouter.post('/sync/account/bilibili', _syncBiliAccountReuqest);
+    serverRouter.post('/sync/account/yy', _syncYyAccountRequest);
+    serverRouter.post('/sync/account/huya', _syncHuyaAccountRequest);
 
-      var server = await shelf_io.serve(
-        serverRouter,
-        InternetAddress.anyIPv4,
-        httpPort,
-      );
+    Object? lastError;
+    for (var candidatePort = defaultHttpPort;
+        candidatePort < defaultHttpPort + 10;
+        candidatePort++) {
+      try {
+        server = await shelf_io.serve(
+          serverRouter,
+          InternetAddress.anyIPv4,
+          candidatePort,
+        );
+        httpPort = server!.port;
+        server!.autoCompress = true;
+        httpRunning.value = true;
 
-      // Enable content compression
-      server.autoCompress = true;
+        final ip = await getLocalIP();
+        ipAddress.value = ip;
 
-      httpRunning.value = true;
-
-      var ip = await getLocalIP();
-      ipAddress.value = ip;
-
-      Log.d('Serving at http://$ip:${server.port}');
-    } catch (e) {
-      httpErrorMsg.value = e.toString();
-      Log.logPrint(e);
+        Log.d('Serving at ${connectionAddress}');
+        return;
+      } on SocketException catch (e) {
+        await server?.close(force: true);
+        server = null;
+        httpRunning.value = false;
+        lastError = e;
+        Log.logPrint('HTTP port $candidatePort is unavailable: $e');
+      } catch (e) {
+        await server?.close(force: true);
+        server = null;
+        httpRunning.value = false;
+        lastError = e;
+        break;
+      }
     }
+
+    httpRunning.value = false;
+    httpErrorMsg.value = 'HTTP服务启动失败：$lastError';
+    Log.logPrint(httpErrorMsg.value);
   }
+
+  String get connectionAddress => ipAddress.value
+      .split(';')
+      .where((address) => address.isNotEmpty)
+      .map((address) => '$address:$httpPort')
+      .join(';');
 
   /// 测试服务能否正常访问
   shelf.Response _helloRequest(shelf.Request request) {
@@ -245,11 +273,23 @@ class SyncService extends GetxService {
         // overwrite the TV's existing local follows.
         if (overlay == 0 && DBService.instance.followBox.containsKey(user.id)) {
           final localUser = DBService.instance.followBox.get(user.id);
-          if (localUser != null &&
-              localUser.roomTitle.isEmpty &&
-              user.roomTitle.isNotEmpty) {
-            localUser.roomTitle = user.roomTitle;
-            await DBService.instance.followBox.put(localUser.id, localUser);
+          if (localUser != null) {
+            var changed = false;
+            if (localUser.roomTitle.isEmpty && user.roomTitle.isNotEmpty) {
+              localUser.roomTitle = user.roomTitle;
+              changed = true;
+            }
+            if (localUser.userName.isEmpty && user.userName.isNotEmpty) {
+              localUser.userName = user.userName;
+              changed = true;
+            }
+            if (localUser.face.isEmpty && user.face.isNotEmpty) {
+              localUser.face = user.face;
+              changed = true;
+            }
+            if (changed) {
+              await DBService.instance.followBox.put(localUser.id, localUser);
+            }
           }
           continue;
         }

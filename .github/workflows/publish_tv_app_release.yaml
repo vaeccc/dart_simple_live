@@ -13,6 +13,18 @@ jobs:
       #签出代码
       - uses: actions/checkout@v5
 
+      - name: Validate release metadata and tag
+        shell: bash
+        run: |
+          python3 tool/check_release_metadata.py
+          app_version="$(awk '/^version:/ {print $2}' simple_live_app/pubspec.yaml | cut -d+ -f1)"
+          tv_version="$(awk '/^version:/ {print $2}' simple_live_tv_app/pubspec.yaml | cut -d+ -f1)"
+          expected_tag="release_${app_version}_tv_${tv_version}"
+          test "$GITHUB_REF_NAME" = "$expected_tag" || {
+            echo "Expected tag $expected_tag, got $GITHUB_REF_NAME"
+            exit 1
+          }
+
       #APK签名设置
       - name: Download Android keystore
         id: android_tv_keystore

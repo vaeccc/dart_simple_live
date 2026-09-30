@@ -61,7 +61,7 @@ class SyncPage extends GetView<SyncController> {
                         () => Visibility(
                           visible: SyncService.instance.httpRunning.value,
                           child: QrImageView(
-                            data: SyncService.instance.ipAddress.value,
+                            data: SyncService.instance.connectionAddress,
                             version: QrVersions.auto,
                             backgroundColor: Colors.white,
                             padding: AppStyle.edgeInsetsA24,
@@ -73,7 +73,7 @@ class SyncPage extends GetView<SyncController> {
                       Obx(
                         () => Text(
                           SyncService.instance.httpRunning.value
-                              ? '服务已启动：${SyncService.instance.ipAddress.value.split(';').map((e) => '$e:${SyncService.httpPort}').join('；')}'
+                              ? '服务已启动：${SyncService.instance.connectionAddress.replaceAll(';', '；')}'
                               : 'HTTP 服务未启动：${SyncService.instance.httpErrorMsg}，请尝试重启应用',
                           style: AppStyle.textStyleWhite,
                           textAlign: TextAlign.center,

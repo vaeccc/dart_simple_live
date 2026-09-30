@@ -36,25 +36,28 @@ class LocalSyncController extends BaseController {
   SyncClientRequest request = SyncClientRequest();
 
   void connect() async {
-    var address = addressController.text;
+    var address = addressController.text.trim();
     if (address.isEmpty) {
       SmartDialog.showToast("请输入地址");
       return;
     }
-    if (address.startsWith('http')) {
-      var uri = Uri.tryParse(address);
-      if (uri != null) {
-        address = uri.host;
+    var port = SyncService.defaultHttpPort;
+    final uri = Uri.tryParse(
+      address.startsWith('http://') || address.startsWith('https://')
+          ? address
+          : 'http://$address',
+    );
+    if (uri != null && uri.host.isNotEmpty) {
+      address = uri.host;
+      if (uri.hasPort) {
+        port = uri.port;
       }
-    } else if (address.contains(':')) {
-      var parts = address.split(":");
-      address = parts.first;
     }
 
     var client = SyncClinet(
       id: 'manual',
       address: address,
-      port: SyncService.httpPort,
+      port: port,
       name: "手动输入",
       type: Platform.operatingSystem,
     );
@@ -120,7 +123,7 @@ class LocalSyncController extends BaseController {
                 Get.back();
               },
               child: QrImageView(
-                data: SyncService.instance.ipAddress.value,
+                data: SyncService.instance.connectionAddress,
                 version: QrVersions.auto,
                 backgroundColor: Colors.white,
                 padding: AppStyle.edgeInsetsA12,
@@ -132,7 +135,7 @@ class LocalSyncController extends BaseController {
           Visibility(
             visible: SyncService.instance.httpRunning.value,
             child: Text(
-              '服务已启动：${SyncService.instance.ipAddress.value.split(';').map((e) => '$e:${SyncService.httpPort}').join('；')}',
+              '服务已启动：${SyncService.instance.connectionAddress.replaceAll(';', '；')}',
               textAlign: TextAlign.center,
             ),
           ),

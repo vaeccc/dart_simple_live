@@ -51,6 +51,7 @@ class FollowUserService extends BasePageController<FollowUser> {
 
   var updatedCount = 0;
   var updating = false.obs;
+  var _updateTotal = 0;
   @override
   Future<List<FollowUser>> getData(int page, int pageSize) async {
     if (page > 1) {
@@ -77,12 +78,22 @@ class FollowUserService extends BasePageController<FollowUser> {
     livingList.assignAll(list.where((x) => x.liveStatus.value == 2));
   }
 
-  void startUpdateStatus(List<FollowUser> followList) async {
+  Future<void> startUpdateStatus(List<FollowUser> followList) async {
+    if (followList.isEmpty) {
+      updating.value = false;
+      return;
+    }
+    if (updating.value) {
+      return;
+    }
+
     updatedCount = 0;
+    _updateTotal = followList.length;
     updating.value = true;
 
-    var threadCount =
+    final configuredThreadCount =
         AppSettingsController.instance.updateFollowThreadCount.value;
+    final threadCount = configuredThreadCount <= 0 ? 4 : configuredThreadCount;
 
     var tasks = <Future>[];
     for (var i = 0; i < threadCount; i++) {
@@ -97,7 +108,7 @@ class FollowUserService extends BasePageController<FollowUser> {
           }
           var items = followList.sublist(start, end);
           for (var item in items) {
-            await updateLiveStatus(item);
+            await updateLiveStatus(item, total: _updateTotal);
           }
         }),
       );
@@ -105,7 +116,10 @@ class FollowUserService extends BasePageController<FollowUser> {
     await Future.wait(tasks);
   }
 
-  Future updateLiveStatus(FollowUser item) async {
+  Future<void> updateLiveStatus(
+    FollowUser item, {
+    required int total,
+  }) async {
     try {
       var site = Sites.allSites[item.siteId]!;
       final detail = await site.liveSite.getRoomDetail(roomId: item.roomId);
@@ -121,7 +135,7 @@ class FollowUserService extends BasePageController<FollowUser> {
       Log.logPrint(e);
     } finally {
       updatedCount++;
-      if (updatedCount >= list.length) {
+      if (updatedCount >= total) {
         sortList();
         updating.value = false;
       }
