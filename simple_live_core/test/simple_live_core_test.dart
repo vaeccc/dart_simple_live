@@ -13,7 +13,6 @@ void testSite(LiveSite site) async {
       expect(item.title, isNotEmpty);
       expect(item.cover, isNotEmpty);
       expect(item.userName, isNotEmpty);
-      print(item);
     }
   });
 
@@ -28,7 +27,6 @@ void testSite(LiveSite site) async {
         expect(subItem.id, isNotEmpty);
         expect(subItem.parentId, isNotEmpty);
       }
-      print('${item.name}\n${item.children}');
     }
   });
 
@@ -41,7 +39,6 @@ void testSite(LiveSite site) async {
       expect(item.title, isNotEmpty);
       expect(item.cover, isNotEmpty);
       expect(item.userName, isNotEmpty);
-      print(item);
     }
   });
 
@@ -54,7 +51,6 @@ void testSite(LiveSite site) async {
       expect(item.title, isNotEmpty);
       expect(item.cover, isNotEmpty);
       expect(item.userName, isNotEmpty);
-      print(item);
     }
   });
 
@@ -69,7 +65,6 @@ void testSite(LiveSite site) async {
     for (var item in result.items) {
       expect(item.roomId, isNotEmpty);
       expect(item.userName, isNotEmpty);
-      print(item);
     }
   });
 
@@ -79,7 +74,6 @@ void testSite(LiveSite site) async {
     expect(roomDetail, isNotNull);
     expect(roomDetail?.roomId, isNotEmpty);
     expect(roomDetail?.danmakuData, isNotNull);
-    print(roomDetail);
   });
 
   List<LivePlayQuality> playQualities = [];
@@ -89,7 +83,6 @@ void testSite(LiveSite site) async {
     for (var item in playQualities) {
       expect(item.quality, isNotEmpty);
       expect(item.data, isNotNull);
-      print(item);
     }
   });
 
@@ -98,7 +91,6 @@ void testSite(LiveSite site) async {
         detail: roomDetail!, quality: playQualities.first);
     expect(url, isNotNull);
     expect(url.urls, isNotEmpty);
-    print(url.urls.join('\n\n'));
   });
 
   test('getDanmaku', () async {
@@ -108,16 +100,13 @@ void testSite(LiveSite site) async {
     var closed = false;
     var ready = false;
     danmaku.onReady = () {
-      print('ready');
       ready = true;
     };
-    danmaku.onClose = (msg) {
-      print('onClose $msg');
+    danmaku.onClose = (_) {
       closed = true;
     };
     var msgCount = 0;
     danmaku.onMessage = (LiveMessage msg) {
-      print('onMessage ${msg.type} ${msg.message}');
       msgCount++;
     };
     await danmaku.start(roomDetail!.danmakuData);
