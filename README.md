@@ -8,27 +8,28 @@
 
 <p align="center">
   <a href="https://github.com/vaeccc/dart_simple_live/releases"><img src="https://img.shields.io/github/v/release/vaeccc/dart_simple_live?display_name=tag&sort=semver" alt="Latest release"></a>
-  <a href="https://github.com/vaeccc/dart_simple_live/actions/workflows/ci.yml"><img src="https://github.com/vaeccc/dart_simple_live/actions/workflows/ci.yml/badge.svg?branch=master" alt="CI"></a>
   <a href="https://github.com/vaeccc/dart_simple_live/blob/master/LICENSE"><img src="https://img.shields.io/github/license/vaeccc/dart_simple_live" alt="License"></a>
 </p>
 
-Simple Live 是一个基于 Flutter 的多平台直播客户端，支持手机、平板、桌面端和 Android TV。项目将平台接口、播放地址、弹幕与数据模型集中在 `simple_live_core` 中，APP 和 TV 客户端共享核心能力。
+Simple Live 是一个简洁的多平台直播客户端，支持手机、平板、桌面端和 Android TV。你可以在一个应用中浏览直播、搜索房间、管理关注并观看直播。
 
-## 2.0.1 版本下载
+## 下载
 
-前往 [GitHub Releases](https://github.com/vaeccc/dart_simple_live/releases/tag/release_2.0.1_tv_2.0.1) 下载正式版。日常使用请下载 Releases 中的正式包，不要下载 Actions 里的 Debug 测试包。
+当前正式版本：**2.0.3**
 
-| 设备 | 推荐文件 | 说明 |
-| --- | --- | --- |
-| Android 手机 / 平板 | `simple-live-app-v2.0.1-arm64-v8a.apk` | 绝大多数 Android 设备使用此版本。 |
-| Android TV / 电视盒子 | `simple-live-tv-v2.0.1-arm64-v8a.apk` | 适用于电视和电视盒子，针对遥控器与横屏操作优化。 |
-| iPhone / iPad | `simple-live-ios-ipados-v2.0.1-unsigned.ipa` | 未签名 IPA，需要自行签名后安装。 |
+前往 [GitHub Releases](https://github.com/vaeccc/dart_simple_live/releases/tag/release_2.0.3_tv_2.0.3) 下载安装包。
 
-只有设备明确不支持 `arm64-v8a` 时，才尝试下载 `armeabi-v7a` 或 `x86_64` 架构的 APK。Android 如果提示禁止安装未知应用，请在系统设置中允许当前浏览器或文件管理器安装应用。
+| 设备 | 推荐安装包 |
+| --- | --- |
+| Android 手机 / 平板 | `simple-live-app-v2.0.3-arm64-v8a.apk` |
+| Android TV / 电视盒子 | `simple-live-tv-v2.0.3-arm64-v8a.apk` |
+| iPhone / iPad | `simple-live-ios-ipados-v2.0.3-unsigned.ipa` |
 
-> iOS/iPadOS 安装包没有 Apple 签名，不能直接安装；需要使用自己的开发者证书、TestFlight 或其他合规方式签名处理。
+大多数 Android 设备请选择 `arm64-v8a`。只有设备明确不支持该架构时，才选择 `armeabi-v7a` 或 `x86_64`。
 
-## 支持的平台
+> iOS/iPadOS 安装包为未签名 IPA，不能直接作为 App Store 或 TestFlight 包安装，需要使用自己的 Apple 开发者证书或其他合规方式签名。
+
+## 支持平台
 
 - 虎牙直播
 - 斗鱼直播
@@ -36,64 +37,62 @@ Simple Live 是一个基于 Flutter 的多平台直播客户端，支持手机�
 - 抖音直播
 - YY 直播
 
+平台接口和直播内容由对应平台提供，实际可用内容可能受网络、地区、房间状态和平台接口变化影响。
+
 ## 主要功能
 
 - 浏览热门直播和直播分类。
 - 按主播昵称、直播间标题、房间号或链接搜索。
-- 多清晰度、多播放线路，播放失败时尝试备用线路。
-- 关注主播、观看历史和弹幕屏蔽词。
-- 关注列表显示直播间封面、直播间标题、主播和在线人数。
-- TV 端支持遥控器焦点导航和横屏直播卡片布局。
-- 虎牙、YY 网页登录及官方关注列表同步。
-- APP 与 TV 之间通过局域网同步数据，不依赖远程同步服务器。
+- 支持多清晰度和多播放线路。
+- 关注主播、查看观看历史和管理弹幕屏蔽词。
+- 关注列表显示直播间封面、标题、主播、平台和直播状态。
+- 直播中与未开播状态清晰区分，方便快速找到正在直播的内容。
+- TV 端支持遥控器焦点导航、横屏布局和电视直播卡片。
+- 支持虎牙、YY 网页登录及官方关注列表同步。
+- 支持 APP 与 TV 通过局域网同步关注、历史和屏蔽词等数据。
 
-## 快速开始
+## 使用说明
 
-1. 从 [Releases](https://github.com/vaeccc/dart_simple_live/releases/tag/release_2.0.1_tv_2.0.1) 下载适合设备的安装包。
-2. 安装后选择直播平台，进入热门直播、直播分类或搜索直播。
-3. 在“关注”中管理主播，刷新后可看到直播状态和直播间详情。
-4. TV 端使用遥控器方向键移动焦点，按确认键打开直播间。
+安装后选择直播平台，即可进入热门直播、分类或搜索页面。打开直播间后可以切换清晰度和播放线路；如果当前线路无法播放，可以返回房间后重新尝试其他线路。
 
-## 局域网数据同步
+在“我的关注”中可以查看主播的直播状态和直播间信息。列表没有及时更新时，请点击刷新，等待平台数据同步完成。
 
-手机、平板和 TV 连接到同一个局域网后，可以互相同步数据。同步过程在局域网内完成，不使用远程同步服务器。
+TV 端使用遥控器方向键移动焦点，按确认键进入直播间；返回键用于返回上一级页面。
 
-1. 在 TV 或 APP 中打开“数据同步”。
-2. 等待设备自动发现，或在 APP 中扫描 TV 显示的二维码。
-3. 选择目标设备和需要同步的内容。
+## 局域网同步
 
-支持同步：
+APP 和 TV 连接到同一个局域网后，可以在“数据同步”页面互相同步数据。同步在本地网络内完成，不依赖远程同步服务器。
 
-- **关注列表**：自动合并，保留目标设备已有关注。
-- **观看历史**：保留较新的记录。
-- **屏蔽词**：同步屏蔽词列表。
-- **登录账号**：哔哩哔哩、YY、虎牙登录状态需要手动选择同步。
+1. 在 APP 或 TV 中打开“数据同步”。
+2. 等待设备自动发现，或使用 APP 扫描 TV 显示的二维码。
+3. 选择需要同步的设备和数据类型。
 
-账号同步会传输登录状态，请只在自己信任的局域网和设备之间使用；使用完毕后可在账号设置中退出登录。
+支持同步的内容包括：
 
-## 账号与平台说明
+- 关注列表
+- 观看历史
+- 弹幕屏蔽词
+- 部分平台登录状态
 
-虎牙和 YY 的公开直播通常无需登录即可观看。登录后可以访问受限内容，或导入平台官方关注列表。应用不会要求你提供平台密码；网页登录产生的登录状态仅用于对应平台功能。
-
-各平台接口、地区限制、网络状况和主播开播状态都会影响搜索和播放结果。若某个房间无法播放，可以返回后重新打开，或尝试切换清晰度和播放线路。
+账号同步会传输登录状态，请只在自己信任的局域网和设备之间使用。同步完成后，可以在平台账号设置中退出登录。
 
 ## 常见问题
 
-### Android 应该下载哪个架构？
+### Android 应该下载哪个版本？
 
-优先选择 `arm64-v8a`。只有较老或特殊设备无法运行时，才选择 `armeabi-v7a` 或 `x86_64`。
+优先选择 `arm64-v8a`。较老的 32 位设备选择 `armeabi-v7a`，Android 模拟器或特殊设备可尝试 `x86_64`。
+
+### 为什么关注列表没有标题或直播状态？
+
+关注列表需要从对应平台刷新直播间详情。请点击刷新并等待更新完成；如果平台接口暂时不可用，可能会暂时显示不完整的信息。
+
+### 为什么同步不到另一台设备？
+
+请确认两台设备连接到同一个 Wi-Fi，并检查路由器是否开启了访客网络或 AP 隔离。iPhone/iPad 还需要允许应用访问“本地网络”。
 
 ### 为什么 iPhone/iPad 不能直接安装？
 
-Release 中的 IPA 是未签名构建，不是 App Store 或 TestFlight 包，需要先使用 Apple 签名后安装。
-
-### 为什么同步不到设备？
-
-确认两台设备连接同一个 Wi-Fi，且路由器没有开启访客网络或 AP 隔离。iPhone/iPad 首次使用时，还需要允许应用访问“本地网络”。
-
-### 为什么关注列表暂时没有直播间标题？
-
-应用需要从对应平台刷新直播间详情。请在关注页面点击刷新，并等待状态更新完成；如果平台接口暂时不可用，会回退显示主播名称。
+Release 中的 IPA 没有 Apple 签名，需要先使用开发者证书签名后再安装。
 
 ## 免责声明
 
