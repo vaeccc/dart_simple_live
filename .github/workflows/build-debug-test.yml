@@ -9,7 +9,7 @@ permissions:
 jobs:
   app:
     name: APP Debug 测试包
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: simple_live_app
@@ -30,7 +30,7 @@ jobs:
 
   tv:
     name: TV Debug 测试包
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: simple_live_tv_app

@@ -17,7 +17,7 @@ concurrency:
 jobs:
   metadata:
     name: Release metadata
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v5
@@ -25,7 +25,7 @@ jobs:
 
   core:
     name: Core parser checks
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     defaults:
       run:
@@ -43,7 +43,7 @@ jobs:
 
   app:
     name: APP analyze, test and build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     defaults:
       run:
@@ -61,7 +61,7 @@ jobs:
 
   tv:
     name: TV analyze, test and build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     defaults:
       run:
@@ -79,7 +79,7 @@ jobs:
 
   console:
     name: Console analyze and test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     defaults:
       run:
