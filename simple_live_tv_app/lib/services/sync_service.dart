@@ -39,6 +39,16 @@ class SyncService extends GetxService {
   var httpErrorMsg = "".obs;
 
   var deviceId = "";
+
+  static Iterable<int> httpPortCandidates({
+    int start = defaultHttpPort,
+    int count = 10,
+  }) sync* {
+    for (var offset = 0; offset < count; offset++) {
+      yield start + offset;
+    }
+  }
+
   @override
   void onInit() {
     Log.d('SyncService init');
@@ -187,9 +197,7 @@ class SyncService extends GetxService {
     serverRouter.post('/sync/account/huya', _syncHuyaAccountRequest);
 
     Object? lastError;
-    for (var candidatePort = defaultHttpPort;
-        candidatePort < defaultHttpPort + 10;
-        candidatePort++) {
+    for (var candidatePort in httpPortCandidates()) {
       try {
         server = await shelf_io.serve(
           serverRouter,
@@ -276,20 +284,7 @@ class SyncService extends GetxService {
         if (overlay == 0 && DBService.instance.followBox.containsKey(user.id)) {
           final localUser = DBService.instance.followBox.get(user.id);
           if (localUser != null) {
-            var changed = false;
-            if (localUser.roomTitle.isEmpty && user.roomTitle.isNotEmpty) {
-              localUser.roomTitle = user.roomTitle;
-              changed = true;
-            }
-            if (localUser.userName.isEmpty && user.userName.isNotEmpty) {
-              localUser.userName = user.userName;
-              changed = true;
-            }
-            if (localUser.face.isEmpty && user.face.isNotEmpty) {
-              localUser.face = user.face;
-              changed = true;
-            }
-            if (changed) {
+            if (localUser.mergeMissingFieldsFrom(user)) {
               await DBService.instance.followBox.put(localUser.id, localUser);
             }
           }

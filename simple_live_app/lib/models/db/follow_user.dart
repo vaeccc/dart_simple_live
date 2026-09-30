@@ -74,4 +74,22 @@ class FollowUser {
         'tag':tag,
         'roomTitle': roomTitle,
       };
+
+  /// Fills fields that are missing locally without overwriting local data.
+  bool mergeMissingFieldsFrom(FollowUser other) {
+    var changed = false;
+    if (roomTitle.isEmpty && other.roomTitle.isNotEmpty) {
+      roomTitle = other.roomTitle;
+      changed = true;
+    }
+    if (userName.isEmpty && other.userName.isNotEmpty) {
+      userName = other.userName;
+      changed = true;
+    }
+    if (face.isEmpty && other.face.isNotEmpty) {
+      face = other.face;
+      changed = true;
+    }
+    return changed;
+  }
 }
