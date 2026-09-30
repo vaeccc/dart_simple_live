@@ -145,6 +145,10 @@ class FollowUserService extends BasePageController<FollowUser> {
       //updateLivingList();
     } catch (e) {
       Log.logPrint(e);
+      if (generation == _updateGeneration && list.contains(item)) {
+        item.liveStatus.value = 0;
+        item.roomDetail.value = null;
+      }
     } finally {
       if (generation == _updateGeneration) {
         updatedCount++;
