@@ -22,10 +22,7 @@ void main() {
 
   test('log sanitizer masks nested sensitive values', () {
     final value = HttpLogSanitizer.maskValue({
-      'profile': {
-        'name': '主播',
-        'access_token': 'nested-token',
-      },
+      'profile': {'name': '主播', 'access_token': 'nested-token'},
       'items': [
         {'cookie': 'nested-cookie'},
         {'title': '公开标题'},
@@ -54,9 +51,7 @@ void main() {
 
   test('log sanitizer removes query values while keeping URL path', () {
     final value = HttpLogSanitizer.maskUri(
-      Uri.parse(
-        'https://cdn.example.com/live/room.m3u8?token=abc&sign=def',
-      ),
+      Uri.parse('https://cdn.example.com/live/room.m3u8?token=abc&sign=def'),
     );
 
     expect(value, 'https://cdn.example.com/live/room.m3u8');
