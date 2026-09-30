@@ -19,4 +19,44 @@ void main() {
     expect(value, isNot(contains('password=pwd')));
     expect(value, contains('******'));
   });
+
+  test('log sanitizer masks nested sensitive values', () {
+    final value = HttpLogSanitizer.maskValue({
+      'profile': {
+        'name': '主播',
+        'access_token': 'nested-token',
+      },
+      'items': [
+        {'cookie': 'nested-cookie'},
+        {'title': '公开标题'},
+      ],
+    }).toString();
+
+    expect(value, contains('主播'));
+    expect(value, contains('公开标题'));
+    expect(value, isNot(contains('nested-token')));
+    expect(value, isNot(contains('nested-cookie')));
+    expect(value, contains('******'));
+  });
+
+  test('log sanitizer treats sensitive headers case-insensitively', () {
+    final value = HttpLogSanitizer.maskHeaders({
+      'Cookie': 'sid=123',
+      'X-Access-Token': 'token-value',
+      'Content-Type': 'application/json',
+    });
+
+    expect(value, contains('Content-Type'));
+    expect(value, contains('application/json'));
+    expect(value, isNot(contains('sid=123')));
+    expect(value, isNot(contains('token-value')));
+  });
+
+  test('log sanitizer removes query values while keeping URL path', () {
+    final value = HttpLogSanitizer.maskUri(
+      Uri.parse('https://cdn.example.com/live/room.m3u8?token=abc&sign=def'),
+    );
+
+    expect(value, 'https://cdn.example.com/live/room.m3u8');
+  });
 }
