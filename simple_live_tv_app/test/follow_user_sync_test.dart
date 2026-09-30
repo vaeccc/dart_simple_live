@@ -1,6 +1,6 @@
 import 'package:simple_live_tv_app/models/db/follow_user.dart';
 import 'package:simple_live_tv_app/services/sync_service.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 FollowUser buildFollowUser({
   String userName = '主播',
