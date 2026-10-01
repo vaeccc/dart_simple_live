@@ -14,6 +14,7 @@ class LiveRoomCard extends StatelessWidget {
   final String anchor;
   final String roomId;
   final int online;
+  final int liveStatus;
   final bool autofocus;
   final AppFocusNode focusNode;
   final Function()? onTap;
@@ -24,6 +25,7 @@ class LiveRoomCard extends StatelessWidget {
     required this.roomId,
     required this.focusNode,
     required this.online,
+    this.liveStatus = 0,
     this.autofocus = false,
     this.onTap,
     super.key,
@@ -54,6 +56,28 @@ class LiveRoomCard extends StatelessWidget {
                       cacheWidth: 400,
                     ),
                   ),
+                  if (liveStatus == 1 || liveStatus == 2)
+                    Positioned(
+                      left: 8.w,
+                      top: 8.w,
+                      child: Container(
+                        padding: AppStyle.edgeInsetsH12
+                            .copyWith(top: 4.w, bottom: 4.w),
+                        decoration: BoxDecoration(
+                          color: liveStatus == 2
+                              ? Colors.green
+                              : Colors.black54,
+                          borderRadius: AppStyle.radius8,
+                        ),
+                        child: Text(
+                          liveStatus == 2 ? "直播中" : "未开播",
+                          style: TextStyle(
+                            fontSize: 20.w,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
                   Positioned(
                     right: 8.w,
                     top: 8.w,
