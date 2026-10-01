@@ -218,6 +218,7 @@ class HomePage extends GetView<HomeController> {
                                 ? detail!.userName
                                 : item.userName,
                             online: detail?.online ?? 0,
+                            liveStatus: item.liveStatus.value,
                             focusNode: item.focusNode,
                             roomId: item.roomId,
                             onTap: () {
