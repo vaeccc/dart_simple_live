@@ -1,7 +1,7 @@
 {
-    "version": "2.0.3",
-    "version_num": 20003,
-    "version_desc": "- 关注列表显示直播状态\n- 增强多平台接口异常数据处理\n- 优化 TV 头像和直播间封面缓存及失败占位",
-    "prerelease": false,
-    "download_url": "https://github.com/vaeccc/dart_simple_live/releases"
+  "version": "2.0.4",
+  "version_num": 20004,
+  "version_desc": "- TV 首页关注卡片新增直播中 / 未开播状态显示",
+  "prerelease": false,
+  "download_url": "https://github.com/vaeccc/dart_simple_live/releases"
 }
