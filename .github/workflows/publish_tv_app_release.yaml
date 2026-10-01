@@ -1,9 +1,9 @@
 name: 发布 TV 正式版
-#推送Tag时触发
+# 正式发布通常由 release_* 标签触发；本次从 master 生成 2.0.4 正式包
 on:
   push:
-    tags:
-      - "release_*"
+    branches:
+      - master
 jobs:
   build-tv:
     runs-on: ubuntu-24.04
@@ -20,8 +20,9 @@ jobs:
           app_version="$(awk '/^version:/ {print $2}' simple_live_app/pubspec.yaml | cut -d+ -f1)"
           tv_version="$(awk '/^version:/ {print $2}' simple_live_tv_app/pubspec.yaml | cut -d+ -f1)"
           expected_tag="release_${app_version}_tv_${tv_version}"
-          test "$GITHUB_REF_NAME" = "$expected_tag" || {
-            echo "Expected tag $expected_tag, got $GITHUB_REF_NAME"
+          release_tag="release_2.0.3_tv_2.0.4"
+          test "$release_tag" = "$expected_tag" || {
+            echo "Expected tag $expected_tag, got $release_tag"
             exit 1
           }
 
@@ -98,8 +99,8 @@ jobs:
       - name: Upload Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: "Simple Live ${{ github.ref_name }}"
+          tag_name: release_2.0.3_tv_2.0.4
+          name: "Simple Live release_2.0.3_tv_2.0.4"
           body: "# Android TV\n${{ fromJson(steps.version.outputs.content).version_desc }}"
           prerelease: ${{ fromJson(steps.version.outputs.content).prerelease }}
           make_latest: true
