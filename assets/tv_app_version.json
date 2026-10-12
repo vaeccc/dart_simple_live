@@ -1,7 +1,7 @@
 {
-  "version": "2.0.4",
-  "version_num": 20004,
-  "version_desc": "- TV 首页关注卡片新增直播中 / 未开播状态显示",
+    "version": "2.0.5",
+    "version_num": 20005,
+    "version_desc": "- TV 首页关注卡片新增直播中 / 未开播状态显示\n- 优化 YY 播放地址获取稳定性",
   "prerelease": false,
   "download_url": "https://github.com/vaeccc/dart_simple_live/releases"
 }

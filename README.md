@@ -15,15 +15,15 @@ Simple Live 是一个简洁的多平台直播客户端，支持手机、平板�
 
 ## 下载
 
-当前正式版本：**2.0.3**
+当前正式版本：**APP 2.0.4 / TV 2.0.5**
 
-前往 [GitHub Releases](https://github.com/vaeccc/dart_simple_live/releases/tag/release_2.0.3_tv_2.0.3) 下载安装包。
+前往 [GitHub Releases](https://github.com/vaeccc/dart_simple_live/releases/tag/release_2.0.4_tv_2.0.5) 下载安装包。
 
 | 设备 | 推荐安装包 |
 | --- | --- |
-| Android 手机 / 平板 | `simple-live-app-v2.0.3-arm64-v8a.apk` |
-| Android TV / 电视盒子 | `simple-live-tv-v2.0.3-arm64-v8a.apk` |
-| iPhone / iPad | `simple-live-ios-ipados-v2.0.3-unsigned.ipa` |
+| Android 手机 / 平板 | `simple-live-app-v2.0.4-arm64-v8a.apk` |
+| Android TV / 电视盒子 | `simple-live-tv-v2.0.5-arm64-v8a.apk` |
+| iPhone / iPad | `simple-live-ios-ipados-v2.0.4-unsigned.ipa` |
 
 大多数 Android 设备请选择 `arm64-v8a`。只有设备明确不支持该架构时，才选择 `armeabi-v7a` 或 `x86_64`。
 
