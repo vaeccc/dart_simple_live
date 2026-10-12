@@ -99,6 +99,20 @@ void main() {
       expect(rooms.single.online, 5280);
     });
 
+    test('parses current homepage cards without an anchor name field', () {
+      const html = '''
+<script id="data-placeholder" type="text">
+[{&#034;data&#034;:[{&#034;sid&#034;:54880976,&#034;title&#034;:&#034;听歌就来991&#034;,&#034;announcement&#034;:&#034;精彩直播&#034;,&#034;thumb&#034;:&#034;http://example.invalid/cover.jpg&#034;,&#034;uid&#034;:955877047}]}]
+</script>
+''';
+      final rooms = YySite.parseRecommendRooms(html);
+      expect(rooms, hasLength(1));
+      expect(rooms.single.roomId, '54880976');
+      expect(rooms.single.title, '听歌就来991');
+      expect(rooms.single.userName, '听歌就来991');
+      expect(rooms.single.cover, 'https://example.invalid/cover.jpg');
+    });
+
     test('parses server-rendered category cards and pagination metadata', () {
       const html = '''
 <div class="row-more" data-stat-bak3="308">

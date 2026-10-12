@@ -205,17 +205,27 @@ class YySite extends LiveSite {
       final cover = _toHttps(
         (value['thumb'] ?? value['snapshot'] ?? value['img'])?.toString() ?? '',
       );
-      final userName = value['name']?.toString() ?? '';
+      final roomTitle = _firstNonEmpty([
+        value['desc'],
+        value['title'],
+        value['announcement'],
+      ]);
+      final userName = _firstNonEmpty([
+        value['name'],
+        value['nick'],
+        value['nickname'],
+        value['userName'],
+        value['anchorName'],
+        roomTitle,
+      ]);
       if (RegExp(r'^\d+$').hasMatch(roomId) &&
           cover.isNotEmpty &&
-          userName.isNotEmpty &&
+          (roomTitle.isNotEmpty || userName.isNotEmpty) &&
           seenRoomIds.add(roomId)) {
         items.add(
           LiveRoomItem(
             roomId: roomId,
-            title: value['desc']?.toString().trim().isNotEmpty == true
-                ? value['desc'].toString()
-                : userName,
+            title: roomTitle.isEmpty ? userName : roomTitle,
             cover: cover,
             userName: userName,
             online: _asInt(value['users']),
@@ -613,29 +623,38 @@ class YySite extends LiveSite {
   }
 
   Future<YyStreamData> _getStreams(String roomId) async {
-    YyStreamData hls = const YyStreamData(urls: []);
-    YyStreamData flv = const YyStreamData(urls: []);
-    Object? hlsError;
-    Object? flvError;
-    try {
-      hls = await _getHlsStreams(roomId);
-    } catch (error) {
-      hlsError = error;
-      CoreLog.d('[YY] HLS endpoint failed: $error');
-    }
-    try {
-      // Keep FLV URLs even when HLS succeeds so the player can move to this
-      // protocol immediately when a playlist/CDN rejects the HLS request.
-      flv = await _getFlvStreams(roomId);
-    } catch (error) {
-      flvError = error;
-      CoreLog.d('[YY] FLV endpoint failed: $error');
-    }
-    final urls = <String>{...hls.urls, ...flv.urls}.toList();
-    if (urls.isEmpty && hlsError != null && flvError != null) {
-      throw StateError('YY 播放地址获取失败');
+    // Ask both endpoints at the same time. Either endpoint can be slow or
+    // unavailable, while the other one may still return a usable URL.
+    final attempts = await Future.wait([
+      _fetchStream('HLS', () => _getHlsStreams(roomId)),
+      _fetchStream('FLV', () => _getFlvStreams(roomId)),
+    ]);
+    final urls = <String>{
+      ...attempts[0].data.urls,
+      ...attempts[1].data.urls,
+    }.toList();
+
+    if (urls.isEmpty && attempts.any((attempt) => attempt.error != null)) {
+      // An empty successful response from both endpoints means offline. If an
+      // endpoint failed, the live state could not be verified reliably.
+      throw StateError('YY 播放地址接口暂时不可用');
     }
     return YyStreamData(urls: urls);
+  }
+
+  Future<_YyStreamAttempt> _fetchStream(
+    String name,
+    Future<YyStreamData> Function() fetch,
+  ) async {
+    try {
+      return _YyStreamAttempt(data: await fetch());
+    } catch (error) {
+      CoreLog.d('[YY] $name endpoint failed: $error');
+      return _YyStreamAttempt(
+        data: const YyStreamData(urls: []),
+        error: error,
+      );
+    }
   }
 
   Future<YyStreamData> _getHlsStreams(String roomId) async {
@@ -752,6 +771,14 @@ class YySite extends LiveSite {
     }
   }
 
+  static String _firstNonEmpty(Iterable<dynamic> values) {
+    for (final value in values) {
+      final text = value?.toString().trim() ?? '';
+      if (text.isNotEmpty) return text;
+    }
+    return '';
+  }
+
   static String _decodeHtmlEntities(String value) {
     return value
         .replaceAll('&#034;', '"')
@@ -832,4 +859,11 @@ class YyStreamData {
   final List<String> urls;
 
   const YyStreamData({required this.urls});
+}
+
+class _YyStreamAttempt {
+  final YyStreamData data;
+  final Object? error;
+
+  const _YyStreamAttempt({required this.data, this.error});
 }
