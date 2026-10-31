@@ -140,6 +140,142 @@
       .footer-row{align-items:flex-start;flex-direction:column}.footer-links{flex-wrap:wrap}
     }
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
+
+    /* V2 editorial product-showcase system — scoped below the preserved hero */
+    .showcase { padding:112px 0; position:relative; overflow:hidden; }
+    .showcase .container { position:relative; z-index:1; }
+    .showcase-kicker { color:var(--accent-strong);font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase; }
+    .showcase-title { max-width:720px;font-size:clamp(34px,4.4vw,54px);line-height:1.17;letter-spacing:-.055em;margin:14px 0 16px; }
+    .showcase-copy { max-width:460px;color:var(--muted);font-size:15px;line-height:1.85;margin:0; }
+    .showcase-split { display:grid;grid-template-columns:.86fr 1.14fr;align-items:center;gap:72px; }
+    .showcase-split.reverse { grid-template-columns:1.14fr .86fr; }
+    .showcase-art { position:relative;min-width:0; }
+    .art-wash { position:absolute;inset:8% 3%;border-radius:42%;background:radial-gradient(ellipse,rgba(108,165,254,.22),rgba(108,165,254,0) 68%);filter:blur(18px); }
+    .phone-stage { min-height:480px;display:flex;align-items:center;justify-content:center;gap:24px;position:relative; }
+    .phone { position:relative;width:224px;height:438px;border:7px solid #202B3A;border-radius:34px;background:#fff;box-shadow:0 28px 70px rgba(32,57,91,.2);padding:9px;overflow:hidden; }
+    .phone.secondary-phone { width:190px;height:370px;transform:translateY(34px) rotate(5deg);border-color:#344256;opacity:.92; }
+    .phone.primary-phone { transform:rotate(-4deg);z-index:1; }
+    .phone-notch { position:absolute;top:7px;left:50%;transform:translateX(-50%);width:72px;height:15px;border-radius:0 0 12px 12px;background:#202B3A;z-index:3; }
+    .phone-screen { height:100%;border-radius:22px;background:#F7F9FC;overflow:hidden;padding:22px 9px 10px; }
+    .phone-head { display:flex;align-items:center;justify-content:space-between;font-size:10px;font-weight:800;margin-bottom:12px; }
+    .phone-head small { color:#8793A5;font-size:7px;font-weight:500; }
+    .phone-search { height:27px;border-radius:9px;background:#EAF0F7;color:#8491A4;font-size:8px;padding:7px 9px;margin-bottom:10px; }
+    .phone-tabs { display:flex;gap:5px;margin-bottom:11px; }
+    .phone-tabs span { font-size:7px;padding:4px 7px;border-radius:99px;background:#E9EEF5;color:#69788D; }
+    .phone-tabs span:first-child { background:#DCEAFF;color:#245EA8;font-weight:800; }
+    .phone-grid { display:grid;grid-template-columns:1fr 1fr;gap:7px; }
+    .phone-tile { border-radius:8px;overflow:hidden;background:#fff;border:1px solid #E8EDF4; }
+    .phone-cover { height:62px;background:linear-gradient(145deg,#B9D6FF,#7EAEF4 60%,#DDEBFF);position:relative; }
+    .phone-tile:nth-child(2) .phone-cover { background:linear-gradient(145deg,#E2DFFF,#A8A4EA,#F0EDFF); }
+    .phone-tile:nth-child(3) .phone-cover { background:linear-gradient(145deg,#CBEDE4,#7CCBB8,#E8F7F2); }
+    .phone-tile:nth-child(4) .phone-cover { background:linear-gradient(145deg,#FFE1C9,#F1B17F,#FFF1E4); }
+    .phone-cover:after { content:"";position:absolute;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.36);right:5px;top:12px; }
+    .phone-tile b { display:block;padding:5px 5px 1px;font-size:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .phone-tile small { display:block;padding:0 5px 5px;color:#8B96A7;font-size:6px; }
+    .phone-bottom { display:flex;justify-content:space-around;border-top:1px solid #E6EBF2;margin-top:12px;padding-top:8px;color:#8290A4;font-size:7px; }
+    .phone-bottom span:first-child { color:#3977C7;font-weight:800; }
+    .feature-band { padding:82px 0 92px;background:#fff; }
+    .feature-intro { display:flex;align-items:flex-end;justify-content:space-between;gap:32px;margin-bottom:44px; }
+    .feature-intro .showcase-title { max-width:520px;margin-bottom:0; }
+    .feature-intro .showcase-copy { max-width:330px; }
+    .feature-line { display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line); }
+    .feature-item { padding:25px 22px 27px 0;display:flex;gap:15px;align-items:flex-start; }
+    .feature-item + .feature-item { padding-left:22px;border-left:1px solid var(--line); }
+    .feature-symbol { width:39px;height:39px;flex:0 0 39px;border-radius:13px;background:var(--accent-soft);display:grid;place-items:center;color:var(--accent-strong); }
+    .feature-symbol svg { width:19px;height:19px; }
+    .feature-item h3 { margin:1px 0 5px;font-size:14px; }
+    .feature-item p { margin:0;color:var(--muted);font-size:11px;line-height:1.7; }
+    .platform-showcase { padding:112px 0;background:linear-gradient(180deg,#F5F8FD 0%,#EEF4FC 100%);overflow:hidden; }
+    .device-stage { min-height:380px;display:flex;align-items:center;justify-content:center;position:relative; }
+    .device-glow { position:absolute;width:75%;height:70%;border-radius:50%;background:radial-gradient(ellipse,rgba(108,165,254,.24),transparent 70%);filter:blur(16px); }
+    .tablet { position:relative;width:min(540px,85%);height:330px;border:9px solid #263449;border-radius:24px;background:#fff;padding:10px;box-shadow:0 28px 60px rgba(35,62,98,.2);transform:rotate(-2deg);z-index:1; }
+    .tablet-screen { height:100%;border-radius:13px;background:#F7F9FC;padding:15px;overflow:hidden; }
+    .tablet-top { display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:11px;font-weight:800; }
+    .tablet-top span { color:#8290A4;font-size:8px;font-weight:500; }
+    .tablet-content { display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px; }
+    .tablet-card { border-radius:9px;background:#fff;border:1px solid #E8EDF4;overflow:hidden; }
+    .tablet-card .phone-cover { height:102px; }
+    .tablet-card b { display:block;padding:6px 7px 1px;font-size:8px; }
+    .tablet-card small { display:block;padding:0 7px 7px;font-size:7px;color:#8B96A7; }
+    .tv-device { position:absolute;right:0;bottom:0;width:180px;height:128px;border:6px solid #263449;border-radius:12px;background:#fff;box-shadow:0 18px 38px rgba(35,62,98,.18);z-index:2; }
+    .tv-device:before { content:"";position:absolute;width:42px;height:7px;left:50%;bottom:-13px;transform:translateX(-50%);background:#263449;border-radius:0 0 5px 5px; }
+    .tv-screen { height:100%;background:#F7F9FC;padding:10px;overflow:hidden; }
+    .tv-screen b { display:block;font-size:8px;margin-bottom:7px; }
+    .tv-screen .tv-row { display:flex;gap:5px; }
+    .tv-screen .tv-row i { display:block;height:62px;flex:1;border-radius:5px;background:linear-gradient(145deg,#B9D6FF,#7EAEF4); }
+    .tv-screen .tv-row i:nth-child(2){background:linear-gradient(145deg,#E2DFFF,#A8A4EA)}
+    .tv-screen .tv-row i:nth-child(3){background:linear-gradient(145deg,#CBEDE4,#7CCBB8)}
+    .download-showcase { padding:100px 0; }
+    .download-inner { position:relative;overflow:hidden;border-radius:30px;padding:54px;background:linear-gradient(120deg,#EAF3FF 0%,#F5F8FD 54%,#E3EEFF 100%);border:1px solid #D8E6F8; }
+    .download-inner:after { content:"";position:absolute;width:340px;height:340px;border-radius:50%;right:-95px;top:-170px;background:rgba(108,165,254,.15);filter:blur(2px); }
+    .download-heading { position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:30px; }
+    .download-heading .showcase-title { margin-bottom:0;font-size:clamp(30px,3.7vw,43px); }
+    .download-heading p { margin:0;color:var(--muted);font-size:12px; }
+    .download-options { position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px; }
+    .download-option { min-width:0;padding:20px;background:rgba(255,255,255,.82);border:1px solid rgba(210,224,243,.9);border-radius:18px;display:flex;flex-direction:column;gap:10px;transition:transform .22s,background .22s,box-shadow .22s; }
+    .download-option:hover { transform:translateY(-5px);background:#fff;box-shadow:0 16px 34px rgba(43,76,120,.1); }
+    .download-option-head { display:flex;align-items:center;gap:10px; }
+    .download-option-icon { width:40px;height:40px;border-radius:13px;background:var(--accent-soft);display:grid;place-items:center;color:var(--accent-strong);font-size:19px; }
+    .download-option h3 { margin:0;font-size:14px; }
+    .download-option small { color:var(--subtle);font-size:10px; }
+    .download-option .button { margin-top:5px;width:100%;min-height:42px;font-size:12px; }
+    .download-more { position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:18px;margin-top:20px;color:var(--muted);font-size:11px; }
+    .download-more a { color:var(--accent-strong);font-weight:750; }
+    .site-footer { padding:30px 0;background:#fff;border-top:1px solid var(--line); }
+    .site-footer-row { display:flex;align-items:center;justify-content:space-between;gap:20px; }
+    .site-footer-brand { display:flex;align-items:center;gap:9px;font-size:13px;font-weight:800; }
+    .site-footer-brand img { width:27px;height:27px;border-radius:8px; }
+    .site-footer-note { color:var(--subtle);font-size:10px;margin-top:3px; }
+    .site-footer-links { display:flex;gap:20px;color:var(--muted);font-size:11px; }
+    .site-footer-links a:hover { color:var(--accent-strong); }
+    .reveal { opacity:0;transform:translateY(24px);transition:opacity .72s ease,transform .72s cubic-bezier(.2,.7,.2,1); }
+    .reveal.is-visible { opacity:1;transform:translateY(0); }
+    .reveal-delay-1 { transition-delay:.08s; }.reveal-delay-2 { transition-delay:.16s; }.reveal-delay-3 { transition-delay:.24s; }
+    @media(max-width:900px) {
+      .showcase,.platform-showcase { padding:84px 0; }
+      .showcase-split,.showcase-split.reverse { grid-template-columns:1fr;gap:34px; }
+      .showcase-split.reverse .showcase-art { order:2; }
+      .showcase-split.reverse .showcase-text { order:1; }
+      .feature-line { grid-template-columns:1fr 1fr; }
+      .feature-item:nth-child(3) { border-left:0;padding-left:0;border-top:1px solid var(--line); }
+      .feature-item:nth-child(4) { border-top:1px solid var(--line); }
+      .download-inner { padding:38px 28px; }
+    }
+    @media(max-width:620px) {
+      .showcase,.platform-showcase { padding:68px 0; }
+      .showcase-title { font-size:34px; }
+      .phone-stage { min-height:390px;gap:8px; }
+      .phone { width:190px;height:374px; }
+      .phone.secondary-phone { width:150px;height:310px; }
+      .phone-cover { height:53px; }
+      .feature-band { padding:68px 0; }
+      .feature-intro { display:block;margin-bottom:28px; }
+      .feature-intro .showcase-copy { margin-top:13px; }
+      .feature-line { grid-template-columns:1fr; }
+      .feature-item,.feature-item + .feature-item { padding:18px 0;border-left:0;border-top:1px solid var(--line); }
+      .feature-item:first-child { border-top:0; }
+      .device-stage { min-height:270px; }
+      .tablet { width:88%;height:230px;border-width:7px;padding:7px; }
+      .tablet-screen { padding:9px; }
+      .tablet-card .phone-cover { height:64px; }
+      .tv-device { width:120px;height:88px;border-width:4px; }
+      .tv-screen { padding:6px; }.tv-screen .tv-row i { height:40px; }
+      .download-showcase { padding:68px 0; }
+      .download-inner { padding:28px 18px;border-radius:23px; }
+      .download-heading { display:block; }
+      .download-heading p { margin-top:10px; }
+      .download-options { grid-template-columns:1fr; }
+      .download-option { display:grid;grid-template-columns:1fr auto;align-items:center; }
+      .download-option-head { grid-column:1; }
+      .download-option .button { grid-column:2;grid-row:1 / span 2;width:auto;padding:0 13px; }
+      .download-more { align-items:flex-start;flex-direction:column; }
+      .site-footer-row { align-items:flex-start;flex-direction:column; }
+      .site-footer-links { flex-wrap:wrap; }
+    }
+    @media(prefers-reduced-motion:reduce) {
+      .reveal { opacity:1;transform:none;transition:none; }
+      .download-option { transition:none; }
+    }
   </style>
 </head>
 <body>
@@ -206,94 +342,122 @@
       </div>
     </section>
 
-    <section class="section white" id="features">
-      <div class="container">
-        <div class="section-head">
-          <span class="section-kicker">Features</span>
-          <h2>喜欢的直播，一处就够。</h2>
+    <section class="showcase" id="features">
+      <div class="container showcase-split">
+        <div class="showcase-text reveal">
+          <span class="showcase-kicker">A simpler way to watch</span>
+          <h2 class="showcase-title">把喜欢的直播，<br>放在顺手的位置。</h2>
+          <p class="showcase-copy">跨平台浏览、搜索和关注。熟悉的内容，不必在多个应用之间来回切换。</p>
         </div>
-        <div class="feature-grid">
-          <article class="feature">
-            <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></div>
-            <h3>多平台聚合</h3><p>常用直播平台，集中浏览。</p>
-          </article>
-          <article class="feature">
-            <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg></div>
-            <h3>快速搜索</h3><p>快速找到主播与直播间。</p>
-          </article>
-          <article class="feature">
-            <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 8.8c0 5.2-8.8 11-8.8 11s-8.8-5.8-8.8-11A4.8 4.8 0 0 1 12 6.4a4.8 4.8 0 0 1 8.8 2.4Z"/></svg></div>
-            <h3>关注与历史</h3><p>喜欢的主播，随时继续看。</p>
-          </article>
-          <article class="feature">
-            <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 9h8M8 13h5"/></svg></div>
-            <h3>多设备支持</h3><p>手机、平板与 Android TV。</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="platforms">
-      <div class="container">
-        <div class="section-head">
-          <span class="section-kicker">Platforms</span>
-          <h2>多种设备，自由选择。</h2>
-        </div>
-        <div class="platforms">
-          <article class="platform">
-            <div class="platform-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M10 18h4"/></svg></div>
-            <div><h3>Android</h3><p>手机 / 平板</p></div>
-          </article>
-          <article class="platform">
-            <div class="platform-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 22h8m-4-4v4"/></svg></div>
-            <div><h3>Android TV</h3><p>电视 / 电视盒子</p></div>
-          </article>
-          <article class="platform">
-            <div class="platform-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M11 18h2"/></svg></div>
-            <div><h3>iOS / iPadOS</h3><p>iPhone / iPad</p></div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section white" id="download">
-      <div class="container">
-        <div class="download-panel">
-          <div class="download-top">
-            <div><span class="section-kicker">Download</span><h2>选择你的设备版本。</h2></div>
-            <span class="version-pill">APP 2.0.4　·　TV 2.0.5</span>
+        <div class="showcase-art reveal reveal-delay-1">
+          <div class="art-wash"></div>
+          <div class="phone-stage">
+            <div class="phone secondary-phone">
+              <div class="phone-notch"></div><div class="phone-screen">
+                <div class="phone-head">我的关注 <small>最近更新</small></div>
+                <div class="phone-search">⌕　搜索已关注的主播</div>
+                <div class="phone-grid">
+                  <div class="phone-tile"><div class="phone-cover"></div><b>直播间 A</b><small>正在直播</small></div>
+                  <div class="phone-tile"><div class="phone-cover"></div><b>直播间 B</b><small>正在直播</small></div>
+                  <div class="phone-tile"><div class="phone-cover"></div><b>直播间 C</b><small>暂未开播</small></div>
+                  <div class="phone-tile"><div class="phone-cover"></div><b>直播间 D</b><small>正在直播</small></div>
+                </div>
+                <div class="phone-bottom"><span>推荐</span><span>关注</span><span>历史</span><span>我的</span></div>
+              </div>
+            </div>
+            <div class="phone primary-phone">
+              <div class="phone-notch"></div><div class="phone-screen">
+                <div class="phone-head">发现直播 <small>为你推荐</small></div>
+                <div class="phone-search">⌕　搜索主播 / 房间</div>
+                <div class="phone-tabs"><span>推荐</span><span>热门</span><span>游戏</span><span>娱乐</span></div>
+                <div class="phone-grid">
+                  <div class="phone-tile"><div class="phone-cover"></div><b>精彩直播内容</b><small>主播 · 平台</small></div>
+                  <div class="phone-tile"><div class="phone-cover"></div><b>正在进行的直播</b><small>主播 · 平台</small></div>
+                  <div class="phone-tile"><div class="phone-cover"></div><b>发现更多精彩</b><small>主播 · 平台</small></div>
+                  <div class="phone-tile"><div class="phone-cover"></div><b>关注喜欢的内容</b><small>主播 · 平台</small></div>
+                </div>
+                <div class="phone-bottom"><span>推荐</span><span>关注</span><span>历史</span><span>我的</span></div>
+              </div>
+            </div>
           </div>
-          <div class="download-grid">
-            <article class="download-card">
-              <div class="download-card-head"><div class="platform-icon">📱</div><h3>Android 手机</h3></div>
-              <p>推荐 ARM64 版本</p>
-              <a class="button" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.4_tv_2.0.5/simple-live-app-v2.0.4-arm64-v8a.apk">下载 APK ↗</a>
-              <div class="alt-downloads"><a href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.4_tv_2.0.5/simple-live-app-v2.0.4-armeabi-v7a.apk">ARMv7</a><a href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.4_tv_2.0.5/simple-live-app-v2.0.4-x86_64.apk">x86_64</a></div>
-            </article>
-            <article class="download-card">
-              <div class="download-card-head"><div class="platform-icon">📺</div><h3>Android TV</h3></div>
-              <p>推荐 ARM64 版本</p>
-              <a class="button" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.4_tv_2.0.5/simple-live-tv-v2.0.5-arm64-v8a.apk">下载 APK ↗</a>
-              <div class="alt-downloads"><a href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.4_tv_2.0.5/simple-live-tv-v2.0.5-armeabi-v7a.apk">ARMv7</a><a href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.4_tv_2.0.5/simple-live-tv-v2.0.5-x86_64.apk">x86_64</a></div>
-            </article>
-            <article class="download-card">
-              <div class="download-card-head"><div class="platform-icon">🍎</div><h3>iOS / iPadOS</h3></div>
-              <p>未签名 IPA，需要自行签名</p>
-              <a class="button secondary" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.4_tv_2.0.5/simple-live-ios-ipados-v2.0.4-unsigned.ipa">下载 IPA ↗</a>
-            </article>
-          </div>
-          <div class="download-note">不确定设备架构？选择 ARM64 通常适用于较新的 Android 设备。<a href="https://github.com/vaeccc/dart_simple_live/releases/tag/release_2.0.4_tv_2.0.5" style="color:#245EA8;font-weight:750">查看全部版本与更新说明 ↗</a></div>
         </div>
       </div>
     </section>
 
-    <footer>
-      <div class="container footer-row">
-        <div><div class="footer-brand"><img src="https://raw.githubusercontent.com/vaeccc/dart_simple_live/master/assets/logo.png" alt=""> Simple Live</div><div class="footer-copy">简简单单地看直播。</div></div>
-        <div class="footer-links"><a href="https://github.com/vaeccc/dart_simple_live" target="_blank" rel="noreferrer">GitHub</a><a href="https://github.com/vaeccc/dart_simple_live/releases" target="_blank" rel="noreferrer">全部版本</a><a href="https://github.com/vaeccc/dart_simple_live/blob/master/LICENSE" target="_blank" rel="noreferrer">开源许可</a></div>
+    <section class="feature-band">
+      <div class="container">
+        <div class="feature-intro reveal">
+          <div><span class="showcase-kicker">Made for everyday watching</span><h2 class="showcase-title">少一点复杂，<br>多一点自在。</h2></div>
+          <p class="showcase-copy">常用功能恰到好处。界面保持清爽，想看的内容更容易找到。</p>
+        </div>
+        <div class="feature-line">
+          <article class="feature-item reveal"><div class="feature-symbol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></div><div><h3>多平台浏览</h3><p>常用直播内容集中呈现。</p></div></article>
+          <article class="feature-item reveal reveal-delay-1"><div class="feature-symbol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v14H4zM8 9h8M8 13h5"/></svg></div><div><h3>快速搜索</h3><p>通过主播或房间信息查找。</p></div></article>
+          <article class="feature-item reveal reveal-delay-2"><div class="feature-symbol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 8.8c0 5.2-8.8 11-8.8 11s-8.8-5.8-8.8-11A4.8 4.8 0 0 1 12 6.4a4.8 4.8 0 0 1 8.8 2.4Z"/></svg></div><div><h3>关注与历史</h3><p>喜欢的直播间，随时接着看。</p></div></article>
+          <article class="feature-item reveal reveal-delay-3"><div class="feature-symbol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18v12H3zM8 22h8m-4-4v4"/></svg></div><div><h3>多端体验</h3><p>手机、平板与电视设备。</p></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="showcase" id="platforms">
+      <div class="container showcase-split reverse">
+        <div class="showcase-art reveal">
+          <div class="art-wash"></div>
+          <div class="device-stage">
+            <div class="device-glow"></div>
+            <div class="tablet">
+              <div class="tablet-screen">
+                <div class="tablet-top">Simple Live <span>发现 · 推荐 · 关注</span></div>
+                <div class="tablet-content">
+                  <div class="tablet-card"><div class="phone-cover"></div><b>直播内容精选</b><small>正在直播</small></div>
+                  <div class="tablet-card"><div class="phone-cover"></div><b>人气直播间</b><small>正在直播</small></div>
+                  <div class="tablet-card"><div class="phone-cover"></div><b>为你推荐</b><small>正在直播</small></div>
+                </div>
+              </div>
+            </div>
+            <div class="tv-device"><div class="tv-screen"><b>Simple Live · TV</b><div class="tv-row"><i></i><i></i><i></i></div></div></div>
+          </div>
+        </div>
+        <div class="showcase-text reveal reveal-delay-1">
+          <span class="showcase-kicker">Across your screens</span>
+          <h2 class="showcase-title">从掌上到客厅，<br>都能轻松观看。</h2>
+          <p class="showcase-copy">为不同屏幕准备合适的版本。手机上随手浏览，在电视上享受大屏体验。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="download-showcase" id="download">
+      <div class="container">
+        <div class="download-inner reveal">
+          <div class="download-heading">
+            <div><span class="showcase-kicker">Get Simple Live</span><h2 class="showcase-title">准备好开始了吗？</h2></div>
+            <p>选择你的设备，获取对应版本。</p>
+          </div>
+          <div class="download-options">
+            <article class="download-option">
+              <div class="download-option-head"><div class="download-option-icon">▯</div><div><h3>Android 手机</h3><small>APP · v2.0.6</small></div></div>
+              <a class="button" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.6_tv_2.0.6/simple-live-app-v2.0.6-arm64-v8a.apk">下载 APK ↗</a>
+            </article>
+            <article class="download-option">
+              <div class="download-option-head"><div class="download-option-icon">▣</div><div><h3>Android TV</h3><small>TV · v2.0.6</small></div></div>
+              <a class="button" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.6_tv_2.0.6/simple-live-tv-v2.0.6-arm64-v8a.apk">下载 APK ↗</a>
+            </article>
+            <article class="download-option">
+              <div class="download-option-head"><div class="download-option-icon">⌘</div><div><h3>iOS / iPadOS</h3><small>IPA · v2.0.6 · 未签名</small></div></div>
+              <a class="button secondary" href="https://github.com/vaeccc/dart_simple_live/releases/download/release_2.0.6_tv_2.0.6/simple-live-ios-ipados-v2.0.6-unsigned.ipa">获取 IPA ↗</a>
+            </article>
+          </div>
+          <div class="download-more"><span>需要其他架构或历史版本？</span><a href="https://github.com/vaeccc/dart_simple_live/releases" target="_blank" rel="noreferrer">查看全部版本与更新记录 ↗</a></div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div class="container site-footer-row">
+        <div><div class="site-footer-brand"><img src="https://raw.githubusercontent.com/vaeccc/dart_simple_live/master/assets/logo.png" alt=""> Simple Live</div><div class="site-footer-note">简简单单地看直播。</div></div>
+        <div class="site-footer-links"><a href="https://github.com/vaeccc/dart_simple_live" target="_blank" rel="noreferrer">GitHub</a><a href="https://github.com/vaeccc/dart_simple_live/releases" target="_blank" rel="noreferrer">版本记录</a><a href="https://github.com/vaeccc/dart_simple_live/blob/master/LICENSE" target="_blank" rel="noreferrer">开源许可</a></div>
       </div>
     </footer>
-  </main>
   <script>
     const toggle=document.getElementById("menu-toggle");
     const nav=document.getElementById("nav-links");
@@ -306,6 +470,20 @@
       nav.classList.remove("open");
       toggle.setAttribute("aria-expanded","false");
     }));
+    const revealItems=document.querySelectorAll(".reveal");
+    if("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+      const observer=new IntersectionObserver(entries=>{
+        entries.forEach(entry=>{
+          if(entry.isIntersecting){
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },{threshold:0.14,rootMargin:"0px 0px -35px 0px"});
+      revealItems.forEach(item=>observer.observe(item));
+    }else{
+      revealItems.forEach(item=>item.classList.add("is-visible"));
+    }
   </script>
 </body>
 </html>
