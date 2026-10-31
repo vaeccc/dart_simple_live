@@ -663,7 +663,23 @@ class YySite extends LiveSite {
       queryParameters: const {'source': 'pc', 'callback': 'jsonp3'},
       header: _requestHeaders(referer: '$_baseUrl/$roomId'),
     );
-    return parseHlsResponse(response);
+    final stream = parseHlsResponse(response);
+    if (stream.urls.isEmpty) return stream;
+
+    // YY sometimes returns a signed HLS URL even though its CDN responds with
+    // 404. Passing that URL to the player causes a black screen and repeated
+    // refreshes, so check the playlist before offering it as a play line.
+    final playlist = await HttpClient.instance.getText(
+      stream.urls.first,
+      header: _requestHeaders(
+        referer: '$_baseUrl/$roomId',
+        includeOrigin: true,
+      ),
+    );
+    if (!playlist.trimLeft().startsWith('#EXTM3U')) {
+      throw const FormatException('YY HLS 播放列表无效');
+    }
+    return stream;
   }
 
   Future<YyStreamData> _getFlvStreams(String roomId) async {
