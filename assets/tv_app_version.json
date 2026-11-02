@@ -1,7 +1,7 @@
 {
-    "version": "2.0.6",
-    "version_num": 20006,
-    "version_desc": "- 验证 YY 播放列表有效后再开始播放，避免失效地址反复重试",
+    "version": "2.0.7",
+    "version_num": 20007,
+    "version_desc": "- 修复 YY 直播状态误判\n- 改善关注列表状态刷新\n- 播放中断时避免误显示未开播",
   "prerelease": false,
   "download_url": "https://github.com/vaeccc/dart_simple_live/releases"
 }

@@ -76,7 +76,7 @@ class YySite extends LiveSite {
   }
 
   /// Parses a stream-manager JSON response into FLV lines.
-  /// A successful response without a line means the room is offline.
+  /// A successful response without a line does not establish live status.
   static YyStreamData parseStreamResponse(dynamic response) {
     if (response is! Map) {
       throw const FormatException('YY stream-manager 返回的不是 JSON 对象');
@@ -109,8 +109,7 @@ class YySite extends LiveSite {
   /// Parses the JSONP payload returned by YY's mobile HLS endpoint.
   ///
   /// Unlike stream-manager, this endpoint returns a ready-to-play playlist and
-  /// has proved more reliable on mobile networks. `hls: 0` means the room is
-  /// offline.
+  /// has proved more reliable on mobile networks. `hls: 0` means no HLS URL.
   static YyStreamData parseHlsResponse(String payload) {
     final value = payload.trim();
     final start = value.indexOf('(');
@@ -127,6 +126,22 @@ class YySite extends LiveSite {
       return const YyStreamData(urls: []);
     }
     return YyStreamData(urls: [hls]);
+  }
+
+  /// YY returns a live detail object, or null for a room without a live broadcast.
+  static bool parseLiveStatus(dynamic response) {
+    if (response is! Map ||
+        response['resultCode']?.toString() != '0' ||
+        !response.containsKey('data')) {
+      throw const FormatException('YY 直播状态响应异常');
+    }
+    final data = response['data'];
+    if (data == null) return false;
+    if (data is! Map ||
+        !RegExp(r'^\d+$').hasMatch(data['sid']?.toString() ?? '')) {
+      throw const FormatException('YY 直播状态数据异常');
+    }
+    return true;
   }
 
   @override
@@ -510,12 +525,8 @@ class YySite extends LiveSite {
     final parsedRoomId = parseRoomId(roomId);
     CoreLog.d('[YY] roomId=$parsedRoomId');
     final pageData = await _getRoomPage(parsedRoomId);
-    final streamData = await _getStreams(pageData.roomId);
-    final status = streamData.urls.isNotEmpty;
-    CoreLog.d(
-      '[YY] room status=${status ? 'live' : 'offline'}, '
-      'stream count=${streamData.urls.length}',
-    );
+    final status = await _getLiveStatus(pageData.roomId);
+    CoreLog.d('[YY] room status=${status ? 'live' : 'offline'}');
 
     return LiveRoomDetail(
       roomId: pageData.roomId,
@@ -525,30 +536,36 @@ class YySite extends LiveSite {
       userAvatar: pageData.userAvatar,
       online: 0,
       status: status,
-      data: streamData,
       url: '$_baseUrl/${pageData.roomId}',
     );
   }
 
   @override
   Future<bool> getLiveStatus({required String roomId}) async {
-    final detail = await getRoomDetail(roomId: roomId);
-    return detail.status;
+    final page = await _getRoomPage(parseRoomId(roomId));
+    return _getLiveStatus(page.roomId);
+  }
+
+  Future<bool> _getLiveStatus(String roomId) async {
+    final response = await HttpClient.instance.getJson(
+      '$_baseUrl/api/liveInfoDetail/$roomId/$roomId/0',
+      header: _requestHeaders(referer: '$_baseUrl/$roomId'),
+    );
+    return parseLiveStatus(response);
   }
 
   @override
   Future<List<LivePlayQuality>> getPlayQualites({
     required LiveRoomDetail detail,
-  }) {
-    final streamData = detail.data;
-    if (streamData is! YyStreamData || streamData.urls.isEmpty) {
-      return Future.value([]);
-    }
+  }) async {
+    if (!detail.status) return [];
+    final streamData = await _getStreams(detail.roomId);
+    if (streamData.urls.isEmpty) return [];
     // stream-manager does not expose a stable display label in every response.
     // Keep one extensible default quality rather than hard-coding bitrates.
-    return Future.value([
+    return [
       LivePlayQuality(quality: '默认', data: List<String>.from(streamData.urls)),
-    ]);
+    ];
   }
 
   @override
@@ -635,8 +652,7 @@ class YySite extends LiveSite {
     }.toList();
 
     if (urls.isEmpty && attempts.any((attempt) => attempt.error != null)) {
-      // An empty successful response from both endpoints means offline. If an
-      // endpoint failed, the live state could not be verified reliably.
+      // Surface endpoint failures; live status is obtained separately.
       throw StateError('YY 播放地址接口暂时不可用');
     }
     return YyStreamData(urls: urls);

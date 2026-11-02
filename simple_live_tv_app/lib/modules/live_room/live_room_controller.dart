@@ -320,7 +320,8 @@ class LiveRoomController extends PlayerController with WidgetsBindingObserver {
       if (currentLineIndex + 1 < playUrls.length) {
         await changePlayLine(currentLineIndex + 1);
       } else {
-        liveStatus.value = false;
+        errorMsg.value = "播放中断，请刷新重试";
+        SmartDialog.showToast(errorMsg.value);
       }
     } finally {
       _handlingMediaFailure = false;

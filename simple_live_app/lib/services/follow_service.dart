@@ -144,14 +144,22 @@ class FollowService extends GetxService {
   Future<void> loadData({bool updateStatus = true}) async {
     var list = DBService.instance.getFollowList();
     getAllTagList();
+    final wasUpdating = updating.value;
+    if (wasUpdating) {
+      _updateGeneration++;
+      updating.value = false;
+    }
     if (list.isEmpty) {
       updating.value = false;
       followList.assignAll(list);
+      filterData();
       return;
     }
     followList.assignAll(list);
-    if (updateStatus) {
+    if (updateStatus || wasUpdating) {
       startUpdateStatus();
+    } else {
+      filterData();
     }
   }
 
@@ -253,15 +261,23 @@ class FollowService extends GetxService {
       item.liveStatus.value = isLiving ? 2 : 1;
       if (item.liveStatus.value == 2) {
         // 只有正在直播时才查详细信息
-        var detail = await _requestWithRetry(
-          () => site.liveSite.getRoomDetail(roomId: item.roomId),
-        );
-        if (generation != _updateGeneration || !followList.contains(item)) return;
-        item.roomDetail.value = detail;
-        item.liveStartTime = detail.showTime;
-        if (detail.title.isNotEmpty && item.roomTitle != detail.title) {
-          item.roomTitle = detail.title;
-          await DBService.instance.addFollow(item);
+        try {
+          var detail = await _requestWithRetry(
+            () => site.liveSite.getRoomDetail(roomId: item.roomId),
+          );
+          if (generation != _updateGeneration || !followList.contains(item)) return;
+          item.roomDetail.value = detail;
+          item.liveStartTime = detail.showTime;
+          if (detail.title.isNotEmpty && item.roomTitle != detail.title) {
+            item.roomTitle = detail.title;
+            await DBService.instance.addFollow(item);
+          }
+        } catch (e) {
+          // A failed detail request does not invalidate a confirmed live state.
+          Log.logPrint(e);
+          if (generation != _updateGeneration || !followList.contains(item)) return;
+          item.roomDetail.value = null;
+          item.liveStartTime = null;
         }
       } else {
         if (generation != _updateGeneration || !followList.contains(item)) return;

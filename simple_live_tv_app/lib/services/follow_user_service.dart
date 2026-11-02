@@ -62,12 +62,18 @@ class FollowUserService extends BasePageController<FollowUser> {
     }
 
     var followList = DBService.instance.getFollowList();
-    if (needUpdate) {
+    final wasUpdating = updating.value;
+    if (wasUpdating) {
+      _updateGeneration++;
+      updating.value = false;
+    }
+    if (needUpdate || wasUpdating) {
       startUpdateStatus(followList);
     }
     needUpdate = true;
     if (followList.isEmpty) {
       updating.value = false;
+      livingList.clear();
     }
     return followList;
   }

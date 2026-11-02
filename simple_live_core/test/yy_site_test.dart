@@ -1,10 +1,54 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:simple_live_core/simple_live_core.dart';
+import 'package:simple_live_core/src/common/http_client.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('room status and details do not request playback streams', () async {
+    final requests = <String>[];
+    final dio = HttpClient.instance.dio;
+    final interceptor = InterceptorsWrapper(
+      onRequest: (options, handler) {
+        requests.add(options.uri.toString());
+        if (options.uri.path == '/12345678') {
+          handler.resolve(
+            Response(
+              requestOptions: options,
+              data: File('test/fixtures/yy_room_page.html').readAsStringSync(),
+            ),
+          );
+        } else if (options.uri.path ==
+            '/api/liveInfoDetail/12345678/12345678/0') {
+          handler.resolve(
+            Response(
+              requestOptions: options,
+              data: {
+                'resultCode': 0,
+                'data': {'sid': 12345678},
+              },
+            ),
+          );
+        } else {
+          handler.reject(DioException(requestOptions: options));
+        }
+      },
+    );
+    dio.interceptors.insert(0, interceptor);
+    addTearDown(() => dio.interceptors.remove(interceptor));
+
+    final site = YySite();
+    expect(await site.getLiveStatus(roomId: '12345678'), isTrue);
+    expect((await site.getRoomDetail(roomId: '12345678')).status, isTrue);
+    expect(requests, hasLength(4));
+    expect(
+      requests.every((url) => Uri.parse(url).host == 'www.yy.com'),
+      isTrue,
+    );
+  });
+
   group('YySite.parseRoomId', () {
     test('accepts a direct numeric room id', () {
       expect(YySite.parseRoomId('12345678'), '12345678');
@@ -35,6 +79,23 @@ void main() {
   });
 
   group('YY response parsers', () {
+    test('uses room detail status independently of stream availability', () {
+      expect(
+        YySite.parseLiveStatus({
+          'resultCode': 0,
+          'data': {'sid': 22701868},
+        }),
+        isTrue,
+      );
+      expect(YySite.parseLiveStatus({'resultCode': 0, 'data': null}), isFalse);
+      for (final response in [
+        <String, dynamic>{},
+        {'resultCode': 1, 'data': null},
+        {'resultCode': 0, 'data': {}},
+      ]) {
+        expect(() => YySite.parseLiveStatus(response), throwsFormatException);
+      }
+    });
     test('parses the stable pageInfo fields', () {
       final fixture = File(
         'test/fixtures/yy_room_page.html',
@@ -65,11 +126,11 @@ void main() {
       ]);
     });
 
-    test('treats a disabled HLS response as offline', () {
+    test('treats a disabled HLS response as having no stream', () {
       expect(YySite.parseHlsResponse('jsonp3({"hls":0})').urls, isEmpty);
     });
 
-    test('treats a successful response without stream lines as offline', () {
+    test('treats a successful response without stream lines as empty', () {
       expect(YySite.parseStreamResponse({'result': 0}).urls, isEmpty);
       expect(YySite.parseStreamResponse({}).urls, isEmpty);
     });
