@@ -1,7 +1,7 @@
 {
-  "version": "2.0.7",
-  "version_num": 20007,
-  "version_desc": "- 修复 YY 直播状态误判\n- 改善关注列表状态刷新\n- 播放中断时避免误显示未开播",
+  "version": "2.0.8",
+  "version_num": 20008,
+  "version_desc": "- 修复 YY 最新版本无法读取播放清晰度的问题\n- 移除可能误判有效 HLS 地址的预检逻辑\n- 保留 2.0.7 的直播状态修复",
   "prerelease": false,
   "download_url": "https://github.com/vaeccc/dart_simple_live/releases"
 }
